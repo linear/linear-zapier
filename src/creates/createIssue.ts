@@ -1,31 +1,51 @@
-export const createIssue = {
-  operation: {
-    perform: {
-      body: {
-        query: `
-          mutation {
-            issueCreate(input: 
-              {
-                teamId: "{{bundle.inputData.team_id}}",
-                title: "{{bundle.inputData.title}}",
-                description: "{{bundle.inputData.description}}",
-                stateId: "{{bundle.inputData.status_id}}"
-                assigneeId: "{{bundle.inputData.assignee_id}}"
-              }
-            ) {
-              success
-            }
-          }`,
-      },
-      url: "https://api.linear.app/graphql",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        authorization: "{{bundle.authData.api_key}}",
-      },
-      params: { api_key: "{{bundle.authData.api_key}}" },
-      method: "POST",
+import { Bundle, ZObject } from "zapier-platform-core";
+
+const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
+  const query = `
+      mutation {
+        issueCreate(input: 
+          {
+            teamId: "${bundle.inputData.team_id}",
+            title: "${bundle.inputData.title}",
+            description: "${bundle.inputData.description}",
+            stateId: ${bundle.inputData.state_id ? `"${bundle.inputData.state_id}"` : "null"},
+            assigneeId: ${bundle.inputData.assignee_id ? `"${bundle.inputData.assignee_id}"` : "null"}
+          }
+        ) {
+          success
+        }
+      }`;
+
+  const response = await z.request({
+    url: "https://api.linear.app/graphql",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      authorization: bundle.authData.api_key,
     },
+    body: {
+      query,
+    },
+    method: "POST",
+  });
+  return response.json;
+};
+
+export const createIssue = {
+  key: "create_issue",
+
+  display: {
+    hidden: false,
+    important: true,
+    description: "Create an Issue",
+    label: "Create issue",
+  },
+
+  noun: "Issue",
+
+  operation: {
+    perform: createIssueRequest,
+
     inputFields: [
       {
         required: true,
@@ -64,12 +84,4 @@ export const createIssue = {
     ],
     sample: { data: { issueCreate: { success: true } } },
   },
-  noun: "Issue",
-  display: {
-    hidden: false,
-    important: true,
-    description: "Create an Issue",
-    label: "Create issue",
-  },
-  key: "create_issue",
 };

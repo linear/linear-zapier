@@ -4,7 +4,7 @@ import { team } from "./triggers/team";
 import { status } from "./triggers/status";
 import { user } from "./triggers/user";
 
-module.exports = {
+const App = {
   platformVersion: require("zapier-platform-core").version,
   creates: { [createIssue.key]: createIssue },
   triggers: {
@@ -13,5 +13,7 @@ module.exports = {
     [user.key]: user,
   },
   authentication: authentication,
-  version: require("./package.json").version,
+  version: require("../package.json").version,
 };
+
+export default App;
