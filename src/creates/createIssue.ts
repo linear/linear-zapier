@@ -1,6 +1,8 @@
 import { Bundle, ZObject } from "zapier-platform-core";
 
 const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
+  let labels = [bundle.inputData.label_1_id, bundle.inputData.label_2_id].filter(id => id !== undefined);
+
   const query = `
       mutation {
         issueCreate(input: 
@@ -9,7 +11,8 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
             title: "${bundle.inputData.title}",
             description: "${bundle.inputData.description}",
             stateId: ${bundle.inputData.state_id ? `"${bundle.inputData.state_id}"` : "null"},
-            assigneeId: ${bundle.inputData.assignee_id ? `"${bundle.inputData.assignee_id}"` : "null"}
+            assigneeId: ${bundle.inputData.assignee_id ? `"${bundle.inputData.assignee_id}"` : "null"},
+            labelIds: ${JSON.stringify(labels)}
           }
         ) {
           success
@@ -80,6 +83,20 @@ export const createIssue = {
         helpText: "The status of the issue",
         key: "status_id",
         dynamic: "status.id.name",
+      },
+      {
+        required: false,
+        label: "Label",
+        helpText: "Label for the issue",
+        key: "label_1_id",
+        dynamic: "label.id.name",
+      },
+      {
+        required: false,
+        label: "Label",
+        helpText: "Second label for the issue",
+        key: "label_2_id",
+        dynamic: "label.id.name",
       },
     ],
     sample: { data: { issueCreate: { success: true } } },
