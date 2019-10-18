@@ -16,8 +16,6 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
         }
       }`;
 
-  console.log(query);
-
   const response = await z.request({
     url: "https://api.linear.app/graphql",
     headers: {
