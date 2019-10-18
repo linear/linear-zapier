@@ -38,6 +38,7 @@ const getStatusList = async (z: ZObject, bundle: Bundle) => {
     },
     method: "POST",
   });
+  console.log(response.json);
   return (response.json as WorkflowStatesResponse).data.workflowStates.filter(
     status =>
       status.archivedAt === null &&
