@@ -1,4 +1,4 @@
-name: Node CI
+name: CI
 
 on: [push]
 
@@ -19,7 +19,6 @@ jobs:
       - name: yarn, build, and test
         run: |
           yarn
-          yarn build
           yarn test
         env:
           CI: true
