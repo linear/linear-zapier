@@ -3,19 +3,20 @@ import { Bundle, ZObject } from "zapier-platform-core";
 const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
   const priority = bundle.inputData.priority ? parseInt(bundle.inputData.priority) : 0;
 
+  const params = {
+    teamId: bundle.inputData.team_id,
+    title: bundle.inputData.title,
+    description: bundle.inputData.description,
+    priority: priority,
+    stateId: bundle.inputData.status_id,
+    assigneeId: bundle.inputData.assignee_id,
+    labelIds: bundle.inputData.labels || [],
+  };
+  const input = JSON.stringify(params).replace(/"([^(")"]+)":/g, "$1:");
+
   const query = `
       mutation {
-        issueCreate(input: 
-          {
-            teamId: "${bundle.inputData.team_id}",
-            title: "${bundle.inputData.title}",
-            description: "${bundle.inputData.description}",
-            priority: ${priority},
-            stateId: ${bundle.inputData.status_id ? `"${bundle.inputData.status_id}"` : "null"},
-            assigneeId: ${bundle.inputData.assignee_id ? `"${bundle.inputData.assignee_id}"` : "null"},
-            labelIds: ${JSON.stringify(bundle.inputData.labels || [])}
-          }
-        ) {
+        issueCreate(input: ${input}) {
           issue {
             id 
             title
@@ -39,6 +40,7 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
   });
 
   const data = response.json as { data: { issueCreate: { issue: { url: string }; success: boolean } } };
+
   if (data.data.issueCreate.success) {
     return data;
   } else {
@@ -106,13 +108,13 @@ export const createIssue = {
           { value: "4", sample: "4", label: "Low" },
         ],
       },
-      // {
-      //   label: "Labels",
-      //   helpText: "Tag the issue with labels",
-      //   key: "labels",
-      //   dynamic: "label.id.name",
-      //   list: true,
-      // },
+      {
+        label: "Labels",
+        helpText: "Tag the issue with labels",
+        key: "labels",
+        dynamic: "label.id.name",
+        list: true,
+      },
     ],
     sample: { data: { issueCreate: { success: true } } },
   },
