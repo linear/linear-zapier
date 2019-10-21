@@ -1,6 +1,6 @@
 {
   "name": "linear-zapier",
-  "version": "1.0.2",
+  "version": "1.1",
   "description": "Linear's Zapier integration",
   "main": "index.js",
   "scripts": {
