@@ -11,11 +11,16 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
             title: "${bundle.inputData.title}",
             description: "${bundle.inputData.description}",
             priority: ${priority},
-            stateId: ${bundle.inputData.state_id ? `"${bundle.inputData.state_id}"` : "null"},
+            stateId: ${bundle.inputData.status_id ? `"${bundle.inputData.status_id}"` : "null"},
             assigneeId: ${bundle.inputData.assignee_id ? `"${bundle.inputData.assignee_id}"` : "null"},
             labelIds: ${JSON.stringify(bundle.inputData.labels || [])}
           }
         ) {
+          issue {
+            id 
+            title
+            url
+          }
           success
         }
       }`;
@@ -32,13 +37,13 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
     },
     method: "POST",
   });
-  // console.log(response.json);
-  // if (response.json as any) {
-  //   return;
-  // } else {
-  //   throw new Error(`Failed to create an issue`);
-  // }
-  return response.json;
+
+  const data = response.json as { data: { issueCreate: { issue: { url: string }; success: boolean } } };
+  if (data.data.issueCreate.success) {
+    return data;
+  } else {
+    throw new Error(`Failed to create an issue`);
+  }
 };
 
 export const createIssue = {

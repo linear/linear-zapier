@@ -15,6 +15,10 @@ interface WorkflowStatesResponse {
 }
 
 const getStatusList = async (z: ZObject, bundle: Bundle) => {
+  if (!bundle.inputData.team_id) {
+    throw new Error(`Please select the team first`);
+  }
+
   const response = await z.request({
     url: "https://api.linear.app/graphql",
     headers: {
@@ -39,7 +43,8 @@ const getStatusList = async (z: ZObject, bundle: Bundle) => {
     method: "POST",
   });
 
-  return (response.json as WorkflowStatesResponse).data.workflowStates.filter(
+  const data = (response.json as WorkflowStatesResponse).data;
+  return data.workflowStates.filter(
     status =>
       status.archivedAt === null &&
       status.team.id === bundle.inputData.team_id &&
