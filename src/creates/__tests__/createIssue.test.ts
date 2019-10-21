@@ -17,6 +17,8 @@ describe("create create_issue", () => {
         description: "Test content",
         state_id: undefined,
         assignee_id: undefined,
+        labels: [],
+        priority: 4,
       },
     };
     // @ts-ignore
