@@ -3,14 +3,16 @@ import { ZObject, Bundle } from "zapier-platform-core";
 interface WorkflowStatesResponse {
   data: {
     workflowStates: {
-      id: string;
-      name: string;
-      type: string;
-      archivedAt: Date | null;
-      team: {
+      nodes: {
         id: string;
-      };
-    }[];
+        name: string;
+        type: string;
+        archivedAt: Date | null;
+        team: {
+          id: string;
+        };
+      }[];
+    };
   };
 }
 
@@ -29,13 +31,15 @@ const getStatusList = async (z: ZObject, bundle: Bundle) => {
     body: {
       query: `
       query {
-        workflowStates {
-          id
-          name
-          type
-          archivedAt
-          team {
+        workflowStates(first: 100) {
+          nodes {
             id
+            name
+            type
+            archivedAt
+            team {
+              id
+            }
           }
         }
       }`,
@@ -44,7 +48,7 @@ const getStatusList = async (z: ZObject, bundle: Bundle) => {
   });
 
   const data = (response.json as WorkflowStatesResponse).data;
-  return data.workflowStates.filter(
+  return data.workflowStates.nodes.filter(
     status =>
       status.archivedAt === null &&
       status.team.id === bundle.inputData.team_id &&

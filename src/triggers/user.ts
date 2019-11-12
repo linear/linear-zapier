@@ -3,11 +3,13 @@ import { ZObject, Bundle } from "zapier-platform-core";
 interface UsersResponse {
   data: {
     users: {
-      name: string;
-      displayName: string;
-      id: string;
-      active: boolean;
-    }[];
+      nodes: {
+        name: string;
+        displayName: string;
+        id: string;
+        active: boolean;
+      }[];
+    };
   };
 }
 
@@ -22,18 +24,20 @@ const getUserList = async (z: ZObject, bundle: Bundle) => {
     body: {
       query: `
       query {
-        users {
-          name
-          displayName
-          id
-          active
+        users(first: 100) {
+          nodes {
+            name
+            displayName
+            id
+            active
+          }
         }
       }
     `,
     },
     method: "POST",
   });
-  const users = (response.json as UsersResponse).data.users.filter(user => user.active === true);
+  const users = (response.json as UsersResponse).data.users.nodes.filter(user => user.active === true);
   return users.map(user => ({
     name: `${user.name} (${user.displayName})`,
     id: user.id,

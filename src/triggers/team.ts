@@ -3,10 +3,12 @@ import { ZObject, Bundle } from "zapier-platform-core";
 interface TeamResponse {
   data: {
     teams: {
-      id: string;
-      name: string;
-      archivedAt: Date | null;
-    }[];
+      nodes: {
+        id: string;
+        name: string;
+        archivedAt: Date | null;
+      }[];
+    };
   };
 }
 
@@ -18,10 +20,21 @@ const getTeamList = async (z: ZObject, bundle: Bundle) => {
       Accept: "application/json",
       authorization: bundle.authData.api_key,
     },
-    body: { query: "query { teams { id name archivedAt }}" },
+    body: {
+      query: `
+      query { 
+        teams(first: 100) { 
+          nodes {
+            id
+            name
+            archivedAt
+          }
+        }
+      }`,
+    },
     method: "POST",
   });
-  return (response.json as TeamResponse).data.teams.filter(team => team.archivedAt === null);
+  return (response.json as TeamResponse).data.teams.nodes.filter(team => team.archivedAt === null);
 };
 
 export const team = {
