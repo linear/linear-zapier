@@ -56,7 +56,7 @@ export const createIssue = {
     hidden: false,
     important: true,
     description: "Create a new issue in Linear",
-    label: "Create issue",
+    label: "Create Issue",
   },
 
   noun: "Issue",
