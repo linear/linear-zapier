@@ -1,19 +1,20 @@
 import { ZObject, Bundle } from "zapier-platform-core";
 
-interface LabelsResponse {
+interface TeamProjectsResponse {
   data: {
     team: {
-      labels: {
+      projects: {
         nodes: {
           id: string;
           name: string;
+          state: string;
         }[];
       };
     };
   };
 }
 
-const getLabelList = async (z: ZObject, bundle: Bundle) => {
+const getProjectList = async (z: ZObject, bundle: Bundle) => {
   if (!bundle.inputData.team_id) {
     throw new Error(`Please select the team first`);
   }
@@ -29,10 +30,11 @@ const getLabelList = async (z: ZObject, bundle: Bundle) => {
       query: `
       query {
         team(id: "${bundle.inputData.team_id}"){
-          labels(first:100) {
+          projects(first:100) {
             nodes {
               id
               name
+              state
             }
           }
         }
@@ -41,23 +43,22 @@ const getLabelList = async (z: ZObject, bundle: Bundle) => {
     method: "POST",
   });
 
-  const data = (response.json as LabelsResponse).data;
-
-  return data.team.labels.nodes;
+  const data = (response.json as TeamProjectsResponse).data;
+  return data.team.projects.nodes.filter((project) => ["started", "planned", "paused"].indexOf(project.state) >= 0);
 };
 
-export const label = {
-  key: "label",
-  noun: "Label",
+export const project = {
+  key: "project",
+  noun: "Project",
 
   display: {
-    label: "Get issue label",
+    label: "Get issue project",
     hidden: true,
     description:
-      "The only purpose of this trigger is to populate the dropdown list of issue labels in the UI, thus, it's hidden.",
+      "The only purpose of this trigger is to populate the dropdown list of issue projects in the UI, thus, it's hidden.",
   },
 
   operation: {
-    perform: getLabelList,
+    perform: getProjectList,
   },
 };

@@ -1,17 +1,15 @@
 import { ZObject, Bundle } from "zapier-platform-core";
 
-interface WorkflowStatesResponse {
+interface TeamStatesResponse {
   data: {
-    workflowStates: {
-      nodes: {
-        id: string;
-        name: string;
-        type: string;
-        archivedAt: Date | null;
-        team: {
+    team: {
+      states: {
+        nodes: {
           id: string;
-        };
-      }[];
+          name: string;
+          type: string;
+        }[];
+      };
     };
   };
 }
@@ -31,29 +29,22 @@ const getStatusList = async (z: ZObject, bundle: Bundle) => {
     body: {
       query: `
       query {
-        workflowStates(first: 100) {
-          nodes {
-            id
-            name
-            type
-            archivedAt
-            team {
+        team(id: "${bundle.inputData.team_id}"){
+           states(first: 100) {
+            nodes {
               id
+              name
+              type
             }
-          }
+          } 
         }
       }`,
     },
     method: "POST",
   });
 
-  const data = (response.json as WorkflowStatesResponse).data;
-  return data.workflowStates.nodes.filter(
-    status =>
-      status.archivedAt === null &&
-      status.team.id === bundle.inputData.team_id &&
-      ["backlog", "unstarted", "started"].indexOf(status.type) >= 0
-  );
+  const data = (response.json as TeamStatesResponse).data;
+  return data.team.states.nodes.filter((status) => ["backlog", "unstarted", "started"].indexOf(status.type) >= 0);
 };
 
 export const status = {

@@ -10,6 +10,7 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
     priority: priority,
     stateId: bundle.inputData.status_id,
     assigneeId: bundle.inputData.assignee_id,
+    projectId: bundle.inputData.project_id,
     labelIds: bundle.inputData.labels || [],
   };
   const input = JSON.stringify(params).replace(/"([^(")"]+)":/g, "$1:");
@@ -114,6 +115,12 @@ export const createIssue = {
         key: "labels",
         dynamic: "label.id.name",
         list: true,
+      },
+      {
+        label: "Project",
+        helpText: "The issue project",
+        key: "project_id",
+        dynamic: "project.id.name",
       },
     ],
     sample: { data: { issueCreate: { success: true } } },
