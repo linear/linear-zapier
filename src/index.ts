@@ -1,4 +1,4 @@
-import { authentication } from "./authentication";
+import { addBearerHeader, authentication } from "./authentication";
 import { createIssue } from "./creates/createIssue";
 import { team } from "./triggers/team";
 import { status } from "./triggers/status";
@@ -16,7 +16,8 @@ const App = {
     [label.key]: label,
     [user.key]: user,
   },
-  authentication: authentication,
+  authentication,
+  beforeRequest: [addBearerHeader],
   version: require("../package.json").version,
 };
 

@@ -42,7 +42,7 @@ const testAuth = async (z: ZObject, bundle: Bundle) => {
 };
 
 export const authentication = {
-  type: "custom",
+  type: "oauth2",
 
   test: testAuth,
 
@@ -50,16 +50,47 @@ export const authentication = {
     const data = bundle.inputData.data;
     return `${data.user.name} (${data.user.email})`;
   },
-
-  fields: [
-    {
-      required: true,
-      label: "API Key",
-      helpText: "Enter the value for one of your API Keys that you have created in https://linear.app/settings/api",
-      key: "api_key",
-      type: "password",
+  // you can provide additional fields for inclusion in authData
+  oauth2Config: {
+    // "authorizeUrl" could also be a function returning a string url
+    authorizeUrl: {
+      method: 'GET',
+      url:
+        'https://linear.app/oauth/authorize',
+      params: {
+        client_id: '{{process.env.CLIENT_ID}}',
+        state: '{{bundle.inputData.state}}',
+        redirect_uri: '{{bundle.inputData.redirect_uri}}',
+        response_type: 'code',
+        scope: 'read,issues:create',
+      },
     },
-  ],
+    // Zapier expects a response providing {access_token: 'abcd'}
+    // "getAccessToken" could also be a function returning an object
+    getAccessToken: {
+      method: 'POST',
+      url:
+        'https://api.linear.app/oauth/token',
+      body: {
+        code: '{{bundle.inputData.code}}',
+        client_id: '{{process.env.CLIENT_ID}}',
+        client_secret: '{{process.env.CLIENT_SECRET}}',
+        redirect_uri: '{{bundle.inputData.redirect_uri}}',
+        grant_type: 'authorization_code',
+      },
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    },
+    scope: 'read,issues:create',
+  },
 
   customConfig: {},
+};
+
+export const addBearerHeader = (request: Request, z: ZObject, bundle: Bundle) => {
+  if (bundle.authData && bundle.authData.access_token) {
+    (request.headers as any)['Authorization'] = `Bearer ${bundle.authData.access_token}`;
+  }
+  return request;
 };

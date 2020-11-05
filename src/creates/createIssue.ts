@@ -3,7 +3,7 @@ import { Bundle, ZObject } from "zapier-platform-core";
 const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
   const priority = bundle.inputData.priority ? parseInt(bundle.inputData.priority) : 0;
 
-  const params = {
+  const variables = {
     teamId: bundle.inputData.team_id,
     title: bundle.inputData.title,
     description: bundle.inputData.description,
@@ -13,11 +13,26 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
     projectId: bundle.inputData.project_id,
     labelIds: bundle.inputData.labels || [],
   };
-  const input = JSON.stringify(params).replace(/"([^(")"]+)":/g, "$1:");
 
   const query = `
-      mutation {
-        issueCreate(input: ${input}) {
+      mutation IssueCreate(
+        $teamId: String!,
+        $title: String!,
+        $description: String,
+        $stateId: String,
+        $assigneeId: String,
+        $projectId: String,
+        $labelIds: [String!],
+      ) {
+        issueCreate(input: {
+          teamId: $teamId,
+          title: $title,
+          description: $description,
+          stateId: $stateId,
+          assigneeId: $assigneeId,
+          projectId: $projectId,
+          labelIds: $labelIds
+        }) {
           issue {
             id 
             title
@@ -36,6 +51,7 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
     },
     body: {
       query,
+      variables,
     },
     method: "POST",
   });
