@@ -126,7 +126,7 @@ const buildIssueList = (orderBy: 'createdAt' |'updatedAt') => async (z: ZObject,
 
   return issues.map(issue=>({
     ...issue,
-    id: z.hash('md5', issue.id + issue[orderBy]),
+    id: `${issue.id}-${issue[orderBy]}`,
     issueId: issue.id
   }));
 };
