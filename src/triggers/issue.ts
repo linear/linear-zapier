@@ -183,9 +183,9 @@ const issue = {
         dynamic: "project.id.name",
         altersDynamicFields: true,
       },
-    ]
+    ],
+    sample
   },
-  sample
 };
 
 export const newIssue = {
