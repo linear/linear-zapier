@@ -3,6 +3,7 @@
   "version": "1.4.0",
   "description": "Linear's Zapier integration",
   "main": "index.js",
+  "license": "MIT",
   "scripts": {
     "zapier-build": "tsc",
     "zapier-dev": "tsc --watch",
@@ -10,7 +11,8 @@
     "zapier-push": "npm run zapier-build && zapier push",
     "prepare": "npm run zapier-build",
     "pretest": "npm run zapier-build",
-    "test": "jest lib"
+    "test": "jest lib",
+    "prettier": "npx prettier --write **/*.{json,ts,js}"
   },
   "engines": {
     "npm": ">=5.6.0"
@@ -23,6 +25,5 @@
     "@types/node": "^12.11.1",
     "jest": "^24.9.0",
     "typescript": "^3.6.4"
-  },
-  "private": true
+  }
 }

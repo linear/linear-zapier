@@ -54,35 +54,33 @@ export const authentication = {
   oauth2Config: {
     // "authorizeUrl" could also be a function returning a string url
     authorizeUrl: {
-      method: 'GET',
-      url:
-        'https://linear.app/oauth/authorize',
+      method: "GET",
+      url: "https://linear.app/oauth/authorize",
       params: {
-        client_id: '{{process.env.CLIENT_ID}}',
-        state: '{{bundle.inputData.state}}',
-        redirect_uri: '{{bundle.inputData.redirect_uri}}',
-        response_type: 'code',
-        scope: 'read,issues:create',
+        client_id: "{{process.env.CLIENT_ID}}",
+        state: "{{bundle.inputData.state}}",
+        redirect_uri: "{{bundle.inputData.redirect_uri}}",
+        response_type: "code",
+        scope: "read,issues:create",
       },
     },
     // Zapier expects a response providing {access_token: 'abcd'}
     // "getAccessToken" could also be a function returning an object
     getAccessToken: {
-      method: 'POST',
-      url:
-        'https://api.linear.app/oauth/token',
+      method: "POST",
+      url: "https://api.linear.app/oauth/token",
       body: {
-        code: '{{bundle.inputData.code}}',
-        client_id: '{{process.env.CLIENT_ID}}',
-        client_secret: '{{process.env.CLIENT_SECRET}}',
-        redirect_uri: '{{bundle.inputData.redirect_uri}}',
-        grant_type: 'authorization_code',
+        code: "{{bundle.inputData.code}}",
+        client_id: "{{process.env.CLIENT_ID}}",
+        client_secret: "{{process.env.CLIENT_SECRET}}",
+        redirect_uri: "{{bundle.inputData.redirect_uri}}",
+        grant_type: "authorization_code",
       },
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        "Content-Type": "application/x-www-form-urlencoded",
       },
     },
-    scope: 'read,issues:create',
+    scope: "read,issues:create",
   },
 
   customConfig: {},
@@ -90,7 +88,7 @@ export const authentication = {
 
 export const addBearerHeader = (request: Request, z: ZObject, bundle: Bundle) => {
   if (bundle.authData && bundle.authData.access_token) {
-    (request.headers as any)['Authorization'] = `Bearer ${bundle.authData.access_token}`;
+    (request.headers as any)["Authorization"] = `Bearer ${bundle.authData.access_token}`;
   }
   return request;
 };
