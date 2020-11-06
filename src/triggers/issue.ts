@@ -1,3 +1,4 @@
+import sample from '../samples/issue.json'
 import { ZObject, Bundle } from "zapier-platform-core";
 
 interface TeamIssuesResponse {
@@ -184,6 +185,7 @@ const issue = {
       },
     ]
   },
+  sample
 };
 
 export const newIssue = {

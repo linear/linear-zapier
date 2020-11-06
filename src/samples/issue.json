@@ -1,0 +1,25 @@
+{
+  "id": "dbb942a5-cb3e-4dd0-a4bb-34711761f6ab",
+  "title": "Zapier sample",
+  "description": null,
+  "priority": 0,
+  "estimate": null,
+  "dueDate": null,
+  "createdAt": "2020-10-27T21:20:59.199Z",
+  "updatedAt": "2020-10-27T21:20:59.199Z",
+  "creator": {
+    "id": "df2b39ba-3dfd-4b75-9ce2-2be2d1c79a2b",
+    "name": "Zapier User",
+    "email": "user@example.com"
+  },
+  "assignee": null,
+  "state": {
+    "id": "12fcb833-3834-4139-9e7e-687042d2b4f0",
+    "name": "Backlog",
+    "type": "backlog"
+  },
+  "labels": {
+    "nodes": []
+  },
+  "project": null
+}
