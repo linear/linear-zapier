@@ -44,7 +44,7 @@ const getStatusList = async (z: ZObject, bundle: Bundle) => {
   });
 
   const data = (response.json as TeamStatesResponse).data;
-  return data.team.states.nodes.filter((status) => ["backlog", "unstarted", "started"].indexOf(status.type) >= 0);
+  return data.team.states.nodes;
 };
 
 export const status = {

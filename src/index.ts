@@ -1,5 +1,6 @@
 import { addBearerHeader, authentication } from "./authentication";
 import { createIssue } from "./creates/createIssue";
+import {  newIssue, updatedIssue } from "./triggers/issue";
 import { team } from "./triggers/team";
 import { status } from "./triggers/status";
 import { label } from "./triggers/label";
@@ -10,6 +11,8 @@ const App = {
   platformVersion: require("zapier-platform-core").version,
   creates: { [createIssue.key]: createIssue },
   triggers: {
+    [newIssue.key]: newIssue,
+    [updatedIssue.key]: updatedIssue,
     [team.key]: team,
     [status.key]: status,
     [project.key]: project,
