@@ -7,6 +7,8 @@ interface TeamIssuesResponse {
       issues: {
         nodes: {
           id: string;
+          identifier: string;
+          url: string;
           title: string;
           description: string;
           priority:string;
@@ -64,6 +66,8 @@ const buildIssueList = (orderBy: 'createdAt' |'updatedAt') => async (z: ZObject,
            issues(first: 50, orderBy: ${orderBy}) {
             nodes {
               id
+              identifier
+              url
               title
               description
               priority

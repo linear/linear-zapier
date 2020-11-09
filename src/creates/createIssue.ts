@@ -35,6 +35,7 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
         }) {
           issue {
             id 
+            identifier
             title
             url
           }
