@@ -1,5 +1,15 @@
 import { Bundle, ZObject } from "zapier-platform-core";
 
+interface CreateIssueRequestResponse {
+  data?: { issueCreate: { issue: { url: string }; success: boolean } };
+  errors?: {
+    message: string;
+    extensions?: {
+      userPresentableMessage?: string;
+    };
+  }[];
+}
+
 const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
   const priority = bundle.inputData.priority ? parseInt(bundle.inputData.priority) : 0;
 
@@ -57,12 +67,22 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
     method: "POST",
   });
 
-  const data = response.json as { data: { issueCreate: { issue: { url: string }; success: boolean } } };
+  const data = response.json as CreateIssueRequestResponse;
 
-  if (data.data.issueCreate.success) {
+  if (data.errors && data.errors.length) {
+    const error = data.errors[0];
+    throw new z.errors.Error(
+      (error.extensions && error.extensions.userPresentableMessage) || error.message,
+      "invalid_input",
+      400
+    );
+  }
+
+  if (data.data && data.data.issueCreate && data.data.issueCreate.success) {
     return data;
   } else {
-    throw new Error(`Failed to create an issue`);
+    const error = data.errors ? data.errors[0].message : "Something went wrong";
+    throw new z.errors.Error(`Failed to create an issue`, error, 400);
   }
 };
 

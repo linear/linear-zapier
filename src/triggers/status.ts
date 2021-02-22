@@ -16,7 +16,7 @@ interface TeamStatesResponse {
 
 const getStatusList = async (z: ZObject, bundle: Bundle) => {
   if (!bundle.inputData.team_id) {
-    throw new Error(`Please select the team first`);
+    throw new z.errors.HaltedError(`Please select the team first`);
   }
 
   const response = await z.request({

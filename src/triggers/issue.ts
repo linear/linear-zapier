@@ -1,4 +1,4 @@
-import sample from '../samples/issue.json'
+import sample from "../samples/issue.json";
 import { ZObject, Bundle } from "zapier-platform-core";
 
 interface TeamIssuesResponse {
@@ -11,45 +11,45 @@ interface TeamIssuesResponse {
           url: string;
           title: string;
           description: string;
-          priority:string;
+          priority: string;
           estimate: number;
           dueDate: Date;
           createdAt: Date;
           updatedAt: Date;
           creator: {
-            id: string,
-            name: string,
-            email:string
-          },
+            id: string;
+            name: string;
+            email: string;
+          };
           assignee?: {
-            id: string,
-            name: string,
-            email:string
-          },
+            id: string;
+            name: string;
+            email: string;
+          };
           state: {
             id: string;
             name: string;
-            type: string
-          },
+            type: string;
+          };
           labels: {
             nodes: {
-              id: string,
-              name: string
-            }[],
-          },
+              id: string;
+              name: string;
+            }[];
+          };
           project?: {
-            id: string,
-            name: string
-          },
+            id: string;
+            name: string;
+          };
         }[];
       };
     };
   };
 }
 
-const buildIssueList = (orderBy: 'createdAt' |'updatedAt') => async (z: ZObject, bundle: Bundle) => {
+const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject, bundle: Bundle) => {
   if (!bundle.inputData.team_id) {
-    throw new Error(`Please select the team first`);
+    throw new z.errors.HaltedError(`Please select the team first`);
   }
 
   const response = await z.request({
@@ -109,29 +109,31 @@ const buildIssueList = (orderBy: 'createdAt' |'updatedAt') => async (z: ZObject,
   });
 
   const data = (response.json as TeamIssuesResponse).data;
-  let issues = data.team.issues.nodes
+  let issues = data.team.issues.nodes;
 
   // Filter by fields if set
   if (bundle.inputData.status_id) {
-    issues = issues.filter(issue=> issue.state.id === bundle.inputData.status_id)
+    issues = issues.filter((issue) => issue.state.id === bundle.inputData.status_id);
   }
   if (bundle.inputData.creator_id) {
-    issues = issues.filter(issue=> issue.creator.id === bundle.inputData.creator_id)
+    issues = issues.filter((issue) => issue.creator.id === bundle.inputData.creator_id);
   }
   if (bundle.inputData.assignee_id) {
-    issues = issues.filter(issue=> issue.assignee && issue.assignee.id === bundle.inputData.assignee_id)
+    issues = issues.filter((issue) => issue.assignee && issue.assignee.id === bundle.inputData.assignee_id);
   }
   if (bundle.inputData.label_id) {
-    issues = issues.filter(issue=> issue.labels.nodes.find(label => label.id === bundle.inputData.label_id) !== undefined)
+    issues = issues.filter(
+      (issue) => issue.labels.nodes.find((label) => label.id === bundle.inputData.label_id) !== undefined
+    );
   }
   if (bundle.inputData.project_id) {
-    issues = issues.filter(issue=> issue.project && issue.project.id === bundle.inputData.project_id)
+    issues = issues.filter((issue) => issue.project && issue.project.id === bundle.inputData.project_id);
   }
 
-  return issues.map(issue=>({
+  return issues.map((issue) => ({
     ...issue,
     id: `${issue.id}-${issue[orderBy]}`,
-    issueId: issue.id
+    issueId: issue.id,
   }));
 };
 
@@ -189,7 +191,7 @@ const issue = {
         altersDynamicFields: true,
       },
     ],
-    sample
+    sample,
   },
 };
 
@@ -198,25 +200,23 @@ export const newIssue = {
   key: "newIssue",
   display: {
     label: "New Issue",
-    description:
-      "Triggers when a new issues is created.",
+    description: "Triggers when a new issues is created.",
   },
   operation: {
     ...issue.operation,
-    perform: buildIssueList('createdAt'),
-  } 
-}
+    perform: buildIssueList("createdAt"),
+  },
+};
 
 export const updatedIssue = {
   ...issue,
   key: "updatedIssue",
   display: {
     label: "Updated Issue",
-    description:
-      "Triggers when an issue issue is updated.",
+    description: "Triggers when an issue issue is updated.",
   },
   operation: {
     ...issue.operation,
-    perform: buildIssueList('updatedAt'),
-  } 
-}
+    perform: buildIssueList("updatedAt"),
+  },
+};
