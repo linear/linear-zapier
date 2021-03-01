@@ -1,5 +1,6 @@
 import { addBearerHeader, authentication } from "./authentication";
 import { createIssue } from "./creates/createIssue";
+import { newComment } from "./triggers/comment";
 import { newIssue, updatedIssue } from "./triggers/issue";
 import { team } from "./triggers/team";
 import { status } from "./triggers/status";
@@ -7,6 +8,7 @@ import { label } from "./triggers/label";
 import { user } from "./triggers/user";
 import { project } from "./triggers/project";
 import { HttpResponse, ZObject } from "zapier-platform-core";
+import { createComment } from "./creates/createComment";
 
 const handleErrors = (response: HttpResponse, z: ZObject) => {
   z.console.log("handling errors", response.content);
@@ -29,10 +31,14 @@ const handleErrors = (response: HttpResponse, z: ZObject) => {
 
 const App = {
   platformVersion: require("zapier-platform-core").version,
-  creates: { [createIssue.key]: createIssue },
+  creates: {
+    [createIssue.key]: createIssue,
+    [createComment.key]: createComment,
+  },
   triggers: {
     [newIssue.key]: newIssue,
     [updatedIssue.key]: updatedIssue,
+    [newComment.key]: newComment,
     [team.key]: team,
     [status.key]: status,
     [project.key]: project,
