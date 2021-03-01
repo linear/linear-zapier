@@ -59,7 +59,7 @@ const createCommentRequest = async (z: ZObject, bundle: Bundle) => {
   }
 
   if (data.data && data.data.commentCreate && data.data.commentCreate.success) {
-    return data;
+    return data.data.commentCreate.comment;
   } else {
     const error = data.errors ? data.errors[0].message : "Something went wrong";
     throw new z.errors.Error(`Failed to create a comment`, error, 400);

@@ -61,7 +61,7 @@ export const authentication = {
         state: "{{bundle.inputData.state}}",
         redirect_uri: "{{bundle.inputData.redirect_uri}}",
         response_type: "code",
-        scope: "read,issues:create",
+        scope: "read,write",
       },
     },
     // Zapier expects a response providing {access_token: 'abcd'}
@@ -80,7 +80,7 @@ export const authentication = {
         "Content-Type": "application/x-www-form-urlencoded",
       },
     },
-    scope: "read,issues:create",
+    scope: "read,write",
   },
 
   customConfig: {},

@@ -79,7 +79,7 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
   }
 
   if (data.data && data.data.issueCreate && data.data.issueCreate.success) {
-    return data;
+    return data.data.issueCreate.issue;
   } else {
     const error = data.errors ? data.errors[0].message : "Something went wrong";
     throw new z.errors.Error(`Failed to create an issue`, error, 400);
