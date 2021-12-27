@@ -1,5 +1,6 @@
 import { addBearerHeader, authentication } from "./authentication";
 import { createIssue } from "./creates/createIssue";
+import { createIssueMove } from "./creates/createIssueMove";
 import { newComment } from "./triggers/comment";
 import { newIssue, updatedIssue } from "./triggers/issue";
 import { team } from "./triggers/team";
@@ -37,6 +38,7 @@ const App = {
   creates: {
     [createIssue.key]: createIssue,
     [createComment.key]: createComment,
+    [createIssueMove.key]: createIssueMove,
     [createAttachmentLinkIntercom.key]: createAttachmentLinkIntercom,
   },
   triggers: {
