@@ -9,6 +9,9 @@ import { user } from "./triggers/user";
 import { project } from "./triggers/project";
 import { HttpResponse, ZObject } from "zapier-platform-core";
 import { createComment } from "./creates/createComment";
+import { createAttachmentLinkIntercom } from "./creates/createAttachmentLinkIntercom";
+import { attachmentsForUrl } from "./searches/attachmentsForUrl";
+
 
 const handleErrors = (response: HttpResponse, z: ZObject) => {
   z.console.log("handling errors", response.content);
@@ -24,7 +27,7 @@ const handleErrors = (response: HttpResponse, z: ZObject) => {
       throw new z.errors.ExpiredAuthError(`Authentication with Linear failed. Please reconnect.`);
     }
   } else {
-    throw new z.errors.Error(`Something went wrong`, "request_execution_failed", 400);
+    throw new z.errors.Error(`Something went wrong3 ${JSON.stringify(response.json)}`, "request_execution_failed", 400);
   }
   return response;
 };
@@ -34,6 +37,7 @@ const App = {
   creates: {
     [createIssue.key]: createIssue,
     [createComment.key]: createComment,
+    [createAttachmentLinkIntercom.key]: createAttachmentLinkIntercom,
   },
   triggers: {
     [newIssue.key]: newIssue,
@@ -44,6 +48,9 @@ const App = {
     [project.key]: project,
     [label.key]: label,
     [user.key]: user,
+  },
+  searches: {
+    [attachmentsForUrl.key]: attachmentsForUrl,
   },
   authentication,
   beforeRequest: [addBearerHeader],
