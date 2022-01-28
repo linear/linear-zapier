@@ -12,6 +12,7 @@ import { HttpResponse, ZObject } from "zapier-platform-core";
 import { createComment } from "./creates/createComment";
 import { createAttachmentLinkIntercom } from "./creates/createAttachmentLinkIntercom";
 import { attachmentsForUrl } from "./searches/attachmentsForUrl";
+import { issueAttachments } from "./searches/issueAttachments";
 
 
 const handleErrors = (response: HttpResponse, z: ZObject) => {
@@ -40,6 +41,7 @@ const App = {
     [createComment.key]: createComment,
     [createIssueMove.key]: createIssueMove,
     [createAttachmentLinkIntercom.key]: createAttachmentLinkIntercom,
+
   },
   triggers: {
     [newIssue.key]: newIssue,
@@ -53,6 +55,7 @@ const App = {
   },
   searches: {
     [attachmentsForUrl.key]: attachmentsForUrl,
+    [issueAttachments.key]: issueAttachments,
   },
   authentication,
   beforeRequest: [addBearerHeader],

@@ -24,6 +24,7 @@ interface attachmentsForURLResponse {
             nodes {
               id
               sourceType
+              metadata
               issue {
                 identifier
                 description

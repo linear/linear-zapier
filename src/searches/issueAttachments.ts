@@ -1,7 +1,7 @@
 import { Bundle, ZObject } from "zapier-platform-core";
 
-interface createAttachmentLinkIntercomRequestResponse {
-    data?: { attachmentLinkIntercom: { success: boolean } };
+interface issueAttachmentsRequestResponse {
+    data?: { issue: { team: { name: String } } };
     errors?: {
       message: string;
       extensions?: {
@@ -10,22 +10,27 @@ interface createAttachmentLinkIntercomRequestResponse {
     }[];
   }
 
-  const createAttachmentLinkIntercomRequest = async (z: ZObject, bundle: Bundle) => {
+  const issueAttachmentsRequest = async (z: ZObject, bundle: Bundle) => {
     const variables = {
-      issueId: bundle.inputData.issue,
-      conversationId: bundle.inputData.conversation,
+      id: bundle.inputData.issue
     };
 
 
     const query = `
-      mutation attachmentLinkIntercom(
-        $issueId: String!,
-        $conversationId: String!
+      query issue(
+        $id: String!
       ) {
-        attachmentLinkIntercom(
-          issueId: $issueId,
-          conversationId: $conversationId) {
-          success
+        issue(
+          id: $id
+          ) {
+          team {
+            name
+          }
+          attachments {
+            nodes {
+              metadata
+            }
+          }
         }
       }`;
 
@@ -44,7 +49,7 @@ interface createAttachmentLinkIntercomRequestResponse {
         method: "POST",
       });
 
-      const data = response.json as createAttachmentLinkIntercomRequestResponse;
+      const data = response.json as issueAttachmentsRequestResponse;
       z.console.log(JSON.stringify(data));
 
       if (data.errors && data.errors.length) {
@@ -56,8 +61,8 @@ interface createAttachmentLinkIntercomRequestResponse {
         );
       }
 
-      if (data.data &&  data.data.attachmentLinkIntercom && data.data.attachmentLinkIntercom.success) {
-        return data.data.attachmentLinkIntercom
+      if (data.data &&  data.data.issue) {
+        return [data.data.issue]
       } else {
         const error = data.errors ? data.errors[0].message : "Something went wrong2";
         throw new z.errors.Error(`Failed to create an attachment ${JSON.stringify(data)}`, "", 400);
@@ -65,33 +70,27 @@ interface createAttachmentLinkIntercomRequestResponse {
     };
   
 
-    export const createAttachmentLinkIntercom = {
-      key: "create_attachment_link_intercom",
+    export const issueAttachments = {
+      key: "issue_attachments",
     
       display: {
         hidden: false,
         important: true,
-        description: "Link an existing Intercom conversation to an issue.",
-        label: "Link an existing Intercom conversation to an issue.",
+        description: "Get the attachments of an issue",
+        label: "Get the attachments of an issue",
       },
     
-      noun: "AttachmentLinkIntercom",
+      noun: "issueAttachments",
     
       operation: {
-        perform: createAttachmentLinkIntercomRequest,
+        perform: issueAttachmentsRequest,
     
         inputFields: [
           {
             required: true,
-            label: "IssueId",
-            helpText: "The ID of the issue. Both UUID and application ID formats are accepted.",
+            label: "issue id",
+            helpText: "The ID of the issue",
             key: "issue",
-          },
-          {
-            required: true,
-            label: "ConversationId",
-            helpText: "The ID of the conversation",
-            key: "conversation",
           },
         ],
         sample: { data: { success: true } },
