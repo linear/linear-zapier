@@ -11,6 +11,7 @@ import { project } from "./triggers/project";
 import { HttpResponse, ZObject } from "zapier-platform-core";
 import { createComment } from "./creates/createComment";
 import { createAttachmentLinkIntercom } from "./creates/createAttachmentLinkIntercom";
+import { createAttachmentLinkURL } from "./creates/createAttachmentLinkURL";
 import { attachmentsForUrl } from "./searches/attachmentsForUrl";
 import { issueAttachments } from "./searches/issueAttachments";
 
@@ -41,7 +42,7 @@ const App = {
     [createComment.key]: createComment,
     [createIssueMove.key]: createIssueMove,
     [createAttachmentLinkIntercom.key]: createAttachmentLinkIntercom,
-
+    [createAttachmentLinkURL.key]: createAttachmentLinkURL,
   },
   triggers: {
     [newIssue.key]: newIssue,
