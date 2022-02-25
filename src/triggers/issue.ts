@@ -121,6 +121,9 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
   if (bundle.inputData.assignee_id) {
     issues = issues.filter((issue) => issue.assignee && issue.assignee.id === bundle.inputData.assignee_id);
   }
+  if (bundle.inputData.priority) {
+    issues = issues.filter((issue) => `${issue.priority}` === bundle.inputData.priority);
+  }
   if (bundle.inputData.label_id) {
     issues = issues.filter(
       (issue) => issue.labels.nodes.find((label) => label.id === bundle.inputData.label_id) !== undefined
@@ -173,6 +176,19 @@ const issue = {
         helpText: "The assignee of this issue.",
         dynamic: "user.id.name",
         altersDynamicFields: true,
+      },
+      {
+        required: false,
+        label: "Priority",
+        key: "priority",
+        helpText: "The priority of the issue.",
+        choices: [
+          { value: "0", sample: "0", label: "No priority" },
+          { value: "1", sample: "1", label: "Urgent" },
+          { value: "2", sample: "2", label: "High" },
+          { value: "3", sample: "3", label: "Medium" },
+          { value: "4", sample: "4", label: "Low" },
+        ],
       },
       {
         required: false,
