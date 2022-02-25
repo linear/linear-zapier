@@ -62,6 +62,7 @@ export const authentication = {
         redirect_uri: "{{bundle.inputData.redirect_uri}}",
         response_type: "code",
         scope: "read,write",
+        actor: "application"
       },
     },
     // Zapier expects a response providing {access_token: 'abcd'}
