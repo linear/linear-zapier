@@ -17,6 +17,7 @@ const getLabelList = async (z: ZObject, bundle: Bundle) => {
   if (!bundle.inputData.team_id) {
     throw new z.errors.HaltedError(`Please select the team first`);
   }
+  const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
 
   const response = await z.request({
     url: "https://api.linear.app/graphql",
@@ -27,9 +28,9 @@ const getLabelList = async (z: ZObject, bundle: Bundle) => {
     },
     body: {
       query: `
-      query {
-        team(id: "${bundle.inputData.team_id}"){
-          labels(first:100) {
+      query ($teamId: String!, $after: String) {
+        team(id: $teamId) {
+          labels(first: 50, after: $after) {
             nodes {
               id
               name
@@ -37,13 +38,20 @@ const getLabelList = async (z: ZObject, bundle: Bundle) => {
           }
         }
       }`,
+      variables: {
+        teamId: bundle.inputData.team_id,
+        after: cursor
+      },
     },
     method: "POST",
   });
 
   const data = (response.json as LabelsResponse).data;
+  const labels = data.team.labels.nodes;
 
-  return data.team.labels.nodes;
+  await z.cursor.set(labels[labels.length - 1]?.id);
+
+  return labels;
 };
 
 export const label = {
@@ -59,5 +67,6 @@ export const label = {
 
   operation: {
     perform: getLabelList,
+    canPaginate: true,
   },
 };

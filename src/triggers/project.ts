@@ -18,6 +18,7 @@ const getProjectList = async (z: ZObject, bundle: Bundle) => {
   if (!bundle.inputData.team_id) {
     throw new z.errors.HaltedError(`Please select the team first`);
   }
+  const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
 
   const response = await z.request({
     url: "https://api.linear.app/graphql",
@@ -28,9 +29,14 @@ const getProjectList = async (z: ZObject, bundle: Bundle) => {
     },
     body: {
       query: `
-      query {
-        team(id: "${bundle.inputData.team_id}"){
-          projects(first:100) {
+      query ($teamId: String!, $after: String) {
+        team(id: $teamId) {
+          projects(
+            first: 100
+            after: $after
+            orderBy: updatedAt
+            filter: { state: { in: ["started", "planned", "paused"] } }
+          ) {
             nodes {
               id
               name
@@ -39,12 +45,20 @@ const getProjectList = async (z: ZObject, bundle: Bundle) => {
           }
         }
       }`,
+      variables: {
+        teamId: bundle.inputData.team_id,
+        after: cursor
+      },
     },
     method: "POST",
   });
 
   const data = (response.json as TeamProjectsResponse).data;
-  return data.team.projects.nodes.filter((project) => ["started", "planned", "paused"].indexOf(project.state) >= 0);
+  const projects = data.team.projects.nodes
+
+  await z.cursor.set(projects[projects.length - 1]?.id);
+
+  return projects;
 };
 
 export const project = {
@@ -60,5 +74,6 @@ export const project = {
 
   operation: {
     perform: getProjectList,
+    canPaginate: true,
   },
 };

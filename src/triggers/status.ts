@@ -18,6 +18,7 @@ const getStatusList = async (z: ZObject, bundle: Bundle) => {
   if (!bundle.inputData.team_id) {
     throw new z.errors.HaltedError(`Please select the team first`);
   }
+  const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
 
   const response = await z.request({
     url: "https://api.linear.app/graphql",
@@ -28,9 +29,9 @@ const getStatusList = async (z: ZObject, bundle: Bundle) => {
     },
     body: {
       query: `
-      query {
-        team(id: "${bundle.inputData.team_id}"){
-           states(first: 100) {
+      query GetTeamStatuses($teamId: String!, $after: String) {
+        team(id: $teamId){
+           states(first: 100, after: $after) {
             nodes {
               id
               name
@@ -39,12 +40,20 @@ const getStatusList = async (z: ZObject, bundle: Bundle) => {
           } 
         }
       }`,
+      variables: {
+        teamId: bundle.inputData.team_id,
+        after: cursor
+      }
     },
     method: "POST",
   });
 
   const data = (response.json as TeamStatesResponse).data;
-  return data.team.states.nodes;
+  const statuses = data.team.states.nodes
+  
+  await z.cursor.set(statuses[statuses.length - 1]?.id);
+
+  return statuses;
 };
 
 export const status = {
@@ -60,5 +69,6 @@ export const status = {
 
   operation: {
     perform: getStatusList,
+    canPaginate: true,
   },
 };

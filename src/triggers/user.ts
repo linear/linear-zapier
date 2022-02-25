@@ -14,6 +14,8 @@ interface UsersResponse {
 }
 
 const getUserList = async (z: ZObject, bundle: Bundle) => {
+  const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
+
   const response = await z.request({
     url: "https://api.linear.app/graphql",
     headers: {
@@ -23,21 +25,27 @@ const getUserList = async (z: ZObject, bundle: Bundle) => {
     },
     body: {
       query: `
-      query {
-        users(first: 100) {
-          nodes {
-            name
-            displayName
-            id
-            active
+        query ListUsers($after: String) {
+          users(first: 100, after: $after, filter: {active: {eq: true}}) {
+            nodes {
+              name
+              displayName
+              id
+            }
           }
         }
-      }
-    `,
+      `,
+      variables: {
+        after: cursor
+      },
     },
     method: "POST",
   });
-  const users = (response.json as UsersResponse).data.users.nodes.filter(user => user.active === true);
+  const users = (response.json as UsersResponse).data.users.nodes;
+
+  // Set cursor for pagination
+  await z.cursor.set(users[users.length - 1]?.id);
+
   return users.map(user => ({
     name: `${user.name} (${user.displayName})`,
     id: user.id,
@@ -57,5 +65,6 @@ export const user = {
 
   operation: {
     perform: getUserList,
+    canPaginate: true,
   },
 };

@@ -31,6 +31,8 @@ interface CommentsResponse {
 }
 
 const buildCommentList = () => async (z: ZObject, bundle: Bundle) => {
+  const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
+
   const response = await z.request({
     url: "https://api.linear.app/graphql",
     headers: {
@@ -40,13 +42,13 @@ const buildCommentList = () => async (z: ZObject, bundle: Bundle) => {
     },
     body: {
       query: `
-      query {
-        comments {
+      query GetCommentList($after: String) {
+        comments(first: 5, after: $after) {
           nodes {
-            id 
+            id
             body
             createdAt
-            issue{
+            issue {
               id
               identifier
               title
@@ -62,15 +64,22 @@ const buildCommentList = () => async (z: ZObject, bundle: Bundle) => {
               name
               avatarUrl
             }
-          } 
+          }
         }
       }`,
+      variables: {
+        after: cursor
+      },
     },
     method: "POST",
   });
 
   const data = (response.json as CommentsResponse).data;
   let comments = data.comments.nodes;
+
+
+  // Set cursor for pagination
+  await z.cursor.set(comments[comments.length - 1]?.id);
 
   // Filter by fields if set
   if (bundle.inputData.creator_id) {
@@ -133,6 +142,7 @@ export const newComment = {
   },
   operation: {
     ...comment.operation,
+    canPaginate: true,
     perform: buildCommentList(),
   },
 };

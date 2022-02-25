@@ -51,6 +51,7 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
   if (!bundle.inputData.team_id) {
     throw new z.errors.HaltedError(`Please select the team first`);
   }
+  const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
 
   const response = await z.request({
     url: "https://api.linear.app/graphql",
@@ -61,9 +62,13 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
     },
     body: {
       query: `
-      query {
-        team(id: "${bundle.inputData.team_id}"){
-           issues(first: 50, orderBy: ${orderBy}) {
+      query GetTeamIssues(
+        $teamId: String!
+        $orderBy: PaginationOrderBy!
+        $after: String
+      ) {
+        team(id: $teamId) {
+          issues(first: 5, orderBy: $orderBy, after: $after) {
             nodes {
               id
               identifier
@@ -99,17 +104,26 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
               project {
                 id
                 name
-              }              
+              }
             }
-          } 
+          }
         }
-      }`,
+      }
+      `,
+      variables: {
+        teamId: bundle.inputData.team_id,
+        orderBy,
+        after: cursor
+      },
     },
     method: "POST",
   });
 
   const data = (response.json as TeamIssuesResponse).data;
   let issues = data.team.issues.nodes;
+
+  // Set cursor for pagination
+  await z.cursor.set(issues[issues.length - 1]?.id);
 
   // Filter by fields if set
   if (bundle.inputData.status_id) {
@@ -220,6 +234,7 @@ export const newIssue = {
   },
   operation: {
     ...issue.operation,
+    canPaginate: true,
     perform: buildIssueList("createdAt"),
   },
 };
@@ -233,6 +248,7 @@ export const updatedIssue = {
   },
   operation: {
     ...issue.operation,
+    canPaginate: true,
     perform: buildIssueList("updatedAt"),
   },
 };
