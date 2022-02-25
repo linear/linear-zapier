@@ -49,7 +49,10 @@ const getLabelList = async (z: ZObject, bundle: Bundle) => {
   const data = (response.json as LabelsResponse).data;
   const labels = data.team.labels.nodes;
 
-  await z.cursor.set(labels[labels.length - 1]?.id);
+  const nextCursor = labels?.[labels.length - 1]?.id
+  if (nextCursor) {
+    await z.cursor.set(nextCursor);
+  }
 
   return labels;
 };

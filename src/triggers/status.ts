@@ -31,7 +31,7 @@ const getStatusList = async (z: ZObject, bundle: Bundle) => {
       query: `
       query GetTeamStatuses($teamId: String!, $after: String) {
         team(id: $teamId){
-           states(first: 100, after: $after) {
+           states(first: 50, after: $after) {
             nodes {
               id
               name
@@ -51,7 +51,10 @@ const getStatusList = async (z: ZObject, bundle: Bundle) => {
   const data = (response.json as TeamStatesResponse).data;
   const statuses = data.team.states.nodes
   
-  await z.cursor.set(statuses[statuses.length - 1]?.id);
+  const nextCursor = statuses?.[statuses.length - 1]?.id
+  if (nextCursor) {
+    await z.cursor.set(nextCursor);
+  }
 
   return statuses;
 };

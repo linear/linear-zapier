@@ -79,7 +79,10 @@ const buildCommentList = () => async (z: ZObject, bundle: Bundle) => {
 
 
   // Set cursor for pagination
-  await z.cursor.set(comments[comments.length - 1]?.id);
+  const nextCursor = comments?.[comments.length - 1]?.id
+  if (nextCursor) {
+    await z.cursor.set(nextCursor);
+  }
 
   // Filter by fields if set
   if (bundle.inputData.creator_id) {

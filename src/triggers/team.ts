@@ -25,7 +25,7 @@ const getTeamList = async (z: ZObject, bundle: Bundle) => {
     body: {
       query: `
       query GetTeams($after: String) { 
-        teams(first: 100, after: $after) { 
+        teams(first: 50, after: $after) { 
           nodes {
             id
             name
@@ -39,7 +39,11 @@ const getTeamList = async (z: ZObject, bundle: Bundle) => {
     method: "POST",
   });
   const teams = (response.json as TeamResponse).data.teams.nodes
-  await z.cursor.set(teams[teams.length - 1]?.id);
+
+  const nextCursor = teams?.[teams.length - 1]?.id
+  if (nextCursor) {
+    await z.cursor.set(nextCursor);
+  }
 
   return teams;
 };

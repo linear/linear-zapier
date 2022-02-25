@@ -123,7 +123,10 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
   let issues = data.team.issues.nodes;
 
   // Set cursor for pagination
-  await z.cursor.set(issues[issues.length - 1]?.id);
+  const nextCursor = issues?.[issues.length - 1]?.id
+  if (nextCursor) {
+    await z.cursor.set(nextCursor);
+  }
 
   // Filter by fields if set
   if (bundle.inputData.status_id) {

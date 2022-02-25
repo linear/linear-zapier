@@ -32,7 +32,7 @@ const getProjectList = async (z: ZObject, bundle: Bundle) => {
       query ($teamId: String!, $after: String) {
         team(id: $teamId) {
           projects(
-            first: 100
+            first: 50
             after: $after
             orderBy: updatedAt
             filter: { state: { in: ["started", "planned", "paused"] } }
@@ -56,7 +56,10 @@ const getProjectList = async (z: ZObject, bundle: Bundle) => {
   const data = (response.json as TeamProjectsResponse).data;
   const projects = data.team.projects.nodes
 
-  await z.cursor.set(projects[projects.length - 1]?.id);
+  const nextCursor = projects?.[projects.length - 1]?.id
+  if (nextCursor) {
+    await z.cursor.set(nextCursor);
+  }
 
   return projects;
 };

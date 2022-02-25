@@ -26,7 +26,7 @@ const getUserList = async (z: ZObject, bundle: Bundle) => {
     body: {
       query: `
         query ListUsers($after: String) {
-          users(first: 100, after: $after, filter: {active: {eq: true}}) {
+          users(first: 50, after: $after, filter: {active: {eq: true}}) {
             nodes {
               name
               displayName
@@ -44,7 +44,10 @@ const getUserList = async (z: ZObject, bundle: Bundle) => {
   const users = (response.json as UsersResponse).data.users.nodes;
 
   // Set cursor for pagination
-  await z.cursor.set(users[users.length - 1]?.id);
+  const nextCursor = users?.[users.length - 1]?.id
+  if (nextCursor) {
+    await z.cursor.set(nextCursor);
+  }
 
   return users.map(user => ({
     name: `${user.name} (${user.displayName})`,
