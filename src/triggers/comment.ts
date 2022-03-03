@@ -43,7 +43,7 @@ const buildCommentList = () => async (z: ZObject, bundle: Bundle) => {
     body: {
       query: `
       query GetCommentList($after: String) {
-        comments(first: 5, after: $after) {
+        comments(first: 15, after: $after) {
           nodes {
             id
             body
