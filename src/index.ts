@@ -11,11 +11,10 @@ import { HttpResponse, ZObject } from "zapier-platform-core";
 import { createComment } from "./creates/createComment";
 
 const handleErrors = (response: HttpResponse, z: ZObject) => {
-  z.console.log("handling errors", response.content);
   if (response.request.url !== "https://api.linear.app/graphql") {
     return response;
   }
-
+  
   if (response.status === 200) {
     const data = response.json as any;
     const error = data.errors ? data.errors[0] : undefined;
@@ -24,6 +23,7 @@ const handleErrors = (response: HttpResponse, z: ZObject) => {
       throw new z.errors.ExpiredAuthError(`Authentication with Linear failed. Please reconnect.`);
     }
   } else {
+    z.console.log("Catch error", response.status, response.json);
     throw new z.errors.Error(`Something went wrong`, "request_execution_failed", 400);
   }
   return response;

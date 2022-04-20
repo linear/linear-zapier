@@ -13,6 +13,8 @@ interface TeamResponse {
 }
 
 const getTeamList = async (z: ZObject, bundle: Bundle) => {
+  const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
+
   const response = await z.request({
     url: "https://api.linear.app/graphql",
     headers: {
@@ -22,19 +24,28 @@ const getTeamList = async (z: ZObject, bundle: Bundle) => {
     },
     body: {
       query: `
-      query { 
-        teams(first: 100) { 
+      query GetTeams($after: String) { 
+        teams(first: 50, after: $after) { 
           nodes {
             id
             name
-            archivedAt
           }
         }
       }`,
+      variables: {
+        after: cursor
+      },
     },
     method: "POST",
   });
-  return (response.json as TeamResponse).data.teams.nodes.filter(team => team.archivedAt === null);
+  const teams = (response.json as TeamResponse).data.teams.nodes
+
+  const nextCursor = teams?.[teams.length - 1]?.id
+  if (nextCursor) {
+    await z.cursor.set(nextCursor);
+  }
+
+  return teams;
 };
 
 export const team = {
@@ -50,5 +61,6 @@ export const team = {
 
   operation: {
     perform: getTeamList,
+    canPaginate: true,
   },
 };

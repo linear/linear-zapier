@@ -61,9 +61,29 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
     },
     body: {
       query: `
-      query {
-        team(id: "${bundle.inputData.team_id}"){
-           issues(first: 50, orderBy: ${orderBy}) {
+      query GetTeamIssues(
+        $teamId: String!
+        $priority: Float
+        $statusId: ID
+        $creatorId: ID
+        $assigneeId: ID
+        $labelId: ID
+        $projectId: ID
+        $orderBy: PaginationOrderBy!
+      ) {
+        team(id: $teamId) {
+          issues(
+            first: 25
+            orderBy: $orderBy
+            filter: { 
+              priority: { eq: $priority }
+              state: { id: { eq: $statusId } }
+              creator: { id: { eq: $creatorId } }
+              assignee: { id: { eq: $assigneeId } }
+              labels: { id: { eq: $labelId } }
+              project: { id: { eq: $projectId } }
+            }
+          ) {
             nodes {
               id
               identifier
@@ -75,63 +95,28 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
               dueDate
               createdAt
               updatedAt
-              creator {
-                id
-                name
-                email
-              }
-              assignee {
-                id
-                name
-                email
-              }
-              state {
-                id
-                name
-                type
-              }
-              labels {
-                nodes {
-                  id
-                  name
-                }
-              }
-              project {
-                id
-                name
-              }              
             }
-          } 
+          }
         }
-      }`,
+      }
+      `,
+      variables: {
+        teamId: bundle.inputData.team_id,
+        statusId: bundle.inputData.status_id,
+        creatorId: bundle.inputData.creator_id,
+        assigneeId: bundle.inputData.assignee_id,
+        priority: bundle.inputData.priority,
+        labelId: bundle.inputData.label_id,
+        projectId: bundle.inputData.project_id,
+
+        orderBy,
+      },
     },
     method: "POST",
   });
 
   const data = (response.json as TeamIssuesResponse).data;
   let issues = data.team.issues.nodes;
-
-  // Filter by fields if set
-  if (bundle.inputData.status_id) {
-    issues = issues.filter((issue) => issue.state.id === bundle.inputData.status_id);
-  }
-  if (bundle.inputData.creator_id) {
-    issues = issues.filter((issue) => issue.creator.id === bundle.inputData.creator_id);
-  }
-  if (bundle.inputData.assignee_id) {
-    issues = issues.filter((issue) => issue.assignee && issue.assignee.id === bundle.inputData.assignee_id);
-  }
-  if (bundle.inputData.priority) {
-    issues = issues.filter((issue) => `${issue.priority}` === bundle.inputData.priority);
-  }
-  if (bundle.inputData.label_id) {
-    issues = issues.filter(
-      (issue) => issue.labels.nodes.find((label) => label.id === bundle.inputData.label_id) !== undefined
-    );
-  }
-  if (bundle.inputData.project_id) {
-    issues = issues.filter((issue) => issue.project && issue.project.id === bundle.inputData.project_id);
-  }
 
   return issues.map((issue) => ({
     ...issue,

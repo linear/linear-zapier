@@ -40,13 +40,13 @@ const buildCommentList = () => async (z: ZObject, bundle: Bundle) => {
     },
     body: {
       query: `
-      query {
-        comments {
+      query GetCommentList {
+        comments(first: 25) {
           nodes {
-            id 
+            id
             body
             createdAt
-            issue{
+            issue {
               id
               identifier
               title
@@ -62,9 +62,9 @@ const buildCommentList = () => async (z: ZObject, bundle: Bundle) => {
               name
               avatarUrl
             }
-          } 
+          }
         }
-      }`,
+      }`
     },
     method: "POST",
   });
