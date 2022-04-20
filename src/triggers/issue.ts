@@ -205,7 +205,6 @@ export const newIssue = {
   },
   operation: {
     ...issue.operation,
-    canPaginate: true,
     perform: buildIssueList("createdAt"),
   },
 };
@@ -219,7 +218,6 @@ export const updatedIssue = {
   },
   operation: {
     ...issue.operation,
-    canPaginate: true,
     perform: buildIssueList("updatedAt"),
   },
 };

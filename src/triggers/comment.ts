@@ -133,7 +133,6 @@ export const newComment = {
   },
   operation: {
     ...comment.operation,
-    canPaginate: true,
     perform: buildCommentList(),
   },
 };
