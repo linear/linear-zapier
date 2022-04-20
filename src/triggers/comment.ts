@@ -40,7 +40,7 @@ const buildCommentList = () => async (z: ZObject, bundle: Bundle) => {
     },
     body: {
       query: `
-      query GetCommentList() {
+      query GetCommentList {
         comments(first: 25) {
           nodes {
             id
@@ -74,6 +74,7 @@ const buildCommentList = () => async (z: ZObject, bundle: Bundle) => {
 
   // Filter by fields if set
   if (bundle.inputData.creator_id) {
+    z.console.log("comment cretor filter", bundle.inputData.creator_id, comments.map((comment) => comment.user.id));
     comments = comments.filter((comment) => comment.user.id === bundle.inputData.creator_id);
   }
   if (bundle.inputData.team_id) {
@@ -84,6 +85,9 @@ const buildCommentList = () => async (z: ZObject, bundle: Bundle) => {
       (comment) => comment.issue.id === bundle.inputData.issue || comment.issue.identifier === bundle.inputData.issue
     );
   }
+
+
+  z.console.log("comment response", comments);
 
   return comments.map((comment) => ({
     ...comment,
