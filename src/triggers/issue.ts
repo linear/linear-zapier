@@ -16,31 +16,6 @@ interface TeamIssuesResponse {
           dueDate: Date;
           createdAt: Date;
           updatedAt: Date;
-          creator: {
-            id: string;
-            name: string;
-            email: string;
-          };
-          assignee?: {
-            id: string;
-            name: string;
-            email: string;
-          };
-          state: {
-            id: string;
-            name: string;
-            type: string;
-          };
-          labels: {
-            nodes: {
-              id: string;
-              name: string;
-            }[];
-          };
-          project?: {
-            id: string;
-            name: string;
-          };
         }[];
       };
     };
