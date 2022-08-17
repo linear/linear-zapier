@@ -80,7 +80,7 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
         statusId: bundle.inputData.status_id,
         creatorId: bundle.inputData.creator_id,
         assigneeId: bundle.inputData.assignee_id,
-        priority: bundle.inputData.priority,
+        priority: parseFloat(bundle.inputData.priority),
         labelId: bundle.inputData.label_id,
         projectId: bundle.inputData.project_id,
 
