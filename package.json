@@ -11,7 +11,7 @@
     "zapier-push": "npm run zapier-build && zapier push",
     "prepare": "npm run zapier-build",
     "pretest": "npm run zapier-build",
-    "test": "jest lib",
+    "test": "jest --passWithNoTests lib",
     "prettier": "npx prettier --write **/*.{json,ts,js}"
   },
   "engines": {
