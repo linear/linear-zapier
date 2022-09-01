@@ -50,7 +50,7 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
           issues(
             first: 25
             orderBy: $orderBy
-            filter: { 
+            filter: {
               priority: { eq: $priority }
               state: { id: { eq: $statusId } }
               creator: { id: { eq: $creatorId } }
@@ -80,7 +80,7 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
         statusId: bundle.inputData.status_id,
         creatorId: bundle.inputData.creator_id,
         assigneeId: bundle.inputData.assignee_id,
-        priority: bundle.inputData.priority,
+        priority: bundle.inputData.priority && Number(bundle.inputData.priority) || undefined,
         labelId: bundle.inputData.label_id,
         projectId: bundle.inputData.project_id,
 
