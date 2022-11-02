@@ -9,7 +9,7 @@ interface CreateIssueRequestResponse {
         url: string;
         identifier: string;
       };
-      success: boolean
+      success: boolean;
     }
   };
   errors?: {
