@@ -1,13 +1,16 @@
 import { ZObject, Bundle } from "zapier-platform-core";
 
-interface LabelsResponse {
+type LabelResponse = {
+  id: string;
+  name: string;
+  parent?: LabelResponse;
+}
+
+type LabelsResponse ={
   data: {
     team: {
       labels: {
-        nodes: {
-          id: string;
-          name: string;
-        }[];
+        nodes: LabelResponse[];
       };
     };
   };
@@ -34,6 +37,10 @@ const getLabelList = async (z: ZObject, bundle: Bundle) => {
             nodes {
               id
               name
+              parent {
+                id
+                name
+              }
             }
           }
         }
@@ -54,7 +61,10 @@ const getLabelList = async (z: ZObject, bundle: Bundle) => {
     await z.cursor.set(nextCursor);
   }
 
-  return labels;
+  return labels.map((label) => ({
+    id: label.id,
+    name: label.parent ? `${label.parent.name} → ${label.name}` : label.name,
+  }));
 };
 
 export const label = {
