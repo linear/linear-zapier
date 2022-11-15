@@ -174,13 +174,11 @@ export const createIssue = {
     ],
     sample: {
       data: {
-        issueCreate: {
-          id: "4",
-          title: "Do the roar",
-          url: "https://linear.app/team-best-team/issue/ENG-118/do-the-roar",
-          identifier: "ENG-118",
-        }
-      }
+        id: "4",
+        title: "Do the roar",
+        url: "https://linear.app/team-best-team/issue/ENG-118/do-the-roar",
+        identifier: "ENG-118",
+      },
     },
   },
 };
