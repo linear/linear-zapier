@@ -1,7 +1,17 @@
 import { Bundle, ZObject } from "zapier-platform-core";
 
 interface CreateIssueRequestResponse {
-  data?: { issueCreate: { issue: { url: string }; success: boolean } };
+  data?: {
+    issueCreate: {
+      issue: {
+        id: string;
+        title: string;
+        url: string;
+        identifier: string;
+      };
+      success: boolean;
+    };
+  };
   errors?: {
     message: string;
     extensions?: {
@@ -162,6 +172,13 @@ export const createIssue = {
         dynamic: "project.id.name",
       },
     ],
-    sample: { data: { issueCreate: { success: true } } },
+    sample: {
+      data: {
+        id: "4",
+        title: "Do the roar",
+        url: "https://linear.app/team-best-team/issue/ENG-118/do-the-roar",
+        identifier: "ENG-118",
+      },
+    },
   },
 };
