@@ -8,9 +8,6 @@ interface CreateIssueRequestResponse {
         title: string;
         url: string;
         identifier: string;
-        project?: {
-          name?: string | null;
-        }
       };
       success: boolean;
     };
@@ -67,9 +64,6 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
             identifier
             title
             url
-            project {
-              name
-            }
           }
           success
         }

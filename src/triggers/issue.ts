@@ -16,6 +16,15 @@ interface TeamIssuesResponse {
           dueDate: Date;
           createdAt: Date;
           updatedAt: Date;
+          project? : {
+            id: string;
+            name: string;
+          },
+          creator?: {
+            id: string;
+            name: string;
+            email: string;
+          }
         }[];
       };
     };
@@ -70,6 +79,15 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
               dueDate
               createdAt
               updatedAt
+              project {
+                id
+                name
+              }
+              creator {
+                id
+                name
+                email
+              }
             }
           }
         }
