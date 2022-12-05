@@ -22,12 +22,14 @@ interface CreateIssueRequestResponse {
 
 const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
   const priority = bundle.inputData.priority ? parseInt(bundle.inputData.priority) : 0;
+  const estimate = bundle.inputData.estimate ? parseInt(bundle.inputData.estimate) : null;
 
   const variables = {
     teamId: bundle.inputData.team_id,
     title: bundle.inputData.title,
     description: bundle.inputData.description,
     priority: priority,
+    estimate: estimate,
     stateId: bundle.inputData.status_id,
     assigneeId: bundle.inputData.assignee_id,
     projectId: bundle.inputData.project_id,
@@ -40,6 +42,7 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
         $title: String!,
         $description: String,
         $priority: Int,
+        $estimate: Int,
         $stateId: String,
         $assigneeId: String,
         $projectId: String,
@@ -50,6 +53,7 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
           title: $title,
           description: $description,
           priority: $priority,
+          estimate: $estimate,
           stateId: $stateId,
           assigneeId: $assigneeId,
           projectId: $projectId,
@@ -157,6 +161,12 @@ export const createIssue = {
           { value: "3", sample: "3", label: "Medium" },
           { value: "4", sample: "4", label: "Low" },
         ],
+      },
+      {
+        label: "Estimate",
+        helpText: "Select this issue's estimate",
+        key: "estimate",
+        dynamic: "estimate.id.label",
       },
       {
         label: "Labels",

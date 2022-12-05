@@ -9,6 +9,7 @@ import { user } from "./triggers/user";
 import { project } from "./triggers/project";
 import { HttpResponse, ZObject } from "zapier-platform-core";
 import { createComment } from "./creates/createComment";
+import { estimate } from "./triggers/estimate";
 
 const handleErrors = (response: HttpResponse, z: ZObject) => {
   if (response.request.url !== "https://api.linear.app/graphql") {
@@ -44,6 +45,7 @@ const App = {
     [project.key]: project,
     [label.key]: label,
     [user.key]: user,
+    [estimate.key]: estimate,
   },
   authentication,
   beforeRequest: [addBearerHeader],
