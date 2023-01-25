@@ -16,6 +16,16 @@ interface TeamIssuesResponse {
           dueDate: Date;
           createdAt: Date;
           updatedAt: Date;
+          creator: {
+            id: string;
+            name: string;
+            email: string;
+          };
+          assignee?: {
+            id: string;
+            name: string;
+            email: string;
+          };
         }[];
       };
     };
@@ -70,6 +80,16 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
               dueDate
               createdAt
               updatedAt
+              creator {
+                id
+                name
+                email
+              }
+              assignee {
+                id
+                name
+                email
+              }
             }
           }
         }
@@ -83,7 +103,6 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
         priority: bundle.inputData.priority && Number(bundle.inputData.priority) || undefined,
         labelId: bundle.inputData.label_id,
         projectId: bundle.inputData.project_id,
-
         orderBy,
       },
     },
