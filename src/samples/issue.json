@@ -7,6 +7,16 @@
   "priority": 0,
   "estimate": null,
   "dueDate": null,
-  "createdAt": "2020-10-27T21:20:59.199Z",
-  "updatedAt": "2020-10-27T21:20:59.199Z"
+  "createdAt": "2022-10-27T21:20:59.199Z",
+  "updatedAt": "2022-10-27T21:20:59.199Z",
+  "creator": {
+    "id": "df2b39ba-3dfd-4b75-9ce2-2be2d1c79a2b",
+    "name": "Zapier User",
+    "email": "creator@example.com"
+  },
+  "assignee": {
+    "id": "843e7b66-9d10-11ed-a8fc-0242ac120002",
+    "name": "Zapier User",
+    "email": "assignee@example.com"
+  }
 }
