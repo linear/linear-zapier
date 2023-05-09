@@ -18,5 +18,10 @@
     "id": "843e7b66-9d10-11ed-a8fc-0242ac120002",
     "name": "Zapier User",
     "email": "assignee@example.com"
+  },
+  "status": {
+    "id": "e3e2a3c4-9d10-11ed-a8fc-0242ac120002",
+    "name": "In Progress",
+    "type": "started"
   }
 }

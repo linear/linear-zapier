@@ -26,6 +26,11 @@ interface TeamIssuesResponse {
             name: string;
             email: string;
           };
+          status: {
+            id: string,
+            name: string,
+            type: string
+          },
         }[];
       };
     };
@@ -89,6 +94,11 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
                 id
                 name
                 email
+              }
+              status: state {
+                id
+                name
+                type
               }
             }
           }
