@@ -9,6 +9,10 @@ interface UsersResponse {
         id: string;
         active: boolean;
       }[];
+      pageInfo: {
+        hasNextPage: boolean;
+        endCursor: string;
+      };
     };
   };
 }
@@ -26,11 +30,19 @@ const getUserList = async (z: ZObject, bundle: Bundle) => {
     body: {
       query: `
         query ListUsers($after: String) {
-          users(first: 50, after: $after, filter: {active: {eq: true}}) {
+          users(
+            first: 50
+            after: $after
+            filter: { active: { eq: true } }
+          ) {
             nodes {
               name
               displayName
               id
+            }
+            pageInfo {
+              hasNextPage
+              endCursor
             }
           }
         }
@@ -41,12 +53,13 @@ const getUserList = async (z: ZObject, bundle: Bundle) => {
     },
     method: "POST",
   });
-  const users = (response.json as UsersResponse).data.users.nodes;
+
+  const data = (response.json as UsersResponse).data;
+  const users = data.users.nodes;
 
   // Set cursor for pagination
-  const nextCursor = users?.[users.length - 1]?.id
-  if (nextCursor) {
-    await z.cursor.set(nextCursor);
+  if (data.users.pageInfo.hasNextPage) {
+    await z.cursor.set(data.users.pageInfo.endCursor);
   }
 
   return users.map(user => ({

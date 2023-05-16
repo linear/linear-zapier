@@ -26,6 +26,10 @@ interface CommentsResponse {
           avatarUrl: string;
         };
       }[];
+      pageInfo: {
+        hasNextPage: boolean;
+        endCursor: string;
+      };
     };
   };
 }
@@ -80,6 +84,10 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
               avatarUrl
             }
           }
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
         }
       }`,
       variables: {
@@ -96,9 +104,8 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
   let comments = data.comments.nodes;
 
   // Set cursor for pagination
-  const nextCursor = comments?.[comments.length - 1]?.id
-  if (nextCursor) {
-    await z.cursor.set(nextCursor);
+  if (data.comments.pageInfo.hasNextPage) {
+    await z.cursor.set(data.comments.pageInfo.endCursor);
   }
 
   return comments.map((comment) => ({
