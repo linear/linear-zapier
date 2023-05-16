@@ -30,7 +30,42 @@ interface CommentsResponse {
   };
 }
 
-const buildCommentList = () => async (z: ZObject, bundle: Bundle) => {
+const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
+  const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
+  const filter = [];
+
+  if (bundle.inputData.creator_id) {
+    filter.push({
+      user: {
+        id: {
+          eq: bundle.inputData.creator_id
+        }
+      }
+    })
+  }
+
+  if (bundle.inputData.team_id) {
+    filter.push({
+      issue: {
+        team: {
+          id: {
+            eq: bundle.inputData.team_id
+          }
+        }
+      }
+    })
+  }
+
+  if (bundle.inputData.issue) {
+    filter.push({
+      issue: {
+        id: {
+          eq: bundle.inputData.issue
+        }
+      }
+    })
+  }
+
   const response = await z.request({
     url: "https://api.linear.app/graphql",
     headers: {
@@ -40,7 +75,7 @@ const buildCommentList = () => async (z: ZObject, bundle: Bundle) => {
     },
     body: {
       query: `
-      query GetCommentList {
+      query ListComments($after: String, $filter: CommentFilter) {
         comments(first: 25) {
           nodes {
             id
@@ -64,7 +99,11 @@ const buildCommentList = () => async (z: ZObject, bundle: Bundle) => {
             }
           }
         }
-      }`
+      }`,
+      variables: {
+        ...(filter.length ? { filter: { and: filter } } : {}),
+        after: cursor
+      },
     },
     method: "POST",
   });
@@ -72,17 +111,10 @@ const buildCommentList = () => async (z: ZObject, bundle: Bundle) => {
   const data = (response.json as CommentsResponse).data;
   let comments = data.comments.nodes;
 
-  // Filter by fields if set
-  if (bundle.inputData.creator_id) {
-    comments = comments.filter((comment) => comment.user.id === bundle.inputData.creator_id);
-  }
-  if (bundle.inputData.team_id) {
-    comments = comments.filter((comment) => comment.issue.team.id === bundle.inputData.team_id);
-  }
-  if (bundle.inputData.issue) {
-    comments = comments.filter(
-      (comment) => comment.issue.id === bundle.inputData.issue || comment.issue.identifier === bundle.inputData.issue
-    );
+  // Set cursor for pagination
+  const nextCursor = comments?.[comments.length - 1]?.id
+  if (nextCursor) {
+    await z.cursor.set(nextCursor);
   }
 
   return comments.map((comment) => ({
@@ -133,6 +165,6 @@ export const newComment = {
   },
   operation: {
     ...comment.operation,
-    perform: buildCommentList(),
+    perform: getCommentList(),
   },
 };
