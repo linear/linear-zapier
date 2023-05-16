@@ -76,7 +76,7 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
     body: {
       query: `
       query ListComments($after: String, $filter: CommentFilter) {
-        comments(first: 25) {
+        comments(first: 25, after: $after, filter: $filter) {
           nodes {
             id
             body
