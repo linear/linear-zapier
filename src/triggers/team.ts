@@ -8,6 +8,10 @@ interface TeamResponse {
         name: string;
         archivedAt: Date | null;
       }[];
+      pageInfo: {
+        hasNextPage: boolean;
+        endCursor: string;
+      };
     };
   };
 }
@@ -24,11 +28,15 @@ const getTeamList = async (z: ZObject, bundle: Bundle) => {
     },
     body: {
       query: `
-      query GetTeams($after: String) { 
+      query ListTeams($after: String) { 
         teams(first: 50, after: $after) { 
           nodes {
             id
             name
+          }
+          pageInfo {
+            hasNextPage
+            endCursor
           }
         }
       }`,
@@ -38,11 +46,12 @@ const getTeamList = async (z: ZObject, bundle: Bundle) => {
     },
     method: "POST",
   });
-  const teams = (response.json as TeamResponse).data.teams.nodes
+  const data = (response.json as TeamResponse).data;
+  const teams = data.teams.nodes;
 
-  const nextCursor = teams?.[teams.length - 1]?.id
-  if (nextCursor) {
-    await z.cursor.set(nextCursor);
+  // Set cursor for pagination
+  if (data.teams.pageInfo.hasNextPage) {
+    await z.cursor.set(data.teams.pageInfo.endCursor);
   }
 
   return teams;

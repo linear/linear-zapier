@@ -9,6 +9,10 @@ interface TeamProjectsResponse {
           name: string;
           state: string;
         }[];
+        pageInfo: {
+          hasNextPage: boolean;
+          endCursor: string;
+        };
       };
     };
   };
@@ -42,6 +46,10 @@ const getProjectList = async (z: ZObject, bundle: Bundle) => {
               name
               state
             }
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
           }
         }
       }`,
@@ -56,9 +64,9 @@ const getProjectList = async (z: ZObject, bundle: Bundle) => {
   const data = (response.json as TeamProjectsResponse).data;
   const projects = data.team.projects.nodes
 
-  const nextCursor = projects?.[projects.length - 1]?.id
-  if (nextCursor) {
-    await z.cursor.set(nextCursor);
+  // Set cursor for pagination
+  if (data.team.projects.pageInfo.hasNextPage) {
+    await z.cursor.set(data.team.projects.pageInfo.endCursor);
   }
 
   return projects;
@@ -69,10 +77,10 @@ export const project = {
   noun: "Project",
 
   display: {
-    label: "Get issue project",
+    label: "Get project",
     hidden: true,
     description:
-      "The only purpose of this trigger is to populate the dropdown list of issue projects in the UI, thus, it's hidden.",
+      "The only purpose of this trigger is to populate the dropdown list of projects in the UI, thus, it's hidden.",
   },
 
   operation: {

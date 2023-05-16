@@ -101,7 +101,7 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
   });
 
   const data = (response.json as CommentsResponse).data;
-  let comments = data.comments.nodes;
+  const comments = data.comments.nodes;
 
   // Set cursor for pagination
   if (data.comments.pageInfo.hasNextPage) {

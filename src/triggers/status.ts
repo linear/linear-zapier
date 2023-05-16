@@ -9,6 +9,10 @@ interface TeamStatesResponse {
           name: string;
           type: string;
         }[];
+        pageInfo: {
+          hasNextPage: boolean;
+          endCursor: string;
+        };
       };
     };
   };
@@ -29,13 +33,17 @@ const getStatusList = async (z: ZObject, bundle: Bundle) => {
     },
     body: {
       query: `
-      query GetTeamStatuses($teamId: String!, $after: String) {
+      query ListStatuses($teamId: String!, $after: String) {
         team(id: $teamId){
-           states(first: 50, after: $after) {
+          states(first: 50, after: $after) {
             nodes {
               id
               name
               type
+            }
+            pageInfo {
+              hasNextPage
+              endCursor
             }
           } 
         }
@@ -51,9 +59,9 @@ const getStatusList = async (z: ZObject, bundle: Bundle) => {
   const data = (response.json as TeamStatesResponse).data;
   const statuses = data.team.states.nodes
   
-  const nextCursor = statuses?.[statuses.length - 1]?.id
-  if (nextCursor) {
-    await z.cursor.set(nextCursor);
+  // Set cursor for pagination
+  if (data.team.states.pageInfo.hasNextPage) {
+    await z.cursor.set(data.team.states.pageInfo.endCursor);
   }
 
   return statuses;

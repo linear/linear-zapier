@@ -120,7 +120,7 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
   });
 
   const data = (response.json as TeamIssuesResponse).data;
-  let issues = data.team.issues.nodes;
+  const issues = data.team.issues.nodes;
 
   return issues.map((issue) => ({
     ...issue,
