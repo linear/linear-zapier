@@ -32,39 +32,6 @@ interface CommentsResponse {
 
 const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
   const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
-  const filter = [];
-
-  if (bundle.inputData.creator_id) {
-    filter.push({
-      user: {
-        id: {
-          eq: bundle.inputData.creator_id
-        }
-      }
-    })
-  }
-
-  if (bundle.inputData.team_id) {
-    filter.push({
-      issue: {
-        team: {
-          id: {
-            eq: bundle.inputData.team_id
-          }
-        }
-      }
-    })
-  }
-
-  if (bundle.inputData.issue) {
-    filter.push({
-      issue: {
-        id: {
-          eq: bundle.inputData.issue
-        }
-      }
-    })
-  }
 
   const response = await z.request({
     url: "https://api.linear.app/graphql",
@@ -75,8 +42,23 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
     },
     body: {
       query: `
-      query ListComments($after: String, $filter: CommentFilter) {
-        comments(first: 25, after: $after, filter: $filter) {
+      query ListComments(
+        $after: String
+        $creatorId: ID
+        $teamId: ID
+        $issueId: ID
+      ) {
+        comments(
+          first: 25
+          after: $after
+          filter: {
+            and: [
+              { user: { id: { eq: $creatorId } } }
+              { issue: { team: { id: { eq: $teamId } } } }
+              { issue: { id: { eq: $issueId } } }
+            ]
+          }
+        ) {
           nodes {
             id
             body
@@ -101,7 +83,9 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
         }
       }`,
       variables: {
-        ...(filter.length ? { filter: { and: filter } } : {}),
+        creatorId: bundle.inputData.creator_id,
+        teamId: bundle.inputData.team_id,
+        issueId: bundle.inputData.issue,
         after: cursor
       },
     },
@@ -166,5 +150,6 @@ export const newComment = {
   operation: {
     ...comment.operation,
     perform: getCommentList(),
+    canPaginate: true,
   },
 };

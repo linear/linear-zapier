@@ -51,7 +51,7 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
     },
     body: {
       query: `
-      query GetTeamIssues(
+      query ListIssues(
         $teamId: String!
         $priority: Float
         $statusId: ID
@@ -205,7 +205,7 @@ export const newIssue = {
   key: "newIssue",
   display: {
     label: "New Issue",
-    description: "Triggers when a new issues is created.",
+    description: "Triggers when a new issue is created.",
   },
   operation: {
     ...issue.operation,
@@ -218,7 +218,7 @@ export const updatedIssue = {
   key: "updatedIssue",
   display: {
     label: "Updated Issue",
-    description: "Triggers when an issue issue is updated.",
+    description: "Triggers when an issue is updated.",
   },
   operation: {
     ...issue.operation,
