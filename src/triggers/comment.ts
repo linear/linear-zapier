@@ -26,11 +26,17 @@ interface CommentsResponse {
           avatarUrl: string;
         };
       }[];
+      pageInfo: {
+        hasNextPage: boolean;
+        endCursor: string;
+      };
     };
   };
 }
 
-const buildCommentList = () => async (z: ZObject, bundle: Bundle) => {
+const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
+  const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
+
   const response = await z.request({
     url: "https://api.linear.app/graphql",
     headers: {
@@ -40,8 +46,23 @@ const buildCommentList = () => async (z: ZObject, bundle: Bundle) => {
     },
     body: {
       query: `
-      query GetCommentList {
-        comments(first: 25) {
+      query ListComments(
+        $after: String
+        $creatorId: ID
+        $teamId: ID
+        $issueId: ID
+      ) {
+        comments(
+          first: 25
+          after: $after
+          filter: {
+            and: [
+              { user: { id: { eq: $creatorId } } }
+              { issue: { team: { id: { eq: $teamId } } } }
+              { issue: { id: { eq: $issueId } } }
+            ]
+          }
+        ) {
           nodes {
             id
             body
@@ -63,26 +84,28 @@ const buildCommentList = () => async (z: ZObject, bundle: Bundle) => {
               avatarUrl
             }
           }
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
         }
-      }`
+      }`,
+      variables: {
+        creatorId: bundle.inputData.creator_id,
+        teamId: bundle.inputData.team_id,
+        issueId: bundle.inputData.issue,
+        after: cursor
+      },
     },
     method: "POST",
   });
 
   const data = (response.json as CommentsResponse).data;
-  let comments = data.comments.nodes;
+  const comments = data.comments.nodes;
 
-  // Filter by fields if set
-  if (bundle.inputData.creator_id) {
-    comments = comments.filter((comment) => comment.user.id === bundle.inputData.creator_id);
-  }
-  if (bundle.inputData.team_id) {
-    comments = comments.filter((comment) => comment.issue.team.id === bundle.inputData.team_id);
-  }
-  if (bundle.inputData.issue) {
-    comments = comments.filter(
-      (comment) => comment.issue.id === bundle.inputData.issue || comment.issue.identifier === bundle.inputData.issue
-    );
+  // Set cursor for pagination
+  if (data.comments.pageInfo.hasNextPage) {
+    await z.cursor.set(data.comments.pageInfo.endCursor);
   }
 
   return comments.map((comment) => ({
@@ -133,6 +156,7 @@ export const newComment = {
   },
   operation: {
     ...comment.operation,
-    perform: buildCommentList(),
+    perform: getCommentList(),
+    canPaginate: true,
   },
 };
