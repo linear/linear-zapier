@@ -9,6 +9,10 @@
   "dueDate": null,
   "createdAt": "2022-10-27T21:20:59.199Z",
   "updatedAt": "2022-10-27T21:20:59.199Z",
+  "project": {
+    "id": "66913eff-e405-4d04-bd31-91678259f9e7",
+    "name": "My Project"
+  },
   "creator": {
     "id": "df2b39ba-3dfd-4b75-9ce2-2be2d1c79a2b",
     "name": "Zapier User",

@@ -16,6 +16,10 @@ interface TeamIssuesResponse {
           dueDate: Date;
           createdAt: Date;
           updatedAt: Date;
+          project: {
+            name: string;
+            id: string;
+          }
           creator: {
             id: string;
             name: string;
@@ -32,6 +36,10 @@ interface TeamIssuesResponse {
             type: string
           },
         }[];
+        pageInfo: {
+          hasNextPage: boolean;
+          endCursor: string;
+        };
       };
     };
   };
@@ -41,6 +49,8 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
   if (!bundle.inputData.team_id) {
     throw new z.errors.HaltedError(`Please select the team first`);
   }
+
+  const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
 
   const response = await z.request({
     url: "https://api.linear.app/graphql",
@@ -52,6 +62,7 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
     body: {
       query: `
       query ListIssues(
+        $after: String
         $teamId: String!
         $priority: Float
         $statusId: ID
@@ -63,7 +74,8 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
       ) {
         team(id: $teamId) {
           issues(
-            first: 25
+            first: 10
+            after: $after
             orderBy: $orderBy
             filter: {
               priority: { eq: $priority }
@@ -85,6 +97,10 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
               dueDate
               createdAt
               updatedAt
+              project {
+                id
+                name
+              }
               creator {
                 id
                 name
@@ -101,11 +117,16 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
                 type
               }
             }
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
           }
         }
       }
       `,
       variables: {
+        after: cursor,
         teamId: bundle.inputData.team_id,
         statusId: bundle.inputData.status_id,
         creatorId: bundle.inputData.creator_id,
@@ -121,6 +142,11 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
 
   const data = (response.json as TeamIssuesResponse).data;
   const issues = data.team.issues.nodes;
+
+  // Set cursor for pagination
+  if (data.team.issues.pageInfo.hasNextPage) {
+    await z.cursor.set(data.team.issues.pageInfo.endCursor);
+  }
 
   return issues.map((issue) => ({
     ...issue,
@@ -210,6 +236,7 @@ export const newIssue = {
   operation: {
     ...issue.operation,
     perform: buildIssueList("createdAt"),
+    canPaginate: true,
   },
 };
 
@@ -223,5 +250,6 @@ export const updatedIssue = {
   operation: {
     ...issue.operation,
     perform: buildIssueList("updatedAt"),
+    canPaginate: true,
   },
 };
