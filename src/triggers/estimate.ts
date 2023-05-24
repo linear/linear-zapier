@@ -110,7 +110,7 @@ const getEstimateOptions = async (z: ZObject, bundle: Bundle) => {
     },
     body: {
       query: `
-      query ($teamId: String!) {
+      query ZapierEstimationOptions($teamId: String!) {
         team(id: $teamId) {
           issueEstimationAllowZero
           issueEstimationExtended

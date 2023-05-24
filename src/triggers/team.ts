@@ -28,7 +28,7 @@ const getTeamList = async (z: ZObject, bundle: Bundle) => {
     },
     body: {
       query: `
-      query ListTeams($after: String) { 
+      query ZapierListTeams($after: String) { 
         teams(first: 50, after: $after) { 
           nodes {
             id

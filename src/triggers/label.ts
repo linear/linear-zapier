@@ -31,7 +31,7 @@ const getLabelList = async (z: ZObject, bundle: Bundle) => {
     },
     body: {
       query: `
-      query ListLabels($teamId: String!, $after: String) {
+      query ZapierListLabels($teamId: String!, $after: String) {
         team(id: $teamId) {
           labels(first: 50, after: $after) {
             nodes {

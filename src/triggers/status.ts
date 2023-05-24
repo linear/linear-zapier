@@ -33,7 +33,7 @@ const getStatusList = async (z: ZObject, bundle: Bundle) => {
     },
     body: {
       query: `
-      query ListStatuses($teamId: String!, $after: String) {
+      query ZapierListStatuses($teamId: String!, $after: String) {
         team(id: $teamId){
           states(first: 50, after: $after) {
             nodes {

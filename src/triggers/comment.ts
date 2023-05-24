@@ -46,7 +46,7 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
     },
     body: {
       query: `
-      query ListComments(
+      query ZapierListComments(
         $after: String
         $creatorId: ID
         $teamId: ID

@@ -29,7 +29,7 @@ const getUserList = async (z: ZObject, bundle: Bundle) => {
     },
     body: {
       query: `
-        query ListUsers($after: String) {
+        query ZapierListUsers($after: String) {
           users(
             first: 50
             after: $after
