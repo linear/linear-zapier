@@ -33,7 +33,7 @@ const getProjectList = async (z: ZObject, bundle: Bundle) => {
     },
     body: {
       query: `
-      query ($teamId: String!, $after: String) {
+      query ZapierListProjects($teamId: String!, $after: String) {
         team(id: $teamId) {
           projects(
             first: 50

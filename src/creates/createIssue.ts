@@ -37,7 +37,7 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
   };
 
   const query = `
-      mutation IssueCreate(
+      mutation ZapierIssueCreate(
         $teamId: String!,
         $title: String!,
         $description: String,

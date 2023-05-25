@@ -17,7 +17,7 @@ const createCommentRequest = async (z: ZObject, bundle: Bundle) => {
   };
 
   const query = `
-      mutation CommentCreate(
+      mutation ZapierCommentCreate(
         $issueId: String!,
         $body: String!
       ) {

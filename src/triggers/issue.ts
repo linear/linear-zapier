@@ -61,7 +61,7 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
     },
     body: {
       query: `
-      query ListIssues(
+      query ZapierListIssues(
         $after: String
         $teamId: String!
         $priority: Float
