@@ -15,7 +15,7 @@ const handleErrors = (response: HttpResponse, z: ZObject) => {
   if (response.request.url !== "https://api.linear.app/graphql") {
     return response;
   }
-  
+
   if (response.status === 200) {
     const data = response.json as any;
     const error = data.errors ? data.errors[0] : undefined;
