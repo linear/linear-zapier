@@ -24,6 +24,66 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
   const priority = bundle.inputData.priority ? parseInt(bundle.inputData.priority) : 0;
   const estimate = bundle.inputData.estimate ? parseInt(bundle.inputData.estimate) : null;
 
+  const subscriberIds: string[] = []
+  if (bundle.inputData.subscriber_emails) {
+    z.console.log(`Getting subscribers by emails: ${bundle.inputData.subscriber_emails.length}`)
+    const usersQuery = `
+      query ZapierUsersByEmails($filter: UserFilter, $first: Int) {
+        users(filter: $filter, first: $first) {
+          nodes {
+            id
+          }
+        }
+      }
+    `;
+    const usersVariables = {
+      filter: {
+        email: {in: bundle.inputData.subscriber_emails}
+      },
+      first: 100
+    }
+    // Transform subscriber emails to user ids
+    const usersResponse = await z.request({
+      url: "https://api.linear.app/graphql",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        authorization: bundle.authData.api_key,
+      },
+      body: {
+        query: usersQuery,
+        variables: usersVariables,
+      },
+      method: "POST",
+    });
+    const users = usersResponse.json as {
+      data?: {
+        users: {
+          nodes: { id: string }[];
+        };
+      };
+      errors?: {
+        message: string;
+        extensions?: {
+          userPresentableMessage?: string;
+        };
+      }[];
+    };
+
+    if (users.errors && users.errors.length) {
+      const error = users.errors[0];
+      z.console.error(`Failed to get subscribers: ${JSON.stringify(error)}`)
+      throw new z.errors.Error(
+        (error.extensions && error.extensions.userPresentableMessage) || error.message,
+        "invalid_input",
+        400
+      );
+    }
+
+    z.console.log(`Got ${users.data?.users.nodes.length} subscribers`)
+    subscriberIds.push(...(users.data?.users.nodes.map(user => user.id) || []))
+  }
+
   const variables = {
     teamId: bundle.inputData.team_id,
     title: bundle.inputData.title,
@@ -34,6 +94,7 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
     assigneeId: bundle.inputData.assignee_id,
     projectId: bundle.inputData.project_id,
     labelIds: bundle.inputData.labels || [],
+    subscriberIds
   };
 
   const query = `
@@ -47,6 +108,7 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
         $assigneeId: String,
         $projectId: String,
         $labelIds: [String!],
+        $subscriberIds: [String!],
       ) {
         issueCreate(input: {
           teamId: $teamId,
@@ -58,9 +120,10 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
           assigneeId: $assigneeId,
           projectId: $projectId,
           labelIds: $labelIds
+          subscriberIds: $subscriberIds
         }) {
           issue {
-            id 
+            id
             identifier
             title
             url
@@ -149,6 +212,13 @@ export const createIssue = {
         helpText: "The assignee of the issue",
         key: "assignee_id",
         dynamic: "user.id.name",
+      },
+      {
+        label: "Subscriber emails",
+        helpText: "Email addresses of users to subscribe to this issue. If the user is not found, it will be ignored.",
+        key: "subscriber_emails",
+        type: "string",
+        list: true,
       },
       {
         label: "Priority",
