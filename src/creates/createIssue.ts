@@ -215,7 +215,7 @@ export const createIssue = {
       },
       {
         label: "Subscriber emails",
-        helpText: "Email addresses of users to subscribe to this issue. If the user is not found, it will simply be ignored.",
+        helpText: "Email addresses of users to subscribe to this issue. If the user is not found, it will be ignored.",
         key: "subscriber_emails",
         type: "string",
         list: true,
