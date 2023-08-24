@@ -27,5 +27,11 @@
     "id": "e3e2a3c4-9d10-11ed-a8fc-0242ac120002",
     "name": "In Progress",
     "type": "started"
+  },
+  "parent": {
+    "id": "a4d10085-11bc-408a-909d-c9a1a146f8b4",
+    "identifier": "SAMPLE-10",
+    "url": "https://linear.app/example/issue/SAMPLE-10",
+    "title": "Zapier parent sample"
   }
 }

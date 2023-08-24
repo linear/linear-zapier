@@ -35,6 +35,12 @@ interface TeamIssuesResponse {
             name: string,
             type: string
           },
+          parent?: {
+            id: string;
+            identifier: string;
+            url: string;
+            title: string;
+          }
         }[];
         pageInfo: {
           hasNextPage: boolean;
@@ -115,6 +121,12 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
                 id
                 name
                 type
+              }
+              parent {
+                id
+                identifier
+                url
+                title
               }
             }
             pageInfo {
