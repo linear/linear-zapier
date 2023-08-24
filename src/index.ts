@@ -7,6 +7,7 @@ import { status } from "./triggers/status";
 import { label } from "./triggers/label";
 import { user } from "./triggers/user";
 import { project } from "./triggers/project";
+import { projectMilestone } from "./triggers/projectMilestone";
 import { HttpResponse, ZObject } from "zapier-platform-core";
 import { createComment } from "./creates/createComment";
 import { estimate } from "./triggers/estimate";
@@ -43,6 +44,7 @@ const App = {
     [team.key]: team,
     [status.key]: status,
     [project.key]: project,
+    [projectMilestone.key]: projectMilestone,
     [label.key]: label,
     [user.key]: user,
     [estimate.key]: estimate,

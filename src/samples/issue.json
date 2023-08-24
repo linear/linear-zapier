@@ -13,6 +13,10 @@
     "id": "66913eff-e405-4d04-bd31-91678259f9e7",
     "name": "My Project"
   },
+  "projectMilestone": {
+    "id": "88cdcd40-4660-4e87-b15a-5d23589afba9",
+    "name": "Pre-release"
+  },
   "creator": {
     "id": "df2b39ba-3dfd-4b75-9ce2-2be2d1c79a2b",
     "name": "Zapier User",
