@@ -7,6 +7,7 @@ interface ProjectMilestonesResponse {
         nodes: {
           id: string;
           name: string;
+          sortOrder: number;
         }[];
         pageInfo: {
           hasNextPage: boolean;
@@ -35,13 +36,14 @@ const getProjectMilestonesList = async (z: ZObject, bundle: Bundle) => {
       query ZapierListProjectMilestones($projectId: String!, $after: String) {
         project(id: $projectId) {
           projectMilestones(
-            first: 50
+            first: 100
             after: $after
-            orderBy: sortOrder
+            orderBy: createdAt
           ) {
             nodes {
               id
               name
+              sortOrder
             }
             pageInfo {
               hasNextPage
@@ -59,7 +61,7 @@ const getProjectMilestonesList = async (z: ZObject, bundle: Bundle) => {
   });
 
   const data = (response.json as ProjectMilestonesResponse).data;
-  const projectMilestones = data.project.projectMilestones.nodes
+  const projectMilestones = data.project.projectMilestones.nodes.sort((a, b) => a.sortOrder - b.sortOrder)
 
   // Set cursor for pagination
   if (data.project.projectMilestones.pageInfo.hasNextPage) {

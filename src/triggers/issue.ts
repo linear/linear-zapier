@@ -80,6 +80,7 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
         $assigneeId: ID
         $labelId: ID
         $projectId: ID
+        $projectMilestoneId: ID
         $orderBy: PaginationOrderBy!
       ) {
         team(id: $teamId) {
@@ -94,6 +95,7 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
               assignee: { id: { eq: $assigneeId } }
               labels: { id: { eq: $labelId } }
               project: { id: { eq: $projectId } }
+              projectMilestone: { id: { eq: $projectMilestoneId } }
             }
           ) {
             nodes {
