@@ -16,9 +16,13 @@ interface TeamIssuesResponse {
           dueDate: Date;
           createdAt: Date;
           updatedAt: Date;
-          project: {
-            name: string;
+          project?: {
             id: string;
+            name: string;
+          }
+          projectMilestone?: {
+            id: string;
+            name: string;
           }
           creator: {
             id: string;
@@ -107,6 +111,10 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
                 id
                 name
               }
+              projectMilestone {
+                id
+                name
+              }
               creator {
                 id
                 name
@@ -146,6 +154,7 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
         priority: bundle.inputData.priority && Number(bundle.inputData.priority) || undefined,
         labelId: bundle.inputData.label_id,
         projectId: bundle.inputData.project_id,
+        projectMilestoneId: bundle.inputData.project_milestone_id,
         orderBy,
       },
     },
@@ -231,6 +240,14 @@ const issue = {
         key: "project_id",
         helpText: "Issue's project.",
         dynamic: "project.id.name",
+        altersDynamicFields: true,
+      },
+      {
+        required: false,
+        label: "Project Milestone",
+        key: "project_milestone_id",
+        helpText: "Issue's project milestone.",
+        dynamic: "project_milestone.id.name",
         altersDynamicFields: true,
       },
     ],

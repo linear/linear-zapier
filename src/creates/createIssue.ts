@@ -93,6 +93,7 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
     stateId: bundle.inputData.status_id,
     assigneeId: bundle.inputData.assignee_id,
     projectId: bundle.inputData.project_id,
+    projectMilestoneId: bundle.inputData.project_milestone_id,
     labelIds: bundle.inputData.labels || [],
     subscriberIds
   };
@@ -107,6 +108,7 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
         $stateId: String,
         $assigneeId: String,
         $projectId: String,
+        $projectMilestoneId: String,
         $labelIds: [String!],
         $subscriberIds: [String!],
       ) {
@@ -119,6 +121,7 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
           stateId: $stateId,
           assigneeId: $assigneeId,
           projectId: $projectId,
+          projectMilestoneId: $projectMilestoneId,
           labelIds: $labelIds
           subscriberIds: $subscriberIds
         }) {
@@ -250,6 +253,12 @@ export const createIssue = {
         helpText: "The issue project",
         key: "project_id",
         dynamic: "project.id.name",
+      },
+      {
+        label: "Project Milestone",
+        helpText: "The issue project milestone",
+        key: "project_milestone_id",
+        dynamic: "project_milestone.id.name",
       },
     ],
     sample: {
