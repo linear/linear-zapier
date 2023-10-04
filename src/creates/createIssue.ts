@@ -265,7 +265,7 @@ export const createIssue = {
       },
       {
         label: "Due Date",
-        helpText: "The issue due date in ISO 8601 format",
+        helpText: "The issue due date in `yyyy-MM-dd` format",
         key: "due_date",
         type: "string",
       },
