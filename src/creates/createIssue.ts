@@ -94,6 +94,7 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
     assigneeId: bundle.inputData.assignee_id,
     projectId: bundle.inputData.project_id,
     projectMilestoneId: bundle.inputData.project_milestone_id,
+    dueDate: bundle.inputData.due_date,
     labelIds: bundle.inputData.labels || [],
     subscriberIds
   };
@@ -109,6 +110,7 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
         $assigneeId: String,
         $projectId: String,
         $projectMilestoneId: String,
+        $dueDate: TimelessDate,
         $labelIds: [String!],
         $subscriberIds: [String!],
       ) {
@@ -122,6 +124,7 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
           assigneeId: $assigneeId,
           projectId: $projectId,
           projectMilestoneId: $projectMilestoneId,
+          dueDate: $dueDate,
           labelIds: $labelIds
           subscriberIds: $subscriberIds
         }) {
@@ -259,6 +262,12 @@ export const createIssue = {
         helpText: "The issue project milestone",
         key: "project_milestone_id",
         dynamic: "project_milestone.id.name",
+      },
+      {
+        label: "Due Date",
+        helpText: "The issue due date in `yyyy-MM-dd` format",
+        key: "due_date",
+        type: "string",
       },
     ],
     sample: {
