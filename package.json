@@ -1,6 +1,6 @@
 {
   "name": "linear-zapier",
-  "version": "2.10.0",
+  "version": "2.10.1",
   "description": "Linear's Zapier integration",
   "main": "index.js",
   "license": "MIT",
@@ -8,7 +8,7 @@
     "zapier-build": "tsc",
     "zapier-dev": "tsc --watch",
     "zapier-validate": "npm run zapier-build && zapier validate",
-    "zapier-push": "npm run zapier-build && zapier push",
+    "zapier-push": "npm run zapier-validate && zapier push",
     "prepare": "npm run zapier-build",
     "pretest": "npm run zapier-build",
     "test": "jest --passWithNoTests lib",
