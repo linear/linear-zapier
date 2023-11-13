@@ -39,7 +39,7 @@ const getProjectList = async (z: ZObject, bundle: Bundle) => {
             first: 50
             after: $after
             orderBy: updatedAt
-            filter: { state: { in: ["started", "planned", "paused"] } }
+            filter: { state: { in: ["backlog", "started", "planned", "paused"] } }
           ) {
             nodes {
               id
