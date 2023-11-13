@@ -94,7 +94,7 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
         creatorId: bundle.inputData.creator_id,
         teamId: bundle.inputData.team_id,
         issueId: bundle.inputData.issue,
-        after: cursor
+        after: cursor,
       },
     },
     method: "POST",
@@ -113,6 +113,12 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
     id: `${comment.id}-${comment.createdAt}`,
     commentId: comment.id,
   }));
+};
+
+const getCommentListWithZohoDeskTicketId = () => async (z: ZObject, bundle: Bundle) => {
+  const comments = await getCommentList()(z, bundle);
+
+  return comments.filter((comment) => /^#\d+/.test(comment.issue.title) && comment.body.includes("#support"));
 };
 
 const comment = {
@@ -157,6 +163,20 @@ export const newComment = {
   operation: {
     ...comment.operation,
     perform: getCommentList(),
+    canPaginate: true,
+  },
+};
+
+export const newCommentWithZohoDeskTicketId = {
+  ...comment,
+  key: "newCommentWithZohoDeskTicketId",
+  display: {
+    label: "New Comment With Zoho Desk Ticket ID",
+    description: "Triggers when a new comment is created to an issue with a Zoho Desk ticket ID.",
+  },
+  operation: {
+    ...comment.operation,
+    perform: getCommentListWithZohoDeskTicketId(),
     canPaginate: true,
   },
 };
