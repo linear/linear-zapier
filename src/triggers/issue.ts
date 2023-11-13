@@ -19,11 +19,11 @@ interface TeamIssuesResponse {
           project?: {
             id: string;
             name: string;
-          }
+          };
           projectMilestone?: {
             id: string;
             name: string;
-          }
+          };
           creator: {
             id: string;
             name: string;
@@ -35,16 +35,16 @@ interface TeamIssuesResponse {
             email: string;
           };
           status: {
-            id: string,
-            name: string,
-            type: string
-          },
+            id: string;
+            name: string;
+            type: string;
+          };
           parent?: {
             id: string;
             identifier: string;
             url: string;
             title: string;
-          }
+          };
         }[];
         pageInfo: {
           hasNextPage: boolean;
@@ -153,7 +153,7 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
         statusId: bundle.inputData.status_id,
         creatorId: bundle.inputData.creator_id,
         assigneeId: bundle.inputData.assignee_id,
-        priority: bundle.inputData.priority && Number(bundle.inputData.priority) || undefined,
+        priority: (bundle.inputData.priority && Number(bundle.inputData.priority)) || undefined,
         labelId: bundle.inputData.label_id,
         projectId: bundle.inputData.project_id,
         projectMilestoneId: bundle.inputData.project_milestone_id,
@@ -176,6 +176,12 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
     id: `${issue.id}-${issue[orderBy]}`,
     issueId: issue.id,
   }));
+};
+
+const buildIssueListWithZohoDeskTicketId = () => async (z: ZObject, bundle: Bundle) => {
+  const issues = await buildIssueList("updatedAt")(z, bundle);
+
+  return issues.filter((issue) => /^#\d+/.test(issue.title) && issue.status.name.toLowerCase().includes("solved"));
 };
 
 const issue = {
@@ -281,6 +287,20 @@ export const updatedIssue = {
   operation: {
     ...issue.operation,
     perform: buildIssueList("updatedAt"),
+    canPaginate: true,
+  },
+};
+
+export const updatedIssueWithZohoDeskTicketId = {
+  ...issue,
+  key: "updatedIssueWithZohoDeskTicketId",
+  display: {
+    label: "Updated Issue With Zoho Desk Ticket ID",
+    description: "Triggers when an issue with a Zoho Desk ticket ID is updated.",
+  },
+  operation: {
+    ...issue.operation,
+    perform: buildIssueListWithZohoDeskTicketId(),
     canPaginate: true,
   },
 };
