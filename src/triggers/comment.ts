@@ -9,7 +9,7 @@ interface CommentsResponse {
         body: string;
         url: string;
         createdAt: string;
-        issue: {
+        issue?: {
           id: string;
           identifier: string;
           title: string;
@@ -18,7 +18,32 @@ interface CommentsResponse {
             id: string;
             name: string;
           };
-        };
+        } | null;
+        projectUpdate?: {
+          id: string;
+          body: string;
+          user: {
+            id: string;
+            name: string;
+            email: string;
+            avatarUrl: string;
+          };
+          url: string;
+          project: {
+            id: string;
+            name: string;
+            url: string;
+          };
+        } | null;
+        documentContent?: {
+          id: string;
+          content: string;
+          project: {
+            id: string;
+            name: string;
+            url: string;
+          };
+        } | null;
         user: {
           id: string;
           email: string;
@@ -51,6 +76,7 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
         $creatorId: ID
         $teamId: ID
         $issueId: ID
+        $projectId: ID
       ) {
         comments(
           first: 25
@@ -60,6 +86,7 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
               { user: { id: { eq: $creatorId } } }
               { issue: { team: { id: { eq: $teamId } } } }
               { issue: { id: { eq: $issueId } } }
+              { project: { id: { eq: $projectId } } }
             ]
           }
         ) {
@@ -75,6 +102,31 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
               team {
                 id
                 name
+              }
+            }
+            projectUpdate {
+              id
+              body
+              user {
+                id
+                name
+                email
+                avatarUrl
+              }
+              url
+              project {
+                id
+                name
+                url
+              }
+            }
+            documentContent {
+              id
+              content
+              project {
+                id
+                name
+                url
               }
             }
             user {
@@ -94,7 +146,8 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
         creatorId: bundle.inputData.creator_id,
         teamId: bundle.inputData.team_id,
         issueId: bundle.inputData.issue,
-        after: cursor
+        projectId: bundle.inputData.project,
+        after: cursor,
       },
     },
     method: "POST",
@@ -141,6 +194,12 @@ const comment = {
         label: "Issue ID",
         key: "issue",
         helpText: "Only trigger on comments added to this issue identified by its ID (UUID or application ID).",
+      },
+      {
+        required: false,
+        label: "Project ID",
+        key: "project",
+        helpText: "Only triggers on comments added to this project (project update or document) identified by its ID.",
       },
     ],
     sample,
