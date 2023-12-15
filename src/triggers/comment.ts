@@ -9,7 +9,14 @@ interface CommentsResponse {
         body: string;
         url: string;
         createdAt: string;
-        issue?: {
+        resolvedAt: string | null;
+        resolvingUser: {
+          id: string;
+          name: string;
+          email: string;
+          avatarUrl: string;
+        } | null;
+        issue: {
           id: string;
           identifier: string;
           title: string;
@@ -19,7 +26,7 @@ interface CommentsResponse {
             name: string;
           };
         } | null;
-        projectUpdate?: {
+        projectUpdate: {
           id: string;
           body: string;
           user: {
@@ -35,7 +42,7 @@ interface CommentsResponse {
             url: string;
           };
         } | null;
-        documentContent?: {
+        documentContent: {
           id: string;
           content: string;
           project: {
@@ -50,6 +57,17 @@ interface CommentsResponse {
           name: string;
           avatarUrl: string;
         };
+        parent: {
+          id: string;
+          body: string;
+          createdAt: string;
+          user: {
+            id: string;
+            email: string;
+            name: string;
+            avatarUrl: string;
+          };
+        } | null;
       }[];
       pageInfo: {
         hasNextPage: boolean;
@@ -92,6 +110,13 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
             id
             body
             createdAt
+            resolvedAt
+            resolvingUser {
+              id
+              name
+              email
+              avatarUrl
+            }
             issue {
               id
               identifier
@@ -132,6 +157,17 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
               email
               name
               avatarUrl
+            }
+            parent {
+              id
+              body
+              createdAt
+              user {
+                id
+                email
+                name
+                avatarUrl
+              }
             }
           }
           pageInfo {
@@ -174,7 +210,7 @@ const comment = {
         required: false,
         label: "Team",
         key: "team_id",
-        helpText: "Only trigger on comments created to this team.",
+        helpText: "Only trigger on issue comments created to this team.",
         dynamic: "team.id.name",
         altersDynamicFields: true,
       },
@@ -182,7 +218,7 @@ const comment = {
         required: false,
         label: "Creator",
         key: "creator_id",
-        helpText: "Only trigger on comments added by this user.",
+        helpText: "Only trigger on comments (issue, project updates, document comments) added by this user.",
         dynamic: "user.id.name",
         altersDynamicFields: true,
       },
