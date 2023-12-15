@@ -80,6 +80,34 @@ interface CommentsResponse {
 const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
   const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
 
+  const variables = {
+    creatorId: bundle.inputData.creator_id,
+    teamId: bundle.inputData.team_id,
+    issueId: bundle.inputData.issue,
+    projectUpdateProjectId: bundle.inputData.project_update_project_id,
+    after: cursor,
+  };
+
+  const issueTeamFilter = variables.teamId ? `{ issue: { team: { id: { eq: $teamId } } } }` : "";
+  const issueIdFilter = variables.issueId ? `{ issue: { id: { eq: $issueId } } }` : "";
+  const projectUpdateProjectFilter = variables.projectUpdateProjectId
+    ? `{ projectUpdate: { project: { id: { eq: $projectUpdateProjectId }}}}`
+    : "";
+  const creatorFilter = variables.creatorId ? `{ user: { id: { eq: $creatorId } } }` : "";
+
+  let filterString = "";
+
+  if (creatorFilter || issueTeamFilter || issueIdFilter || projectUpdateProjectFilter) {
+    filterString = `filter: {
+      and: [
+        ${creatorFilter}
+        ${issueTeamFilter}
+        ${issueIdFilter}
+        ${projectUpdateProjectFilter}
+      ]
+    }`;
+  }
+
   const response = await z.request({
     url: "https://api.linear.app/graphql",
     headers: {
@@ -94,17 +122,12 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
         $creatorId: ID
         $teamId: ID
         $issueId: ID
+        $projectUpdateProjectId: ID
       ) {
         comments(
           first: 25
           after: $after
-          filter: {
-            and: [
-              { user: { id: { eq: $creatorId } } }
-              { issue: { team: { id: { eq: $teamId } } } }
-              { issue: { id: { eq: $issueId } } }
-            ]
-          }
+          ${filterString}
         ) {
           nodes {
             id
@@ -176,12 +199,7 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
           }
         }
       }`,
-      variables: {
-        creatorId: bundle.inputData.creator_id,
-        teamId: bundle.inputData.team_id,
-        issueId: bundle.inputData.issue,
-        after: cursor,
-      },
+      variables: variables,
     },
     method: "POST",
   });
@@ -226,7 +244,13 @@ const comment = {
         required: false,
         label: "Issue ID",
         key: "issue",
-        helpText: "Only trigger on comments added to this issue identified by its ID (UUID or application ID).",
+        helpText: "Only trigger on comments added to this issue identified by its ID.",
+      },
+      {
+        required: false,
+        label: "Project Update Project ID",
+        key: "project_update_project_id",
+        helpText: "Only trigger on project update comments added to this project identified by its ID",
       },
     ],
     sample,
