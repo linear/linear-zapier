@@ -76,7 +76,6 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
         $creatorId: ID
         $teamId: ID
         $issueId: ID
-        $projectId: ID
       ) {
         comments(
           first: 25
@@ -86,7 +85,6 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
               { user: { id: { eq: $creatorId } } }
               { issue: { team: { id: { eq: $teamId } } } }
               { issue: { id: { eq: $issueId } } }
-              { project: { id: { eq: $projectId } } }
             ]
           }
         ) {
@@ -146,7 +144,6 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
         creatorId: bundle.inputData.creator_id,
         teamId: bundle.inputData.team_id,
         issueId: bundle.inputData.issue,
-        projectId: bundle.inputData.project,
         after: cursor,
       },
     },
@@ -194,12 +191,6 @@ const comment = {
         label: "Issue ID",
         key: "issue",
         helpText: "Only trigger on comments added to this issue identified by its ID (UUID or application ID).",
-      },
-      {
-        required: false,
-        label: "Project ID",
-        key: "project",
-        helpText: "Only triggers on comments added to this project (project update or document) identified by its ID.",
       },
     ],
     sample,
