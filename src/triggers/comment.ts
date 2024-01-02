@@ -57,7 +57,17 @@ interface CommentsResponse {
           name: string;
           avatarUrl: string;
         };
-        parentId: string | null;
+        parent: {
+          id: string;
+          body: string;
+          createdAt: string;
+          user: {
+            id: string;
+            email: string;
+            name: string;
+            avatarUrl: string;
+          };
+        } | null;
       }[];
       pageInfo: {
         hasNextPage: boolean;
@@ -171,7 +181,17 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
               name
               avatarUrl
             }
-            parentId
+            parent {
+              id
+              body
+              createdAt
+              user {
+                id
+                email
+                name
+                avatarUrl
+              }
+            }
           }
           pageInfo {
             hasNextPage
