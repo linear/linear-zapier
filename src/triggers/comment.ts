@@ -49,6 +49,15 @@ interface CommentsResponse {
             id: string;
             name: string;
             url: string;
+          } | null;
+          document: {
+            id: string;
+            title: string;
+            project: {
+              id: string;
+              name: string;
+              url: string;
+            };
           };
         } | null;
         user: {
@@ -173,6 +182,15 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
                 id
                 name
                 url
+              }
+              document {
+                id
+                title
+                project {
+                  id
+                  name
+                  url
+                }
               }
             }
             user {
