@@ -1,4 +1,4 @@
-import sample from "../samples/comment.json";
+import sample from "../samples/issueComment.json";
 import { ZObject, Bundle } from "zapier-platform-core";
 
 interface CommentsResponse {

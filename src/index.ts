@@ -1,7 +1,7 @@
 import { addBearerHeader, authentication } from "./authentication";
 import { createIssue } from "./creates/createIssue";
-import { newIssueComment } from "./triggers/issueComment";
-import { newProjectUpdateComment } from "./triggers/projectUpdateComment";
+import { newIssueComment } from "./triggers/commentIssue";
+import { newProjectUpdateComment } from "./triggers/commentProjectUpdate";
 import { newIssue, updatedIssue } from "./triggers/issue";
 import { team } from "./triggers/team";
 import { status } from "./triggers/status";
