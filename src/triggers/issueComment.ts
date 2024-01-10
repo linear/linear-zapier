@@ -16,16 +16,6 @@ interface CommentsResponse {
           email: string;
           avatarUrl: string;
         } | null;
-        issue: {
-          id: string;
-          identifier: string;
-          title: string;
-          url: string;
-          team: {
-            id: string;
-            name: string;
-          };
-        } | null;
         projectUpdate: {
           id: string;
           body: string;
@@ -40,24 +30,6 @@ interface CommentsResponse {
             id: string;
             name: string;
             url: string;
-          };
-        } | null;
-        documentContent: {
-          id: string;
-          content: string;
-          project: {
-            id: string;
-            name: string;
-            url: string;
-          } | null;
-          document: {
-            id: string;
-            title: string;
-            project: {
-              id: string;
-              name: string;
-              url: string;
-            };
           };
         } | null;
         user: {
@@ -275,7 +247,7 @@ const comment = {
   },
 };
 
-export const newComment = {
+export const newIssueComment = {
   ...comment,
   key: "newComment",
   display: {
