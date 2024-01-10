@@ -16,22 +16,16 @@ interface CommentsResponse {
           email: string;
           avatarUrl: string;
         } | null;
-        projectUpdate: {
+        issue: {
           id: string;
-          body: string;
-          user: {
-            id: string;
-            name: string;
-            email: string;
-            avatarUrl: string;
-          };
+          identifier: string;
+          title: string;
           url: string;
-          project: {
+          team: {
             id: string;
             name: string;
-            url: string;
           };
-        } | null;
+        };
         user: {
           id: string;
           email: string;
@@ -65,29 +59,8 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
     creatorId: bundle.inputData.creator_id,
     teamId: bundle.inputData.team_id,
     issueId: bundle.inputData.issue,
-    projectUpdateProjectId: bundle.inputData.project_update_project_id,
     after: cursor,
   };
-
-  const issueTeamFilter = variables.teamId ? `{ issue: { team: { id: { eq: $teamId } } } }` : "";
-  const issueIdFilter = variables.issueId ? `{ issue: { id: { eq: $issueId } } }` : "";
-  const projectUpdateProjectFilter = variables.projectUpdateProjectId
-    ? `{ projectUpdate: { project: { id: { eq: $projectUpdateProjectId }}}}`
-    : "";
-  const creatorFilter = variables.creatorId ? `{ user: { id: { eq: $creatorId } } }` : "";
-
-  let filterString = "";
-
-  if (creatorFilter || issueTeamFilter || issueIdFilter || projectUpdateProjectFilter) {
-    filterString = `filter: {
-      and: [
-        ${creatorFilter}
-        ${issueTeamFilter}
-        ${issueIdFilter}
-        ${projectUpdateProjectFilter}
-      ]
-    }`;
-  }
 
   const response = await z.request({
     url: "https://api.linear.app/graphql",
@@ -100,15 +73,20 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
       query: `
       query ZapierListComments(
         $after: String
-        ${creatorFilter ? "$creatorId: ID" : ""}
-        ${issueTeamFilter ? "$teamId: ID" : ""}
-        ${issueIdFilter ? "$issueId: ID" : ""}
-        ${projectUpdateProjectFilter ? "$projectUpdateProjectId: ID" : ""}
+        $creatorId: ID
+        $teamId: ID
+        $issueId: ID
       ) {
         comments(
           first: 25
           after: $after
-          ${filterString}
+          filter: {
+            and: [
+              { user: { id: { eq: $creatorId } } }
+              { issue: { team: { id: { eq: $teamId } } } }
+              { issue: { id: { eq: $issueId } } }
+            ]
+          }
         ) {
           nodes {
             id
@@ -129,40 +107,6 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
               team {
                 id
                 name
-              }
-            }
-            projectUpdate {
-              id
-              body
-              user {
-                id
-                name
-                email
-                avatarUrl
-              }
-              url
-              project {
-                id
-                name
-                url
-              }
-            }
-            documentContent {
-              id
-              content
-              project {
-                id
-                name
-                url
-              }
-              document {
-                id
-                title
-                project {
-                  id
-                  name
-                  url
-                }
               }
             }
             user {
@@ -236,12 +180,6 @@ const comment = {
         key: "issue",
         helpText: "Only trigger on comments added to this issue identified by its ID.",
       },
-      {
-        required: false,
-        label: "Project Update Project ID",
-        key: "project_update_project_id",
-        helpText: "Only trigger on project update comments added to this project identified by its ID",
-      },
     ],
     sample,
   },
@@ -251,8 +189,8 @@ export const newIssueComment = {
   ...comment,
   key: "newComment",
   display: {
-    label: "New Comment",
-    description: "Triggers when a new comment is created.",
+    label: "New Issue Comment",
+    description: "Triggers when a new issue comment is created.",
   },
   operation: {
     ...comment.operation,
