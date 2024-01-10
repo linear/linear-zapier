@@ -1,6 +1,6 @@
 {
   "name": "linear-zapier",
-  "version": "2.11.1",
+  "version": "2.11.2",
   "description": "Linear's Zapier integration",
   "main": "index.js",
   "license": "MIT",
