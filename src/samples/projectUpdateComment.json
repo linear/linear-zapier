@@ -1,0 +1,30 @@
+{
+  "id": "cc0ab5ef-e040-451b-805b-712b7740fc2f",
+  "body": "A great update! I'm looking forward to trying it out.",
+  "createdAt": "2024-01-05T23:36:40.311Z",
+  "resolvedAt": null,
+  "resolvingUser": null,
+  "projectUpdate": {
+    "id": "bb1cfa33-722b-492f-9277-b47133baff13",
+    "body": "This week I focused on getting email attachments working and an initial implementation is now in review on GitHub.",
+    "user": {
+      "id": "46832797-1b82-48ab-bb4a-592adf8d1572",
+      "name": "John Smith",
+      "email": "user@example.com",
+      "avatarUrl": null
+    },
+    "url": "https://linear.app/example/project/the-bext-project-4437c60bc5ec#projectUpdate-bb1cfa33",
+    "project": {
+      "id": "9f337b8e-f1fa-4d37-b41a-7f58e2321b63",
+      "name": "The Best Project",
+      "url": "https://linear.app/example/project/the-bext-project-4437c60bc5ec"
+    }
+  },
+  "user": {
+    "id": "4a6575f7-a80b-4419-8088-8119f97954c3",
+    "email": "another-user@example.com",
+    "name": "Tom Lee",
+    "avatarUrl": null
+  },
+  "parent": null
+}
