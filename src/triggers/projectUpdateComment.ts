@@ -16,16 +16,6 @@ interface CommentsResponse {
           email: string;
           avatarUrl: string;
         } | null;
-        issue: {
-          id: string;
-          identifier: string;
-          title: string;
-          url: string;
-          team: {
-            id: string;
-            name: string;
-          };
-        } | null;
         projectUpdate: {
           id: string;
           body: string;
@@ -41,25 +31,7 @@ interface CommentsResponse {
             name: string;
             url: string;
           };
-        } | null;
-        documentContent: {
-          id: string;
-          content: string;
-          project: {
-            id: string;
-            name: string;
-            url: string;
-          } | null;
-          document: {
-            id: string;
-            title: string;
-            project: {
-              id: string;
-              name: string;
-              url: string;
-            };
-          };
-        } | null;
+        };
         user: {
           id: string;
           email: string;
@@ -91,31 +63,9 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
 
   const variables = {
     creatorId: bundle.inputData.creator_id,
-    teamId: bundle.inputData.team_id,
-    issueId: bundle.inputData.issue,
-    projectUpdateProjectId: bundle.inputData.project_update_project_id,
+    projectId: bundle.inputData.project_id,
     after: cursor,
   };
-
-  const issueTeamFilter = variables.teamId ? `{ issue: { team: { id: { eq: $teamId } } } }` : "";
-  const issueIdFilter = variables.issueId ? `{ issue: { id: { eq: $issueId } } }` : "";
-  const projectUpdateProjectFilter = variables.projectUpdateProjectId
-    ? `{ projectUpdate: { project: { id: { eq: $projectUpdateProjectId }}}}`
-    : "";
-  const creatorFilter = variables.creatorId ? `{ user: { id: { eq: $creatorId } } }` : "";
-
-  let filterString = "";
-
-  if (creatorFilter || issueTeamFilter || issueIdFilter || projectUpdateProjectFilter) {
-    filterString = `filter: {
-      and: [
-        ${creatorFilter}
-        ${issueTeamFilter}
-        ${issueIdFilter}
-        ${projectUpdateProjectFilter}
-      ]
-    }`;
-  }
 
   const response = await z.request({
     url: "https://api.linear.app/graphql",
@@ -128,15 +78,18 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
       query: `
       query ZapierListComments(
         $after: String
-        ${creatorFilter ? "$creatorId: ID" : ""}
-        ${issueTeamFilter ? "$teamId: ID" : ""}
-        ${issueIdFilter ? "$issueId: ID" : ""}
-        ${projectUpdateProjectFilter ? "$projectUpdateProjectId: ID" : ""}
+        $creatorId: ID
+        $projectId: ID
       ) {
         comments(
           first: 25
           after: $after
-          ${filterString}
+          filter: {
+            and: [
+              { user: { id: { eq: $creatorId } } }
+              { projectUpdate: { project: { id: { eq: $projectId }}}}
+            ]
+          }
         ) {
           nodes {
             id
@@ -148,16 +101,6 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
               name
               email
               avatarUrl
-            }
-            issue {
-              id
-              identifier
-              title
-              url
-              team {
-                id
-                name
-              }
             }
             projectUpdate {
               id
@@ -173,24 +116,6 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
                 id
                 name
                 url
-              }
-            }
-            documentContent {
-              id
-              content
-              project {
-                id
-                name
-                url
-              }
-              document {
-                id
-                title
-                project {
-                  id
-                  name
-                  url
-                }
               }
             }
             user {
@@ -244,30 +169,16 @@ const comment = {
     inputFields: [
       {
         required: false,
-        label: "Team",
-        key: "team_id",
-        helpText: "Only trigger on issue comments created to this team.",
-        dynamic: "team.id.name",
-        altersDynamicFields: true,
-      },
-      {
-        required: false,
         label: "Creator",
         key: "creator_id",
-        helpText: "Only trigger on comments (issue, project updates, document comments) added by this user.",
+        helpText: "Only trigger on project update comments added by this user.",
         dynamic: "user.id.name",
         altersDynamicFields: true,
       },
       {
         required: false,
-        label: "Issue ID",
-        key: "issue",
-        helpText: "Only trigger on comments added to this issue identified by its ID.",
-      },
-      {
-        required: false,
-        label: "Project Update Project ID",
-        key: "project_update_project_id",
+        label: "Project ID",
+        key: "project_id",
         helpText: "Only trigger on project update comments added to this project identified by its ID",
       },
     ],
@@ -275,12 +186,12 @@ const comment = {
   },
 };
 
-export const newIssueComment = {
+export const newProjectUpdateComment = {
   ...comment,
-  key: "newComment",
+  key: "newProjectUpdateComment",
   display: {
-    label: "New Comment",
-    description: "Triggers when a new comment is created.",
+    label: "New Project Update Comment",
+    description: "Triggers when a new project update comment is created.",
   },
   operation: {
     ...comment.operation,

@@ -170,7 +170,7 @@ const comment = {
         required: false,
         label: "Creator",
         key: "creator_id",
-        helpText: "Only trigger on comments (issue, project updates, document comments) added by this user.",
+        helpText: "Only trigger on issue comments added by this user.",
         dynamic: "user.id.name",
         altersDynamicFields: true,
       },
