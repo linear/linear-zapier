@@ -128,10 +128,10 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
       query: `
       query ZapierListComments(
         $after: String
-        $creatorId: ID
-        $teamId: ID
-        $issueId: ID
-        $projectUpdateProjectId: ID
+        ${creatorFilter ? "$creatorId: ID" : ""}
+        ${issueTeamFilter ? "$teamId: ID" : ""}
+        ${issueIdFilter ? "$issueId: ID" : ""}
+        ${projectUpdateProjectFilter ? "$projectUpdateProjectId: ID" : ""}
       ) {
         comments(
           first: 25
