@@ -2,6 +2,7 @@ import { addBearerHeader, authentication } from "./authentication";
 import { createIssue } from "./creates/createIssue";
 import { newIssueComment } from "./triggers/commentIssue";
 import { newProjectUpdateComment } from "./triggers/commentProjectUpdate";
+import { newDocumentComment } from "./triggers/commentDocument";
 import { newIssue, updatedIssue } from "./triggers/issue";
 import { team } from "./triggers/team";
 import { status } from "./triggers/status";
@@ -45,6 +46,7 @@ const App = {
     [newIssueComment.key]: newIssueComment,
     [newProjectUpdate.key]: newProjectUpdate,
     [newProjectUpdateComment.key]: newProjectUpdateComment,
+    [newDocumentComment.key]: newDocumentComment,
     [updatedProjectUpdate.key]: updatedProjectUpdate,
     [team.key]: team,
     [status.key]: status,
