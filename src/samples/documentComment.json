@@ -1,0 +1,25 @@
+{
+  "id": "cc0ab5ef-e040-451b-805b-712b7740fc2f",
+  "body": "I agree with you, let's go with this version of the design.",
+  "createdAt": "2024-01-05T23:36:40.311Z",
+  "resolvedAt": null,
+  "resolvingUser": null,
+  "documentContent": {
+    "id": "c4012402-d0c7-4c2f-aeef-ff660fa7c952",
+    "createdAt": "2023-09-29T18:07:35.001Z",
+    "updatedAt": "2024-01-11T16:56:47.539Z",
+    "project": {
+      "id": "73cd5db5-35a1-4d6a-a796-7060c98842f5",
+      "name": "iOS App",
+      "url": "https://linear.app/example/project/ios-app-629ae4138e0d"
+    },
+    "document": null
+  },
+  "user": {
+    "id": "4a6575f7-a80b-4419-8088-8119f97954c3",
+    "email": "another-user@example.com",
+    "name": "Tom Lee",
+    "avatarUrl": null
+  },
+  "parent": null
+}
