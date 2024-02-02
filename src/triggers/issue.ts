@@ -13,7 +13,9 @@ interface TeamIssuesResponse {
           description: string;
           priority: string;
           estimate: number;
-          dueDate: Date;
+          dueDate?: Date;
+          slaBreachesAt?: Date;
+          slaStartedAt?: Date;
           createdAt: Date;
           updatedAt: Date;
           project?: {
@@ -107,6 +109,8 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
               priority
               estimate
               dueDate
+              slaBreachesAt
+              slaStartedAt
               createdAt
               updatedAt
               project {

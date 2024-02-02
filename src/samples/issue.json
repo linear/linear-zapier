@@ -7,6 +7,8 @@
   "priority": 0,
   "estimate": null,
   "dueDate": null,
+  "slaBreachesAt": null,
+  "slaStartedAt": null,
   "createdAt": "2022-10-27T21:20:59.199Z",
   "updatedAt": "2022-10-27T21:20:59.199Z",
   "project": {
