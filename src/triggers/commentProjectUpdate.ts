@@ -1,5 +1,6 @@
-import sample from "../samples/projectUpdateComment.json";
+import { omitBy } from "lodash";
 import { ZObject, Bundle } from "zapier-platform-core";
+import sample from "../samples/projectUpdateComment.json";
 
 interface CommentsResponse {
   data: {
@@ -61,11 +62,19 @@ interface CommentsResponse {
 const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
   const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
 
-  const variables = {
+  const variables = omitBy({
     creatorId: bundle.inputData.creator_id,
     projectId: bundle.inputData.project_id,
     after: cursor,
-  };
+  }, v => v === undefined);
+
+  const filters = [];
+  if ("creatorId" in variables) {
+    filters.push(`{ user: { id: { eq: $creatorId } } }`);
+  }
+  if ("projectId" in variables) {
+    filters.push(`{ projectUpdate: { project: { id: { eq: $projectId } } } }`);
+  }
 
   const response = await z.request({
     url: "https://api.linear.app/graphql",
@@ -84,12 +93,12 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
         comments(
           first: 25
           after: $after
+          ${filters.length > 0 ?`
           filter: {
-            and: [
-              { user: { id: { eq: $creatorId } } }
-              { projectUpdate: { project: { id: { eq: $projectId }}}}
+            and : [
+              ${filters.join("\n              ")}
             ]
-          }
+          }` : ""}
         ) {
           nodes {
             id

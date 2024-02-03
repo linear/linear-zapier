@@ -1,6 +1,6 @@
 {
   "name": "linear-zapier",
-  "version": "2.12.0",
+  "version": "2.13.0",
   "description": "Linear's Zapier integration",
   "main": "index.js",
   "license": "MIT",
@@ -18,10 +18,12 @@
     "npm": ">=5.6.0"
   },
   "dependencies": {
+    "lodash": "4.17.21",
     "zapier-platform-core": "12.0.3"
   },
   "devDependencies": {
     "@types/jest": "^24.0.19",
+    "@types/lodash": "*",
     "@types/node": "^16.11.7",
     "jest": "^24.9.0",
     "typescript": "^4.5.5"

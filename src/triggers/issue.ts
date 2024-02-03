@@ -1,5 +1,6 @@
-import sample from "../samples/issue.json";
+import { omitBy } from "lodash";
 import { ZObject, Bundle } from "zapier-platform-core";
+import sample from "../samples/issue.json";
 
 interface TeamIssuesResponse {
   data: {
@@ -64,6 +65,42 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
 
   const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
 
+  const variables = omitBy({
+    after: cursor,
+    teamId: bundle.inputData.team_id,
+    statusId: bundle.inputData.status_id,
+    creatorId: bundle.inputData.creator_id,
+    assigneeId: bundle.inputData.assignee_id,
+    priority: bundle.inputData.priority && Number(bundle.inputData.priority) || undefined,
+    labelId: bundle.inputData.label_id,
+    projectId: bundle.inputData.project_id,
+    projectMilestoneId: bundle.inputData.project_milestone_id,
+    orderBy,
+  }, v => v === undefined);
+
+  const filters = [];
+  if ("priority" in variables) {
+    filters.push(`priority: { eq: $priority }`);
+  }
+  if ("statusId" in variables) {
+    filters.push(`state: { id: { eq: $statusId } }`);
+  }
+  if ("creatorId" in variables) {
+    filters.push(`creator: { id: { eq: $creatorId } }`);
+  }
+  if ("assigneeId" in variables) {
+    filters.push(`assignee: { id: { eq: $assigneeId } }`);
+  }
+  if ("labelId" in variables) {
+    filters.push(`labels: { id: { eq: $labelId } }`);
+  }
+  if ("projectId" in variables) {
+    filters.push(`project: { id: { eq: $projectId } }`);
+  }
+  if ("projectMilestoneId" in variables) {
+    filters.push(`projectMilestone: { id: { eq: $projectMilestoneId } }`);
+  }
+
   const response = await z.request({
     url: "https://api.linear.app/graphql",
     headers: {
@@ -90,15 +127,10 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
             first: 10
             after: $after
             orderBy: $orderBy
+            ${filters.length > 0 ?`
             filter: {
-              priority: { eq: $priority }
-              state: { id: { eq: $statusId } }
-              creator: { id: { eq: $creatorId } }
-              assignee: { id: { eq: $assigneeId } }
-              labels: { id: { eq: $labelId } }
-              project: { id: { eq: $projectId } }
-              projectMilestone: { id: { eq: $projectMilestoneId } }
-            }
+              ${filters.join("\n              ")}
+            }` : ""}
           ) {
             nodes {
               id
@@ -151,18 +183,7 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
         }
       }
       `,
-      variables: {
-        after: cursor,
-        teamId: bundle.inputData.team_id,
-        statusId: bundle.inputData.status_id,
-        creatorId: bundle.inputData.creator_id,
-        assigneeId: bundle.inputData.assignee_id,
-        priority: bundle.inputData.priority && Number(bundle.inputData.priority) || undefined,
-        labelId: bundle.inputData.label_id,
-        projectId: bundle.inputData.project_id,
-        projectMilestoneId: bundle.inputData.project_milestone_id,
-        orderBy,
-      },
+      variables,
     },
     method: "POST",
   });
