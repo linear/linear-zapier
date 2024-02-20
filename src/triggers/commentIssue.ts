@@ -1,5 +1,6 @@
-import sample from "../samples/issueComment.json";
+import { omitBy } from "lodash";
 import { ZObject, Bundle } from "zapier-platform-core";
+import sample from "../samples/issueComment.json";
 
 interface CommentsResponse {
   data: {
@@ -55,12 +56,23 @@ interface CommentsResponse {
 const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
   const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
 
-  const variables = {
+  const variables = omitBy({
     creatorId: bundle.inputData.creator_id,
     teamId: bundle.inputData.team_id,
     issueId: bundle.inputData.issue,
     after: cursor,
-  };
+  }, v => v === undefined);
+
+  const filters = [];
+  if ("creatorId" in variables) {
+    filters.push(`{ user: { id: { eq: $creatorId } } }`);
+  }
+  if ("teamId" in variables) {
+    filters.push(`{ issue: { team: { id: { eq: $teamId } } } }`);
+  }
+  if ("issueId" in variables) {
+    filters.push(`{ issue: { id: { eq: $issueId } } }`);
+  }
 
   const response = await z.request({
     url: "https://api.linear.app/graphql",
@@ -73,20 +85,19 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
       query: `
       query ZapierListComments(
         $after: String
-        $creatorId: ID
-        $teamId: ID
-        $issueId: ID
+        ${"creatorId" in variables ? "$creatorId: ID" : ""}
+        ${"teamId" in variables ? "$teamId: ID" : ""}
+        ${"issueId" in variables ? "$issueId: ID" : ""}
       ) {
         comments(
           first: 25
           after: $after
+          ${filters.length > 0 ?`
           filter: {
-            and: [
-              { user: { id: { eq: $creatorId } } }
-              { issue: { team: { id: { eq: $teamId } } } }
-              { issue: { id: { eq: $issueId } } }
+            and : [
+              ${filters.join("\n              ")}
             ]
-          }
+          }` : ""}
         ) {
           nodes {
             id

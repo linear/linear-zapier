@@ -6,7 +6,9 @@
     "outDir": "./lib",
     "rootDir": "./src",
     "strict": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "noImplicitAny": true,
   },
   "include": ["./src/**/*"],
   "exclude": ["node_modules", "typings"]
