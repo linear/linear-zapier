@@ -71,7 +71,6 @@ export const createComment = {
 
   display: {
     hidden: false,
-    important: true,
     description: "Create a new issue comment in Linear",
     label: "Create Comment",
   },
