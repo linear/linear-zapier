@@ -113,13 +113,13 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
       query ZapierListIssues(
         $after: String
         $teamId: String!
-        $priority: Float
-        $statusId: ID
-        $creatorId: ID
-        $assigneeId: ID
-        $labelId: ID
-        $projectId: ID
-        $projectMilestoneId: ID
+        ${"priority" in variables ? "$priority: Float" : ""}
+        ${"statusId" in variables ? "$statusId: ID" : ""}
+        ${"creatorId" in variables ? "$creatorId: ID" : ""}
+        ${"assigneeId" in variables ? "$assigneeId: ID" : ""}
+        ${"labelId" in variables ? "$labelId: ID" : ""}
+        ${"projectId" in variables ? "$projectId: ID" : ""}
+        ${"projectMilestoneId" in variables ? "$projectMilestoneId: ID" : ""}
         $orderBy: PaginationOrderBy!
       ) {
         team(id: $teamId) {
