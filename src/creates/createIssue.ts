@@ -176,7 +176,6 @@ export const createIssue = {
 
   display: {
     hidden: false,
-    important: true,
     description: "Create a new issue in Linear",
     label: "Create Issue",
   },

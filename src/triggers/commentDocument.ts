@@ -1,5 +1,6 @@
-import sample from "../samples/projectUpdateComment.json";
+import { omitBy } from "lodash";
 import { ZObject, Bundle } from "zapier-platform-core";
+import sample from "../samples/projectUpdateComment.json";
 
 interface CommentsResponse {
   data: {
@@ -63,12 +64,24 @@ interface CommentsResponse {
 const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
   const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
 
-  const variables = {
+  const variables = omitBy({
     creatorId: bundle.inputData.creator_id,
     projectId: bundle.inputData.project_id,
     documentId: bundle.inputData.document_id,
     after: cursor,
-  };
+  }, v => v === undefined);
+
+  const filters = [];
+  if ("creatorId" in variables) {
+    filters.push(`{ user: { id: { eq: $creatorId } } }`);
+  }
+  if ("projectId" in variables) {
+    filters.push(`{ documentContent: { project: { id: { eq: $projectId }} } }`);
+    filters.push(`{ documentContent: { document: { project: { id: { eq: $projectId }}}}}`);
+  }
+  if ("documentId" in variables) {
+    filters.push(`{ documentContent: { document: { id: { eq: $documentId }}}}`);
+  }
 
   const response = await z.request({
     url: "https://api.linear.app/graphql",
@@ -81,21 +94,19 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
       query: `
       query ZapierListComments(
         $after: String
-        $creatorId: ID
-        $projectId: ID
-        $documentId: ID
+        ${"creatorId" in variables ? "$creatorId: ID" : ""}
+        ${"projectId" in variables ? "$projectId: ID" : ""}
+        ${"documentId" in variables ? "$documentId: ID" : ""}
       ) {
         comments(
           first: 25
           after: $after
+          ${filters.length > 0 ?`
           filter: {
-            and: [
-              { user: { id: { eq: $creatorId } } }
-              { documentContent: { project: { id: { eq: $projectId }} } }
-              { documentContent: { document: { project: { id: { eq: $projectId }}}}}
-              { documentContent: { document: { id: { eq: $documentId }}}}
+            and : [
+              ${filters.join("\n              ")}
             ]
-          }
+          }` : ""}
         ) {
           nodes {
             id
