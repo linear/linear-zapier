@@ -8,6 +8,9 @@ interface TeamProjectsResponse {
           id: string;
           name: string;
           state: string;
+          status: {
+            id: string;
+          };
         }[];
         pageInfo: {
           hasNextPage: boolean;
@@ -39,12 +42,15 @@ const getProjectList = async (z: ZObject, bundle: Bundle) => {
             first: 50
             after: $after
             orderBy: updatedAt
-            filter: { state: { in: ["backlog", "started", "planned", "paused"] } }
+            filter: { status: { type: { in: ["backlog", "started", "planned"] } } }
           ) {
             nodes {
               id
               name
               state
+              status {
+                id
+              }
             }
             pageInfo {
               hasNextPage
@@ -55,14 +61,14 @@ const getProjectList = async (z: ZObject, bundle: Bundle) => {
       }`,
       variables: {
         teamId: bundle.inputData.team_id,
-        after: cursor
+        after: cursor,
       },
     },
     method: "POST",
   });
 
   const data = (response.json as TeamProjectsResponse).data;
-  const projects = data.team.projects.nodes
+  const projects = data.team.projects.nodes;
 
   // Set cursor for pagination
   if (data.team.projects.pageInfo.hasNextPage) {
