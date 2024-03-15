@@ -10,6 +10,8 @@ interface TeamProjectsResponse {
           state: string;
           status: {
             id: string;
+            name: string;
+            type: string;
           };
         }[];
         pageInfo: {
@@ -50,6 +52,8 @@ const getProjectList = async (z: ZObject, bundle: Bundle) => {
               state
               status {
                 id
+                name
+                type
               }
             }
             pageInfo {
