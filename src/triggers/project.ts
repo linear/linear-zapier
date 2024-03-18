@@ -7,7 +7,6 @@ interface TeamProjectsResponse {
         nodes: {
           id: string;
           name: string;
-          state: string;
           status: {
             id: string;
             name: string;
@@ -49,7 +48,6 @@ const getProjectList = async (z: ZObject, bundle: Bundle) => {
             nodes {
               id
               name
-              state
               status {
                 id
                 name
