@@ -21,7 +21,7 @@ const getUserList = async (z: ZObject, bundle: Bundle) => {
   const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
 
   const response = await z.request({
-    url: "https://api.linear.app/graphql",
+    url: "https://local.linear.dev:8090/graphql",
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
@@ -48,7 +48,7 @@ const getUserList = async (z: ZObject, bundle: Bundle) => {
         }
       `,
       variables: {
-        after: cursor
+        after: cursor,
       },
     },
     method: "POST",
@@ -62,7 +62,7 @@ const getUserList = async (z: ZObject, bundle: Bundle) => {
     await z.cursor.set(data.users.pageInfo.endCursor);
   }
 
-  return users.map(user => ({
+  return users.map((user) => ({
     name: `${user.name} (${user.displayName})`,
     id: user.id,
   }));

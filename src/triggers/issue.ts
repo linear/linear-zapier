@@ -22,11 +22,11 @@ interface TeamIssuesResponse {
           project?: {
             id: string;
             name: string;
-          }
+          };
           projectMilestone?: {
             id: string;
             name: string;
-          }
+          };
           creator: {
             id: string;
             name: string;
@@ -38,16 +38,16 @@ interface TeamIssuesResponse {
             email: string;
           };
           status: {
-            id: string,
-            name: string,
-            type: string
-          },
+            id: string;
+            name: string;
+            type: string;
+          };
           parent?: {
             id: string;
             identifier: string;
             url: string;
             title: string;
-          }
+          };
         }[];
         pageInfo: {
           hasNextPage: boolean;
@@ -65,18 +65,21 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
 
   const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
 
-  const variables = omitBy({
-    after: cursor,
-    teamId: bundle.inputData.team_id,
-    statusId: bundle.inputData.status_id,
-    creatorId: bundle.inputData.creator_id,
-    assigneeId: bundle.inputData.assignee_id,
-    priority: bundle.inputData.priority && Number(bundle.inputData.priority) || undefined,
-    labelId: bundle.inputData.label_id,
-    projectId: bundle.inputData.project_id,
-    projectMilestoneId: bundle.inputData.project_milestone_id,
-    orderBy,
-  }, v => v === undefined);
+  const variables = omitBy(
+    {
+      after: cursor,
+      teamId: bundle.inputData.team_id,
+      statusId: bundle.inputData.status_id,
+      creatorId: bundle.inputData.creator_id,
+      assigneeId: bundle.inputData.assignee_id,
+      priority: (bundle.inputData.priority && Number(bundle.inputData.priority)) || undefined,
+      labelId: bundle.inputData.label_id,
+      projectId: bundle.inputData.project_id,
+      projectMilestoneId: bundle.inputData.project_milestone_id,
+      orderBy,
+    },
+    (v) => v === undefined
+  );
 
   const filters = [];
   if ("priority" in variables) {
@@ -102,7 +105,7 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
   }
 
   const response = await z.request({
-    url: "https://api.linear.app/graphql",
+    url: "https://local.linear.dev:8090/graphql",
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
@@ -127,10 +130,14 @@ const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject
             first: 10
             after: $after
             orderBy: $orderBy
-            ${filters.length > 0 ?`
+            ${
+              filters.length > 0
+                ? `
             filter: {
               ${filters.join("\n              ")}
-            }` : ""}
+            }`
+                : ""
+            }
           ) {
             nodes {
               id

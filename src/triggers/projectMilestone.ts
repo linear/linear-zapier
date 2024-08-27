@@ -25,7 +25,7 @@ const getProjectMilestonesList = async (z: ZObject, bundle: Bundle) => {
   const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
 
   const response = await z.request({
-    url: "https://api.linear.app/graphql",
+    url: "https://local.linear.dev:8090/graphql",
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
@@ -54,14 +54,14 @@ const getProjectMilestonesList = async (z: ZObject, bundle: Bundle) => {
       }`,
       variables: {
         projectId: bundle.inputData.project_id,
-        after: cursor
+        after: cursor,
       },
     },
     method: "POST",
   });
 
   const data = (response.json as ProjectMilestonesResponse).data;
-  const projectMilestones = data.project.projectMilestones.nodes.sort((a, b) => a.sortOrder - b.sortOrder)
+  const projectMilestones = data.project.projectMilestones.nodes.sort((a, b) => a.sortOrder - b.sortOrder);
 
   // Set cursor for pagination
   if (data.project.projectMilestones.pageInfo.hasNextPage) {
