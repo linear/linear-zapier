@@ -16,7 +16,7 @@ import { createComment } from "./creates/createComment";
 import { estimate } from "./triggers/estimate";
 
 const handleErrors = (response: HttpResponse, z: ZObject) => {
-  if (response.request.url !== "https://linear-dev-intercom.ngrok.io/graphql") {
+  if (response.request.url !== "https://linear-dev-zapier.ngrok.io/graphql") {
     return response;
   }
 
