@@ -25,7 +25,7 @@ const getProjectMilestonesList = async (z: ZObject, bundle: Bundle) => {
   const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
 
   const response = await z.request({
-    url: "https://local.linear.dev:8090/graphql",
+    url: "https://linear-dev-intercom.ngrok.io/graphql",
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
