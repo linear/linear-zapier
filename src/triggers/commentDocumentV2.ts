@@ -67,7 +67,6 @@ const subscribeHook = (z: ZObject, bundle: Bundle) => {
   const data = {
     url: bundle.targetUrl,
     inputData: bundle.inputData,
-    trigger: "commentDocument",
   };
 
   // You may return a promise or a normal data structure from any perform method.
@@ -77,7 +76,7 @@ const subscribeHook = (z: ZObject, bundle: Bundle) => {
 
   return z
     .request({
-      url: "https://linear-dev-zapier.ngrok.io/hooks/zapier/subscribe",
+      url: "https://linear-dev-zapier.ngrok.io/hooks/zapier/subscribe/commentDocument",
       method: "POST",
       body: data,
     })
