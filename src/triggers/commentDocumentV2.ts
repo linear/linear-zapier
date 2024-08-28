@@ -64,14 +64,14 @@ interface CommentsResponse {
 }
 
 const subscribeHook = (z: ZObject, bundle: Bundle) => {
-  // `z.console.log()` is similar to `console.log()`.
-  z.console.log("bundle", { ...bundle });
+  z.console.log("bundle while subscribing", bundle);
 
   // bundle.targetUrl has the Hook URL this app should call when a recipe is created.
   // https://platform.zapier.com/build/bundle#targeturl
   const data = {
     url: bundle.targetUrl,
-    style: bundle.inputData.style,
+    inputData: bundle.inputData,
+    trigger: "commentDocument",
   };
 
   // You may return a promise or a normal data structure from any perform method.
@@ -142,15 +142,19 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
-      Authorization: `Bearer ${bundle.authData.access_token}`,
+      authorization: bundle.authData.api_key,
     },
     body: {
       query: `
-      query ZapierListComments(
+      query ZapierListCommentsV2${
+        Object.keys(variables).length === 0
+          ? ""
+          : `(
         ${"creatorId" in variables ? "$creatorId: ID" : ""}
         ${"projectId" in variables ? "$projectId: ID" : ""}
         ${"documentId" in variables ? "$documentId: ID" : ""}
-      ) {
+      )`
+      } {
         comments(
           first: 25
           ${
@@ -221,11 +225,6 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
 
   const data = (response.json as CommentsResponse).data;
   const comments = data.comments.nodes;
-
-  // Set cursor for pagination
-  if (data.comments.pageInfo.hasNextPage) {
-    await z.cursor.set(data.comments.pageInfo.endCursor);
-  }
 
   return comments.map((comment) => ({
     ...comment,
