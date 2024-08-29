@@ -55,6 +55,10 @@ interface CommentsResponse {
   data: {
     comments: {
       nodes: Comment[];
+      pageInfo: {
+        hasNextPage: boolean;
+        endCursor: string;
+      };
     };
   };
 }
