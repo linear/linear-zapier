@@ -20,7 +20,7 @@ const getTeamList = async (z: ZObject, bundle: Bundle) => {
   const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
 
   const response = await z.request({
-    url: "https://linear-dev-intercom.ngrok.io/graphql",
+    url: "https://local.linear.dev:8090/graphql",
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
