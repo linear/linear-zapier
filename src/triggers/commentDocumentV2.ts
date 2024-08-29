@@ -66,11 +66,7 @@ const subscribeHook = (z: ZObject, bundle: Bundle) => {
   // https://platform.zapier.com/build/bundle#targeturl
   const data = {
     url: bundle.targetUrl,
-    inputData: {
-      creatorId: bundle.inputData.creator_id,
-      projectId: bundle.inputData.project_id,
-      documentId: bundle.inputData.document_id,
-    },
+    inputData: bundle.inputData,
   };
 
   // You may return a promise or a normal data structure from any perform method.
@@ -128,11 +124,8 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
     filters.push(`{ user: { id: { eq: $creatorId } } }`);
   }
   if ("projectId" in variables) {
-    filters.push(
-      `{ or: [{ documentContent: { project: { id: { eq: $projectId }} } }, { documentContent: { document: { project: { id: { eq: $projectId }}}}}] }`
-    );
-    // filters.push(`{ documentContent: { project: { id: { eq: $projectId }} } }`);
-    // filters.push(`{ documentContent: { document: { project: { id: { eq: $projectId }}}}}`);
+    filters.push(`{ documentContent: { project: { id: { eq: $projectId }} } }`);
+    filters.push(`{ documentContent: { document: { project: { id: { eq: $projectId }}}}}`);
   }
   if ("documentId" in variables) {
     filters.push(`{ documentContent: { document: { id: { eq: $documentId }}}}`);
