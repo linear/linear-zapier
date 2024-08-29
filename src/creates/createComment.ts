@@ -34,7 +34,7 @@ const createCommentRequest = async (z: ZObject, bundle: Bundle) => {
       }`;
 
   const response = await z.request({
-    url: "https://linear-dev-zapier.ngrok.io/graphql",
+    url: "https://linear-dev-intercom.ngrok.io/graphql",
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
