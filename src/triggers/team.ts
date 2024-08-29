@@ -20,7 +20,7 @@ const getTeamList = async (z: ZObject, bundle: Bundle) => {
   const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
 
   const response = await z.request({
-    url: "https://local.linear.dev:8090/graphql",
+    url: "https://api.linear.app/graphql",
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
@@ -41,7 +41,7 @@ const getTeamList = async (z: ZObject, bundle: Bundle) => {
         }
       }`,
       variables: {
-        after: cursor,
+        after: cursor
       },
     },
     method: "POST",

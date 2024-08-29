@@ -16,7 +16,7 @@ import { createComment } from "./creates/createComment";
 import { estimate } from "./triggers/estimate";
 
 const handleErrors = (response: HttpResponse, z: ZObject) => {
-  if (response.request.url !== "https://local.linear.dev:8090/graphql") {
+  if (response.request.url !== "https://api.linear.app/graphql") {
     return response;
   }
 

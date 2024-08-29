@@ -64,15 +64,12 @@ interface CommentsResponse {
 const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
   const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
 
-  const variables = omitBy(
-    {
-      creatorId: bundle.inputData.creator_id,
-      projectId: bundle.inputData.project_id,
-      documentId: bundle.inputData.document_id,
-      after: cursor,
-    },
-    (v) => v === undefined
-  );
+  const variables = omitBy({
+    creatorId: bundle.inputData.creator_id,
+    projectId: bundle.inputData.project_id,
+    documentId: bundle.inputData.document_id,
+    after: cursor,
+  }, v => v === undefined);
 
   const filters = [];
   if ("creatorId" in variables) {
@@ -87,7 +84,7 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
   }
 
   const response = await z.request({
-    url: "https://local.linear.dev:8090/graphql",
+    url: "https://api.linear.app/graphql",
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
@@ -104,16 +101,12 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
         comments(
           first: 25
           after: $after
-          ${
-            filters.length > 0
-              ? `
+          ${filters.length > 0 ?`
           filter: {
             and : [
               ${filters.join("\n              ")}
             ]
-          }`
-              : ""
-          }
+          }` : ""}
         ) {
           nodes {
             id
