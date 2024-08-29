@@ -1,7 +1,7 @@
 {
-  "name": "linear-zapier-test",
-  "version": "1.0.0",
-  "description": "Test Linear Zapier integration",
+  "name": "linear-zapier",
+  "version": "2.14.0",
+  "description": "Linear's Zapier integration",
   "main": "index.js",
   "license": "MIT",
   "scripts": {

@@ -25,7 +25,7 @@ const getStatusList = async (z: ZObject, bundle: Bundle) => {
   const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
 
   const response = await z.request({
-    url: "https://linear-dev-zapier.ngrok.io/graphql",
+    url: "https://api.linear.app/graphql",
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
@@ -50,15 +50,15 @@ const getStatusList = async (z: ZObject, bundle: Bundle) => {
       }`,
       variables: {
         teamId: bundle.inputData.team_id,
-        after: cursor,
-      },
+        after: cursor
+      }
     },
     method: "POST",
   });
 
   const data = (response.json as TeamStatesResponse).data;
-  const statuses = data.team.states.nodes;
-
+  const statuses = data.team.states.nodes
+  
   // Set cursor for pagination
   if (data.team.states.pageInfo.hasNextPage) {
     await z.cursor.set(data.team.states.pageInfo.endCursor);

@@ -13,7 +13,7 @@ interface AuthResponse {
 
 const testAuth = async (z: ZObject, bundle: Bundle) => {
   const response = await z.request({
-    url: "https://linear-dev-zapier.ngrok.io/graphql",
+    url: "https://api.linear.app/graphql",
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
@@ -55,7 +55,7 @@ export const authentication = {
     // "authorizeUrl" could also be a function returning a string url
     authorizeUrl: {
       method: "GET",
-      url: "https://local.linear.dev:8080/oauth/authorize",
+      url: "https://linear.app/oauth/authorize",
       params: {
         client_id: "{{process.env.CLIENT_ID}}",
         state: "{{bundle.inputData.state}}",
@@ -69,7 +69,7 @@ export const authentication = {
     // "getAccessToken" could also be a function returning an object
     getAccessToken: {
       method: "POST",
-      url: "https://linear-dev-zapier.ngrok.io/oauth/token",
+      url: "https://api.linear.app/oauth/token",
       body: {
         code: "{{bundle.inputData.code}}",
         client_id: "{{process.env.CLIENT_ID}}",

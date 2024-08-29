@@ -13,11 +13,11 @@
       "email": "user@example.com",
       "avatarUrl": null
     },
-    "url": "https://local.linear.dev/example/project/the-bext-project-4437c60bc5ec#projectUpdate-bb1cfa33",
+    "url": "https://linear.app/example/project/the-bext-project-4437c60bc5ec#projectUpdate-bb1cfa33",
     "project": {
       "id": "9f337b8e-f1fa-4d37-b41a-7f58e2321b63",
       "name": "The Best Project",
-      "url": "https://local.linear.dev/example/project/the-bext-project-4437c60bc5ec"
+      "url": "https://linear.app/example/project/the-bext-project-4437c60bc5ec"
     }
   },
   "user": {

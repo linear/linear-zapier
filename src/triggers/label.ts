@@ -4,9 +4,9 @@ type LabelResponse = {
   id: string;
   name: string;
   parent?: LabelResponse;
-};
+}
 
-type LabelsResponse = {
+type LabelsResponse ={
   data: {
     team: {
       labels: {
@@ -14,7 +14,7 @@ type LabelsResponse = {
       };
     };
   };
-};
+}
 
 const getLabelList = async (z: ZObject, bundle: Bundle) => {
   if (!bundle.inputData.team_id) {
@@ -23,7 +23,7 @@ const getLabelList = async (z: ZObject, bundle: Bundle) => {
   const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
 
   const response = await z.request({
-    url: "https://linear-dev-zapier.ngrok.io/graphql",
+    url: "https://api.linear.app/graphql",
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
@@ -47,7 +47,7 @@ const getLabelList = async (z: ZObject, bundle: Bundle) => {
       }`,
       variables: {
         teamId: bundle.inputData.team_id,
-        after: cursor,
+        after: cursor
       },
     },
     method: "POST",
@@ -56,7 +56,7 @@ const getLabelList = async (z: ZObject, bundle: Bundle) => {
   const data = (response.json as LabelsResponse).data;
   const labels = data.team.labels.nodes;
 
-  const nextCursor = labels?.[labels.length - 1]?.id;
+  const nextCursor = labels?.[labels.length - 1]?.id
   if (nextCursor) {
     await z.cursor.set(nextCursor);
   }

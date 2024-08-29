@@ -1,7 +1,7 @@
 {
   "id": "dbb942a5-cb3e-4dd0-a4bb-34711761f6ab",
   "identifier": "SAMPLE-15",
-  "url": "https://local.linear.dev/example/issue/SAMPLE-15",
+  "url": "https://linear.app/example/issue/SAMPLE-15",
   "title": "Zapier sample",
   "description": "More information about the issue",
   "priority": 0,
@@ -37,7 +37,7 @@
   "parent": {
     "id": "a4d10085-11bc-408a-909d-c9a1a146f8b4",
     "identifier": "SAMPLE-10",
-    "url": "https://local.linear.dev/example/issue/SAMPLE-10",
+    "url": "https://linear.app/example/issue/SAMPLE-10",
     "title": "Zapier parent sample"
   }
 }
