@@ -55,7 +55,7 @@ export const authentication = {
     // "authorizeUrl" could also be a function returning a string url
     authorizeUrl: {
       method: "GET",
-      url: "https://local.linear.dev:8080/oauth/authorize",
+      url: "https://local.linear.dev/oauth/authorize",
       params: {
         client_id: "{{process.env.CLIENT_ID}}",
         state: "{{bundle.inputData.state}}",
