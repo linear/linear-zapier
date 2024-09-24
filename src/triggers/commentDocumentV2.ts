@@ -1,6 +1,6 @@
 import { omitBy, pick } from "lodash";
 import { ZObject, Bundle } from "zapier-platform-core";
-import sample from "../samples/projectUpdateComment.json";
+import sample from "../samples/documentComment.json";
 
 interface Comment {
   id: string;
