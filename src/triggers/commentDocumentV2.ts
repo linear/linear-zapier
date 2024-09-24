@@ -224,7 +224,7 @@ export const newDocumentCommentV2 = {
   key: "newDocumentCommentV2",
   noun: "Comment",
   display: {
-    label: "New Document Comment V2",
+    label: "New Document Comment",
     description: "Triggers when a new document comment is created.",
   },
   operation: {
