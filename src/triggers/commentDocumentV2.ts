@@ -249,9 +249,7 @@ export const newDocumentCommentV2 = {
     performUnsubscribe: unsubscribeHook,
     perform: getComment,
     performList: getCommentList(),
-    outputFields: () => {
-      return [];
-    },
+    outputFields: [],
     sample,
   },
 };
