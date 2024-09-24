@@ -14,6 +14,7 @@ import { projectMilestone } from "./triggers/projectMilestone";
 import { HttpResponse, ZObject } from "zapier-platform-core";
 import { createComment } from "./creates/createComment";
 import { estimate } from "./triggers/estimate";
+import { newDocumentCommentV2 } from "./triggers/commentDocumentV2";
 
 const handleErrors = (response: HttpResponse, z: ZObject) => {
   if (response.request.url !== "https://api.linear.app/graphql") {
@@ -47,6 +48,7 @@ const App = {
     [newProjectUpdate.key]: newProjectUpdate,
     [newProjectUpdateComment.key]: newProjectUpdateComment,
     [newDocumentComment.key]: newDocumentComment,
+    [newDocumentCommentV2.key]: newDocumentCommentV2,
     [updatedProjectUpdate.key]: updatedProjectUpdate,
     [team.key]: team,
     [status.key]: status,
