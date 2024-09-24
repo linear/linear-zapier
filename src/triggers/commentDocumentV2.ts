@@ -211,13 +211,7 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
   });
 
   const data = (response.json as CommentsResponse).data;
-  const comments = data.comments.nodes;
-
-  return comments.map((comment) => ({
-    ...comment,
-    id: `${comment.id}-${comment.createdAt}`,
-    commentId: comment.id,
-  }));
+  return data.comments.nodes;
 };
 
 export const newDocumentCommentV2 = {
