@@ -113,9 +113,9 @@ const getComment = (z: ZObject, bundle: Bundle) => {
 const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
   const variables = omitBy(
     {
-      creatorId: bundle.inputData.creator_id,
-      projectId: bundle.inputData.project_id,
-      documentId: bundle.inputData.document_id,
+      creatorId: bundle.inputData.creatorId,
+      projectId: bundle.inputData.projectId,
+      documentId: bundle.inputData.documentId,
     },
     (v: undefined) => v === undefined
   );
