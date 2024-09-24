@@ -249,10 +249,9 @@ export const newDocumentCommentV2 = {
     performUnsubscribe: unsubscribeHook,
     perform: getComment,
     performList: getCommentList(),
-    outputFields: [
-      { key: "id", label: "ID" },
-      { key: "body", label: "Body" },
-    ],
+    outputFields: () => {
+      return [];
+    },
     sample,
   },
 };
