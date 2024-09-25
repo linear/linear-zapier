@@ -120,7 +120,7 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
     (v: undefined) => v === undefined
   );
 
-  const filters = [];
+  const filters = [` { and: [{ documentContent: { null: false } }] }`];
   if ("creatorId" in variables) {
     filters.push(`{ user: { id: { eq: $creatorId } } }`);
   }
