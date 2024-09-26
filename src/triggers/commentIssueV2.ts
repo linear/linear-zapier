@@ -183,7 +183,7 @@ export const newIssueCommentInstant = {
         required: false,
         label: "Team",
         key: "teamId",
-        helpText: "Only trigger on issue comments created to this team.",
+        helpText: "Only trigger on issue comments created in this team.",
         dynamic: "team.id.name",
         altersDynamicFields: true,
       },
