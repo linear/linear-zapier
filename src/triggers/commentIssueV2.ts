@@ -47,8 +47,6 @@ interface CommentsResponse {
 }
 
 const subscribeHook = (z: ZObject, bundle: Bundle) => {
-  // bundle.targetUrl has the Hook URL this app should call when a recipe is created.
-  // https://platform.zapier.com/build/bundle#targeturl
   const data = {
     url: bundle.targetUrl,
     inputData:
