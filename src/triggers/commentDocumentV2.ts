@@ -214,7 +214,7 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
   return data.comments.nodes;
 };
 
-export const newDocumentCommentV2 = {
+export const newDocumentCommentInstant = {
   key: "newDocumentCommentV2",
   noun: "Comment",
   display: {
