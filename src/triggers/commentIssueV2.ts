@@ -175,7 +175,7 @@ export const newIssueCommentInstant = {
         required: false,
         label: "Creator",
         key: "creatorId",
-        helpText: "Only trigger on document comments added by this user.",
+        helpText: "Only trigger on issue comments added by this user.",
         dynamic: "user.id.name",
         altersDynamicFields: true,
       },
