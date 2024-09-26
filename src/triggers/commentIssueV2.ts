@@ -1,6 +1,6 @@
 import { omitBy, pick } from "lodash";
 import { ZObject, Bundle } from "zapier-platform-core";
-import sample from "../samples/documentComment.json";
+import sample from "../samples/issueComment.json";
 import { getWebhookData, unsubscribeHook } from "../handleWebhook";
 
 interface Comment {
@@ -9,21 +9,15 @@ interface Comment {
   url: string;
   createdAt: string;
   resolvedAt: string | null;
-  documentContent: {
-    project: {
+  issue: {
+    id: string;
+    identifier: string;
+    title: string;
+    url: string;
+    team: {
       id: string;
       name: string;
-      url: string;
-    } | null;
-    document: {
-      id: string;
-      title: string;
-      project: {
-        id: string;
-        name: string;
-        url: string;
-      };
-    } | null;
+    };
   };
   user: {
     id: string;
@@ -52,55 +46,45 @@ interface CommentsResponse {
   };
 }
 
-/**
- * Sets up a new webhook subscription for document comments in Linear.
- * @see https://platform.zapier.com/build/cli-hook-trigger#1-write-the-subscribehook-function
- * @see https://platform.zapier.com/build/cli-hook-trigger#subscribehook
- */
 const subscribeHook = (z: ZObject, bundle: Bundle) => {
+  // bundle.targetUrl has the Hook URL this app should call when a recipe is created.
+  // https://platform.zapier.com/build/bundle#targeturl
   const data = {
     url: bundle.targetUrl,
     inputData:
       bundle.inputData && Object.keys(bundle.inputData).length > 0
-        ? pick(bundle.inputData, ["creatorId", "projectId", "documentId"])
+        ? pick(bundle.inputData, ["creatorId", "teamId", "issueId"])
         : undefined,
   };
 
   return z
     .request({
-      url: "https://client-api.linear.app/connect/zapier/subscribe/commentDocument",
+      url: "https://client-api.linear.app/connect/zapier/subscribe/commentIssue",
       method: "POST",
       body: data,
     })
     .then((response) => response.data);
 };
 
-/**
- * Fetches a list of comments from Linear to use as examples when building a Zap.
- * @see https://platform.zapier.com/build/cli-hook-trigger#4-write-the-performlist-function
- * @see https://platform.zapier.com/build/cli-hook-trigger#performlist
- */
 const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
   const variables = omitBy(
     {
       creatorId: bundle.inputData.creatorId,
-      projectId: bundle.inputData.projectId,
-      documentId: bundle.inputData.documentId,
+      teamId: bundle.inputData.teamId,
+      issueId: bundle.inputData.issueId,
     },
-    (v: undefined) => v === undefined
+    (v) => v === undefined
   );
 
-  const filters = [` { and: [{ documentContent: { null: false } }] }`];
+  const filters = [`{ issue: { null: false } }`];
   if ("creatorId" in variables) {
     filters.push(`{ user: { id: { eq: $creatorId } } }`);
   }
-  if ("projectId" in variables) {
-    filters.push(
-      `{ or: [{ documentContent: { project: { id: { eq: $projectId }} } }, { documentContent: { document: { project: { id: { eq: $projectId }}}}}] }`
-    );
+  if ("teamId" in variables) {
+    filters.push(`{ issue: { team: { id: { eq: $teamId } } } }`);
   }
-  if ("documentId" in variables) {
-    filters.push(`{ documentContent: { document: { id: { eq: $documentId }}}}`);
+  if ("issueId" in variables) {
+    filters.push(`{ issue: { id: { eq: $issueId } } }`);
   }
 
   const response = await z.request({
@@ -117,8 +101,8 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
           ? ""
           : `(
         ${"creatorId" in variables ? "$creatorId: ID" : ""}
-        ${"projectId" in variables ? "$projectId: ID" : ""}
-        ${"documentId" in variables ? "$documentId: ID" : ""}
+        ${"teamId" in variables ? "$teamId: ID" : ""}
+        ${"issueId" in variables ? "$issueId: ID" : ""}
       )`
       } {
         comments(
@@ -139,20 +123,14 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
             body
             createdAt
             resolvedAt
-            documentContent {
-              project {
+            issue {
+              id
+              identifier
+              title
+              url
+              team {
                 id
                 name
-                url
-              }
-              document {
-                id
-                title
-                project {
-                  id
-                  name
-                  url
-                }
               }
             }
             user {
@@ -184,12 +162,12 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
   return data.comments.nodes;
 };
 
-export const newDocumentCommentInstant = {
-  key: "newDocumentCommentV2",
+export const newIssueCommentInstant = {
+  key: "newIssueCommentInstant",
   noun: "Comment",
   display: {
-    label: "New Document Comment",
-    description: "Triggers when a new document comment is created.",
+    label: "New Issue Comment",
+    description: "Triggers when a new issue comment is created.",
   },
   operation: {
     inputFields: [
@@ -203,15 +181,17 @@ export const newDocumentCommentInstant = {
       },
       {
         required: false,
-        label: "Project ID",
-        key: "projectId",
-        helpText: "Only trigger on comments added to the documents or project description in the project with this ID.",
+        label: "Team",
+        key: "teamId",
+        helpText: "Only trigger on issue comments created to this team.",
+        dynamic: "team.id.name",
+        altersDynamicFields: true,
       },
       {
         required: false,
-        label: "Document ID",
-        key: "documentId",
-        helpText: "Only trigger on comments added to the document with this ID.",
+        label: "Issue ID",
+        key: "issueId",
+        helpText: "Only trigger on comments added to this issue identified by its ID.",
       },
     ],
     type: "hook",
