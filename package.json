@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@types/lodash": "4.14.202",
-    "json-to-graphql-query": "^2.3.0",
+    "json-to-graphql-query": "2.3.0",
     "lodash": "4.17.21",
     "zapier-platform-core": "15.5.3"
   },
