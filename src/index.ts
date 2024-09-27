@@ -15,6 +15,7 @@ import { HttpResponse, ZObject } from "zapier-platform-core";
 import { createComment } from "./creates/createComment";
 import { estimate } from "./triggers/estimate";
 import { newDocumentCommentInstant } from "./triggers/commentDocumentV2";
+import { newIssueCommentInstant } from "./triggers/commentIssueV2";
 
 const handleErrors = (response: HttpResponse, z: ZObject) => {
   if (response.request.url !== "https://api.linear.app/graphql") {
@@ -45,6 +46,7 @@ const App = {
     [newIssue.key]: newIssue,
     [updatedIssue.key]: updatedIssue,
     [newIssueComment.key]: newIssueComment,
+    [newIssueCommentInstant.key]: newIssueCommentInstant,
     [newProjectUpdate.key]: newProjectUpdate,
     [newProjectUpdateComment.key]: newProjectUpdateComment,
     [newDocumentComment.key]: newDocumentComment,
