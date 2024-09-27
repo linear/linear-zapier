@@ -2,7 +2,7 @@ import { pick } from "lodash";
 import { ZObject, Bundle } from "zapier-platform-core";
 import sample from "../samples/documentComment.json";
 import { getWebhookData, unsubscribeHook } from "../handleWebhook";
-import { jsonToGraphQLQuery } from "json-to-graphql-query";
+import { jsonToGraphQLQuery, VariableType } from "json-to-graphql-query";
 
 interface Comment {
   id: string;
@@ -82,25 +82,34 @@ const subscribeHook = (z: ZObject, bundle: Bundle) => {
  * @see https://platform.zapier.com/build/cli-hook-trigger#performlist
  */
 const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
+  const variables: Record<string, string> = {};
+  const variableSchema: Record<string, string> = {};
   const filters: unknown[] = [{ documentContent: { null: false } }];
   if (bundle.inputData.creatorId) {
-    filters.push({ user: { id: { eq: bundle.inputData.creatorId } } });
+    variableSchema.creatorId = "ID";
+    variables.creatorId = bundle.inputData.creatorId;
+    filters.push({ user: { id: { eq: new VariableType("creatorId") } } });
   }
   if (bundle.inputData.projectId) {
+    variableSchema.projectId = "ID";
+    variables.projectId = bundle.inputData.projectId;
     filters.push({
       or: [
-        { documentContent: { project: { id: { eq: bundle.inputData.projectId } } } },
-        { documentContent: { document: { project: { id: { eq: bundle.inputData.projectId } } } } },
+        { documentContent: { project: { id: { eq: new VariableType("projectId") } } } },
+        { documentContent: { document: { project: { id: { eq: new VariableType("projectId") } } } } },
       ],
     });
   }
   if (bundle.inputData.documentId) {
-    filters.push({ documentContent: { document: { id: { eq: bundle.inputData.documentId } } } });
+    variableSchema.documentId = "ID";
+    variables.documentId = bundle.inputData.documentId;
+    filters.push({ documentContent: { document: { id: { eq: new VariableType("documentId") } } } });
   }
   const filter = { and: filters };
 
   const jsonQuery = {
     query: {
+      __variables: variableSchema,
       comments: {
         __args: {
           first: 25,
@@ -149,6 +158,8 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
     },
   };
 
+  const query = jsonToGraphQLQuery(jsonQuery);
+
   const response = await z.request({
     url: "https://api.linear.app/graphql",
     headers: {
@@ -157,7 +168,8 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
       authorization: bundle.authData.api_key,
     },
     body: {
-      query: jsonToGraphQLQuery(jsonQuery),
+      query,
+      variables,
     },
     method: "POST",
   });

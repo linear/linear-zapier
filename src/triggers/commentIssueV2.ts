@@ -2,7 +2,7 @@ import { pick } from "lodash";
 import { ZObject, Bundle } from "zapier-platform-core";
 import sample from "../samples/issueComment.json";
 import { getWebhookData, unsubscribeHook } from "../handleWebhook";
-import { jsonToGraphQLQuery } from "json-to-graphql-query";
+import { jsonToGraphQLQuery, VariableType } from "json-to-graphql-query";
 
 interface Comment {
   id: string;
@@ -66,20 +66,29 @@ const subscribeHook = (z: ZObject, bundle: Bundle) => {
 };
 
 const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
+  const variables: Record<string, string> = {};
+  const variableSchema: Record<string, string> = {};
   const filters: unknown[] = [{ issue: { null: false } }];
   if (bundle.inputData.creatorId) {
-    filters.push({ user: { id: { eq: bundle.inputData.creatorId } } });
+    variableSchema.creatorId = "ID";
+    variables.creatorId = bundle.inputData.creatorId;
+    filters.push({ user: { id: { eq: new VariableType("creatorId") } } });
   }
   if (bundle.inputData.teamId) {
-    filters.push({ issue: { team: { id: { eq: bundle.inputData.teamId } } } });
+    variableSchema.teamId = "ID";
+    variables.teamId = bundle.inputData.teamId;
+    filters.push({ issue: { team: { id: { eq: new VariableType("teamId") } } } });
   }
   if (bundle.inputData.issueId) {
-    filters.push({ issue: { id: { eq: bundle.inputData.issueId } } });
+    variableSchema.issueId = "ID";
+    variables.issueId = bundle.inputData.issueId;
+    filters.push({ issue: { id: { eq: new VariableType("issueId") } } });
   }
   const filter = { and: filters };
 
   const jsonQuery = {
     query: {
+      __variables: variableSchema,
       comments: {
         __args: {
           first: 25,
@@ -121,6 +130,7 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
       },
     },
   };
+  const query = jsonToGraphQLQuery(jsonQuery);
 
   const response = await z.request({
     url: "https://api.linear.app/graphql",
@@ -130,7 +140,8 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
       authorization: bundle.authData.api_key,
     },
     body: {
-      query: jsonToGraphQLQuery(jsonQuery),
+      query,
+      variables,
     },
     method: "POST",
   });
