@@ -1,7 +1,8 @@
-import { omitBy, pick } from "lodash";
+import { pick } from "lodash";
 import { ZObject, Bundle } from "zapier-platform-core";
 import sample from "../samples/issueComment.json";
 import { getWebhookData, unsubscribeHook } from "../handleWebhook";
+import { jsonToGraphQLQuery } from "json-to-graphql-query";
 
 interface Comment {
   id: string;
@@ -65,25 +66,61 @@ const subscribeHook = (z: ZObject, bundle: Bundle) => {
 };
 
 const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
-  const variables = omitBy(
-    {
-      creatorId: bundle.inputData.creatorId,
-      teamId: bundle.inputData.teamId,
-      issueId: bundle.inputData.issueId,
-    },
-    (v) => v === undefined
-  );
+  const filters: unknown[] = [{ issue: { null: false } }];
+  if (bundle.inputData.creatorId) {
+    filters.push({ user: { id: { eq: bundle.inputData.creatorId } } });
+  }
+  if (bundle.inputData.teamId) {
+    filters.push({ issue: { team: { id: { eq: bundle.inputData.teamId } } } });
+  }
+  if (bundle.inputData.issueId) {
+    filters.push({ issue: { id: { eq: bundle.inputData.issueId } } });
+  }
+  const filter = { and: filters };
 
-  const filters = [`{ issue: { null: false } }`];
-  if ("creatorId" in variables) {
-    filters.push(`{ user: { id: { eq: $creatorId } } }`);
-  }
-  if ("teamId" in variables) {
-    filters.push(`{ issue: { team: { id: { eq: $teamId } } } }`);
-  }
-  if ("issueId" in variables) {
-    filters.push(`{ issue: { id: { eq: $issueId } } }`);
-  }
+  const jsonQuery = {
+    query: {
+      comments: {
+        __args: {
+          first: 25,
+          filter,
+        },
+        nodes: {
+          id: true,
+          body: true,
+          createdAt: true,
+          resolvedAt: true,
+          issue: {
+            id: true,
+            identifier: true,
+            title: true,
+            url: true,
+            team: {
+              id: true,
+              name: true,
+            },
+          },
+          user: {
+            id: true,
+            email: true,
+            name: true,
+            avatarUrl: true,
+          },
+          parent: {
+            id: true,
+            body: true,
+            createdAt: true,
+            user: {
+              id: true,
+              email: true,
+              name: true,
+              avatarUrl: true,
+            },
+          },
+        },
+      },
+    },
+  };
 
   const response = await z.request({
     url: "https://api.linear.app/graphql",
@@ -93,65 +130,7 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
       authorization: bundle.authData.api_key,
     },
     body: {
-      query: `
-      query ZapierListCommentsV2${
-        Object.keys(variables).length === 0
-          ? ""
-          : `(
-        ${"creatorId" in variables ? "$creatorId: ID" : ""}
-        ${"teamId" in variables ? "$teamId: ID" : ""}
-        ${"issueId" in variables ? "$issueId: ID" : ""}
-      )`
-      } {
-        comments(
-          first: 25
-          ${
-            filters.length > 0
-              ? `
-          filter: {
-            and : [
-              ${filters.join("\n              ")}
-            ]
-          }`
-              : ""
-          }
-        ) {
-          nodes {
-            id
-            body
-            createdAt
-            resolvedAt
-            issue {
-              id
-              identifier
-              title
-              url
-              team {
-                id
-                name
-              }
-            }
-            user {
-              id
-              email
-              name
-              avatarUrl
-            }
-            parent {
-              id
-              body
-              createdAt
-              user {
-                id
-                email
-                name
-                avatarUrl
-              }
-            }
-          }
-        }
-      }`,
-      variables: variables,
+      query: jsonToGraphQLQuery(jsonQuery),
     },
     method: "POST",
   });
