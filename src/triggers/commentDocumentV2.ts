@@ -1,7 +1,8 @@
-import { omitBy, pick } from "lodash";
+import { pick } from "lodash";
 import { ZObject, Bundle } from "zapier-platform-core";
 import sample from "../samples/documentComment.json";
 import { getWebhookData, unsubscribeHook } from "../handleWebhook";
+import { jsonToGraphQLQuery, VariableType } from "json-to-graphql-query";
 
 interface Comment {
   id: string;
@@ -81,27 +82,83 @@ const subscribeHook = (z: ZObject, bundle: Bundle) => {
  * @see https://platform.zapier.com/build/cli-hook-trigger#performlist
  */
 const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
-  const variables = omitBy(
-    {
-      creatorId: bundle.inputData.creatorId,
-      projectId: bundle.inputData.projectId,
-      documentId: bundle.inputData.documentId,
-    },
-    (v: undefined) => v === undefined
-  );
+  const variables: Record<string, string> = {};
+  const variableSchema: Record<string, string> = {};
+  const filters: unknown[] = [{ documentContent: { null: false } }];
+  if (bundle.inputData.creatorId) {
+    variableSchema.creatorId = "ID";
+    variables.creatorId = bundle.inputData.creatorId;
+    filters.push({ user: { id: { eq: new VariableType("creatorId") } } });
+  }
+  if (bundle.inputData.projectId) {
+    variableSchema.projectId = "ID";
+    variables.projectId = bundle.inputData.projectId;
+    filters.push({
+      or: [
+        { documentContent: { project: { id: { eq: new VariableType("projectId") } } } },
+        { documentContent: { document: { project: { id: { eq: new VariableType("projectId") } } } } },
+      ],
+    });
+  }
+  if (bundle.inputData.documentId) {
+    variableSchema.documentId = "ID";
+    variables.documentId = bundle.inputData.documentId;
+    filters.push({ documentContent: { document: { id: { eq: new VariableType("documentId") } } } });
+  }
+  const filter = { and: filters };
 
-  const filters = [` { and: [{ documentContent: { null: false } }] }`];
-  if ("creatorId" in variables) {
-    filters.push(`{ user: { id: { eq: $creatorId } } }`);
-  }
-  if ("projectId" in variables) {
-    filters.push(
-      `{ or: [{ documentContent: { project: { id: { eq: $projectId }} } }, { documentContent: { document: { project: { id: { eq: $projectId }}}}}] }`
-    );
-  }
-  if ("documentId" in variables) {
-    filters.push(`{ documentContent: { document: { id: { eq: $documentId }}}}`);
-  }
+  const jsonQuery = {
+    query: {
+      __variables: variableSchema,
+      comments: {
+        __args: {
+          first: 25,
+          filter,
+        },
+        nodes: {
+          id: true,
+          body: true,
+          createdAt: true,
+          resolvedAt: true,
+          documentContent: {
+            project: {
+              id: true,
+              name: true,
+              url: true,
+            },
+            document: {
+              id: true,
+              title: true,
+              project: {
+                id: true,
+                name: true,
+                url: true,
+              },
+            },
+          },
+          user: {
+            id: true,
+            email: true,
+            name: true,
+            avatarUrl: true,
+          },
+          parent: {
+            id: true,
+            body: true,
+            createdAt: true,
+            user: {
+              id: true,
+              email: true,
+              name: true,
+              avatarUrl: true,
+            },
+          },
+        },
+      },
+    },
+  };
+
+  const query = jsonToGraphQLQuery(jsonQuery);
 
   const response = await z.request({
     url: "https://api.linear.app/graphql",
@@ -111,71 +168,8 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
       authorization: bundle.authData.api_key,
     },
     body: {
-      query: `
-      query ZapierListCommentsV2${
-        Object.keys(variables).length === 0
-          ? ""
-          : `(
-        ${"creatorId" in variables ? "$creatorId: ID" : ""}
-        ${"projectId" in variables ? "$projectId: ID" : ""}
-        ${"documentId" in variables ? "$documentId: ID" : ""}
-      )`
-      } {
-        comments(
-          first: 25
-          ${
-            filters.length > 0
-              ? `
-          filter: {
-            and : [
-              ${filters.join("\n              ")}
-            ]
-          }`
-              : ""
-          }
-        ) {
-          nodes {
-            id
-            body
-            createdAt
-            resolvedAt
-            documentContent {
-              project {
-                id
-                name
-                url
-              }
-              document {
-                id
-                title
-                project {
-                  id
-                  name
-                  url
-                }
-              }
-            }
-            user {
-              id
-              email
-              name
-              avatarUrl
-            }
-            parent {
-              id
-              body
-              createdAt
-              user {
-                id
-                email
-                name
-                avatarUrl
-              }
-            }
-          }
-        }
-      }`,
-      variables: variables,
+      query,
+      variables,
     },
     method: "POST",
   });
