@@ -151,6 +151,7 @@ export const newProjectUpdate = {
   display: {
     label: "New Project Update",
     description: "Triggers when a new project update is created.",
+    hidden: true,
   },
   operation: {
     ...projectUpdate.operation,
@@ -165,6 +166,7 @@ export const updatedProjectUpdate = {
   display: {
     label: "Updated Project Update",
     description: "Triggers when a project update is updated.",
+    hidden: true,
   },
   operation: {
     ...projectUpdate.operation,

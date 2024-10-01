@@ -17,6 +17,7 @@ import { estimate } from "./triggers/estimate";
 import { newDocumentCommentInstant } from "./triggers/commentDocumentV2";
 import { newIssueCommentInstant } from "./triggers/commentIssueV2";
 import { newProjectUpdateCommentInstant } from "./triggers/commentProjectUpdateV2";
+import { newProjectUpdateInstant, updatedProjectUpdateInstant } from "./triggers/projectUpdateV2";
 
 const handleErrors = (response: HttpResponse, z: ZObject) => {
   if (response.request.url !== "https://api.linear.app/graphql") {
@@ -49,11 +50,13 @@ const App = {
     [newIssueComment.key]: newIssueComment,
     [newIssueCommentInstant.key]: newIssueCommentInstant,
     [newProjectUpdate.key]: newProjectUpdate,
+    [newProjectUpdateInstant.key]: newProjectUpdateInstant,
     [newProjectUpdateComment.key]: newProjectUpdateComment,
     [newProjectUpdateCommentInstant.key]: newProjectUpdateCommentInstant,
     [newDocumentComment.key]: newDocumentComment,
     [newDocumentCommentInstant.key]: newDocumentCommentInstant,
     [updatedProjectUpdate.key]: updatedProjectUpdate,
+    [updatedProjectUpdateInstant.key]: updatedProjectUpdateInstant,
     [team.key]: team,
     [status.key]: status,
     [project.key]: project,
