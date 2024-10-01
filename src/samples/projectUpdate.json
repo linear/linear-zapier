@@ -1,9 +1,8 @@
 {
   "id": "4bec2b49-56bb-4a4f-a961-abf2148d4837",
   "body": "This is a project update body in Markdown format!",
-  "diffMarkdown": "This is a project update diff in Markdown format!",
-  "health": "onTrack|atRisk|offTrack",
-  "url": "https://linear.app/linear/updateA",
+  "health": "onTrack",
+  "url": "https://local.linear.dev/linear/updateA",
   "editedAt": "2022-10-27T21:20:59.199Z",
   "createdAt": "2022-10-27T21:20:59.199Z",
   "updatedAt": "2022-10-27T21:20:59.199Z",
