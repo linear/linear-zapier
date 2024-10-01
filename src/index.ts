@@ -14,25 +14,25 @@ import { projectMilestone } from "./triggers/projectMilestone";
 import { HttpResponse, ZObject } from "zapier-platform-core";
 import { createComment } from "./creates/createComment";
 import { estimate } from "./triggers/estimate";
-import { newDocumentCommentV2 } from "./triggers/commentDocumentV2";
+import { newDocumentCommentInstant } from "./triggers/commentDocumentV2";
 import { newIssueCommentInstant } from "./triggers/commentIssueV2";
 import { newProjectUpdateCommentInstant } from "./triggers/commentProjectUpdateV2";
 import { newProjectUpdateInstant, updatedProjectUpdateInstant } from "./triggers/projectUpdateV2";
 
 const handleErrors = (response: HttpResponse, z: ZObject) => {
-  if (response.request.url !== "https://linear-dev-zapier.ngrok.io/graphql") {
+  if (response.request.url !== "https://api.linear.app/graphql") {
     return response;
   }
 
   if (response.status === 200) {
     const data = response.json as any;
     const error = data.errors ? data.errors[0] : undefined;
+    z.console.log("handling errors", data);
     if (error && error.extensions.type === "authentication error") {
       throw new z.errors.ExpiredAuthError(`Authentication with Linear failed. Please reconnect.`);
     }
   } else {
     z.console.log("Catch error", response.status, response.json);
-    z.console.log("Error extensions", response.json.errors?.extensions);
     throw new z.errors.Error(`Something went wrong`, "request_execution_failed", 400);
   }
   return response;
@@ -54,7 +54,7 @@ const App = {
     [newProjectUpdateComment.key]: newProjectUpdateComment,
     [newProjectUpdateCommentInstant.key]: newProjectUpdateCommentInstant,
     [newDocumentComment.key]: newDocumentComment,
-    [newDocumentCommentV2.key]: newDocumentCommentV2,
+    [newDocumentCommentInstant.key]: newDocumentCommentInstant,
     [updatedProjectUpdate.key]: updatedProjectUpdate,
     [updatedProjectUpdateInstant.key]: updatedProjectUpdateInstant,
     [team.key]: team,
