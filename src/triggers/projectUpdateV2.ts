@@ -3,6 +3,7 @@ import { ZObject, Bundle } from "zapier-platform-core";
 import sample from "../samples/issueComment.json";
 import { getWebhookData, unsubscribeHook } from "../handleWebhook";
 import { jsonToGraphQLQuery, VariableType } from "json-to-graphql-query";
+import { fetchFromLinear } from "../fetchFromLinear";
 
 interface ProjectUpdate {
   id: string;
@@ -34,7 +35,6 @@ interface ProjectUpdatesResponse {
 type EventType = "create" | "update";
 
 const subscribeHook = (eventType: EventType) => async (z: ZObject, bundle: Bundle) => {
-  z.console.log("bundle", bundle);
   const data = {
     url: bundle.targetUrl,
     inputData:
@@ -104,21 +104,7 @@ const getProjectUpdateList = () => async (z: ZObject, bundle: Bundle) => {
     },
   };
   const query = jsonToGraphQLQuery(jsonQuery);
-
-  const response = await z.request({
-    url: "https://api.linear.app/graphql",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      authorization: bundle.authData.api_key,
-    },
-    body: {
-      query,
-      variables,
-    },
-    method: "POST",
-  });
-
+  const response = await fetchFromLinear(z, bundle, query, variables);
   const data = (response.json as ProjectUpdatesResponse).data;
   return data.projectUpdates.nodes;
 };

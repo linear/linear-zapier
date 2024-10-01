@@ -3,6 +3,7 @@ import { ZObject, Bundle } from "zapier-platform-core";
 import sample from "../samples/issueComment.json";
 import { getWebhookData, unsubscribeHook } from "../handleWebhook";
 import { jsonToGraphQLQuery, VariableType } from "json-to-graphql-query";
+import { fetchFromLinear } from "../fetchFromLinear";
 
 interface Comment {
   id: string;
@@ -131,21 +132,7 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
     },
   };
   const query = jsonToGraphQLQuery(jsonQuery);
-
-  const response = await z.request({
-    url: "https://api.linear.app/graphql",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      authorization: bundle.authData.api_key,
-    },
-    body: {
-      query,
-      variables,
-    },
-    method: "POST",
-  });
-
+  const response = await fetchFromLinear(z, bundle, query, variables);
   const data = (response.json as CommentsResponse).data;
   return data.comments.nodes;
 };
