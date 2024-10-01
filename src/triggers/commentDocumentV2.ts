@@ -184,9 +184,11 @@ export const newDocumentCommentInstant = {
       },
       {
         required: false,
-        label: "Project ID",
+        label: "Project",
         key: "projectId",
-        helpText: "Only trigger on comments added to the documents or project description in the project with this ID.",
+        helpText: "Only trigger on document comments tied to this project.",
+        dynamic: "projectWithoutTeam.id.name",
+        altersDynamicFields: true,
       },
       {
         required: false,

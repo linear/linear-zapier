@@ -163,9 +163,11 @@ export const newProjectUpdateCommentInstant = {
       },
       {
         required: false,
-        label: "Project ID",
+        label: "Project",
         key: "projectId",
-        helpText: "Only trigger on project update comments added to this project identified by its ID",
+        helpText: "Only trigger on project update comments tied to this project.",
+        dynamic: "projectWithoutTeam.id.name",
+        altersDynamicFields: true,
       },
     ],
     type: "hook",
