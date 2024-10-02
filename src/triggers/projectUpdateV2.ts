@@ -121,9 +121,11 @@ const operationBase = {
     },
     {
       required: false,
-      label: "Project ID",
+      label: "Project",
       key: "projectId",
       helpText: "Only trigger on project updates tied to this project.",
+      dynamic: "projectWithoutTeam.id.name",
+      altersDynamicFields: true,
     },
     {
       required: false,
