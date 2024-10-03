@@ -23,7 +23,8 @@ interface TeamProjectsResponse {
 }
 
 const getProjectList = async (z: ZObject, bundle: Bundle) => {
-  if (!bundle.inputData.team_id) {
+  const teamId = bundle.inputData.teamId || bundle.inputData.team_id;
+  if (!teamId) {
     throw new z.errors.HaltedError(`Please select the team first`);
   }
   const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
@@ -62,7 +63,7 @@ const getProjectList = async (z: ZObject, bundle: Bundle) => {
         }
       }`,
       variables: {
-        teamId: bundle.inputData.team_id,
+        teamId,
         after: cursor,
       },
     },

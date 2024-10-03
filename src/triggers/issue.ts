@@ -288,6 +288,7 @@ export const newIssue = {
   display: {
     label: "New Issue",
     description: "Triggers when a new issue is created.",
+    hidden: true,
   },
   operation: {
     ...issue.operation,
@@ -302,6 +303,7 @@ export const updatedIssue = {
   display: {
     label: "Updated Issue",
     description: "Triggers when an issue is updated.",
+    hidden: true,
   },
   operation: {
     ...issue.operation,

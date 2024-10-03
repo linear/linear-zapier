@@ -3,7 +3,12 @@ import { Bundle, ZObject } from "zapier-platform-core";
 /**
  * Performs a query against the Linear GraphQL API and returns the response.
  */
-export const fetchFromLinear = async (z: ZObject, bundle: Bundle, query: string, variables: Record<string, string>) => {
+export const fetchFromLinear = async (
+  z: ZObject,
+  bundle: Bundle,
+  query: string,
+  variables: Record<string, string | Number>
+) => {
   return await z.request({
     url: "https://api.linear.app/graphql",
     headers: {

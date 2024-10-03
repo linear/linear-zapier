@@ -1,6 +1,6 @@
 import { pick } from "lodash";
 import { ZObject, Bundle } from "zapier-platform-core";
-import sample from "../samples/issueComment.json";
+import sample from "../samples/projectUpdate.json";
 import { getWebhookData, unsubscribeHook } from "../handleWebhook";
 import { jsonToGraphQLQuery, VariableType } from "json-to-graphql-query";
 import { fetchFromLinear } from "../fetchFromLinear";

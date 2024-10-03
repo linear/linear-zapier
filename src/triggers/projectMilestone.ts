@@ -19,7 +19,8 @@ interface ProjectMilestonesResponse {
 }
 
 const getProjectMilestonesList = async (z: ZObject, bundle: Bundle) => {
-  if (!bundle.inputData.project_id) {
+  const projectId = bundle.inputData.projectId || bundle.inputData.project_id;
+  if (!projectId) {
     return [];
   }
   const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
@@ -53,15 +54,15 @@ const getProjectMilestonesList = async (z: ZObject, bundle: Bundle) => {
         }
       }`,
       variables: {
-        projectId: bundle.inputData.project_id,
-        after: cursor
+        projectId,
+        after: cursor,
       },
     },
     method: "POST",
   });
 
   const data = (response.json as ProjectMilestonesResponse).data;
-  const projectMilestones = data.project.projectMilestones.nodes.sort((a, b) => a.sortOrder - b.sortOrder)
+  const projectMilestones = data.project.projectMilestones.nodes.sort((a, b) => a.sortOrder - b.sortOrder);
 
   // Set cursor for pagination
   if (data.project.projectMilestones.pageInfo.hasNextPage) {

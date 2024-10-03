@@ -19,6 +19,7 @@ import { newIssueCommentInstant } from "./triggers/commentIssueV2";
 import { newProjectUpdateCommentInstant } from "./triggers/commentProjectUpdateV2";
 import { newProjectUpdateInstant, updatedProjectUpdateInstant } from "./triggers/projectUpdateV2";
 import { projectWithoutTeam } from "./triggers/projectWithoutTeam";
+import { newIssueInstant, updatedIssueInstant } from "./triggers/issueV2";
 
 const handleErrors = (response: HttpResponse, z: ZObject) => {
   if (response.request.url !== "https://api.linear.app/graphql") {
@@ -47,7 +48,9 @@ const App = {
   },
   triggers: {
     [newIssue.key]: newIssue,
+    [newIssueInstant.key]: newIssueInstant,
     [updatedIssue.key]: updatedIssue,
+    [updatedIssueInstant.key]: updatedIssueInstant,
     [newIssueComment.key]: newIssueComment,
     [newIssueCommentInstant.key]: newIssueCommentInstant,
     [newProjectUpdate.key]: newProjectUpdate,

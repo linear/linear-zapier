@@ -19,7 +19,8 @@ interface TeamStatesResponse {
 }
 
 const getStatusList = async (z: ZObject, bundle: Bundle) => {
-  if (!bundle.inputData.team_id) {
+  const teamId = bundle.inputData.teamId || bundle.inputData.team_id;
+  if (!teamId) {
     throw new z.errors.HaltedError(`Please select the team first`);
   }
   const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
@@ -49,16 +50,16 @@ const getStatusList = async (z: ZObject, bundle: Bundle) => {
         }
       }`,
       variables: {
-        teamId: bundle.inputData.team_id,
-        after: cursor
-      }
+        teamId,
+        after: cursor,
+      },
     },
     method: "POST",
   });
 
   const data = (response.json as TeamStatesResponse).data;
-  const statuses = data.team.states.nodes
-  
+  const statuses = data.team.states.nodes;
+
   // Set cursor for pagination
   if (data.team.states.pageInfo.hasNextPage) {
     await z.cursor.set(data.team.states.pageInfo.endCursor);
