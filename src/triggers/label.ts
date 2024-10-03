@@ -4,9 +4,9 @@ type LabelResponse = {
   id: string;
   name: string;
   parent?: LabelResponse;
-}
+};
 
-type LabelsResponse ={
+type LabelsResponse = {
   data: {
     team: {
       labels: {
@@ -14,10 +14,11 @@ type LabelsResponse ={
       };
     };
   };
-}
+};
 
 const getLabelList = async (z: ZObject, bundle: Bundle) => {
-  if (!bundle.inputData.team_id) {
+  const teamId = bundle.inputData.teamId || bundle.inputData.team_id;
+  if (!teamId) {
     throw new z.errors.HaltedError(`Please select the team first`);
   }
   const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
@@ -46,8 +47,8 @@ const getLabelList = async (z: ZObject, bundle: Bundle) => {
         }
       }`,
       variables: {
-        teamId: bundle.inputData.team_id,
-        after: cursor
+        teamId,
+        after: cursor,
       },
     },
     method: "POST",
@@ -56,7 +57,7 @@ const getLabelList = async (z: ZObject, bundle: Bundle) => {
   const data = (response.json as LabelsResponse).data;
   const labels = data.team.labels.nodes;
 
-  const nextCursor = labels?.[labels.length - 1]?.id
+  const nextCursor = labels?.[labels.length - 1]?.id;
   if (nextCursor) {
     await z.cursor.set(nextCursor);
   }

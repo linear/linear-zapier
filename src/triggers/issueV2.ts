@@ -68,9 +68,15 @@ const subscribeHook = (eventType: "create" | "update") => async (z: ZObject, bun
     bundle.inputData && Object.keys(bundle.inputData).length > 0
       ? omitBy(
           {
-            ...pick(bundle.inputData, ["statusId", "creatorId", "assigneeId", "labelId", "projectMilestoneId"]),
-            teamId: bundle.inputData.team_id,
-            projectId: bundle.inputData.project_id ? bundle.inputData.project_id : undefined,
+            ...pick(bundle.inputData, [
+              "teamId",
+              "statusId",
+              "creatorId",
+              "assigneeId",
+              "labelId",
+              "projectId",
+              "projectMilestoneId",
+            ]),
             priority: bundle.inputData.priority ? Number(bundle.inputData.priority) : undefined,
           },
           (v) => v === undefined
@@ -93,7 +99,7 @@ const subscribeHook = (eventType: "create" | "update") => async (z: ZObject, bun
 };
 
 const getIssueList = () => async (z: ZObject, bundle: Bundle) => {
-  if (!bundle.inputData.team_id) {
+  if (!bundle.inputData.teamId) {
     throw new z.errors.HaltedError("You must select a team");
   }
 
@@ -101,7 +107,7 @@ const getIssueList = () => async (z: ZObject, bundle: Bundle) => {
   const variableSchema: Record<string, string> = {};
 
   variableSchema.teamId = "String!";
-  variables.teamId = bundle.inputData.team_id;
+  variables.teamId = bundle.inputData.teamId;
 
   const filters: unknown[] = [];
   if (bundle.inputData.priority) {
@@ -124,9 +130,9 @@ const getIssueList = () => async (z: ZObject, bundle: Bundle) => {
     variables.assigneeId = bundle.inputData.assigneeId;
     filters.push({ assignee: { id: { eq: new VariableType("assigneeId") } } });
   }
-  if (bundle.inputData.project_id) {
+  if (bundle.inputData.projectId) {
     variableSchema.projectId = "ID";
-    variables.projectId = bundle.inputData.project_id;
+    variables.projectId = bundle.inputData.projectId;
     filters.push({ project: { id: { eq: new VariableType("projectId") } } });
   }
   if (bundle.inputData.projectMilestoneId) {
@@ -226,8 +232,7 @@ const operationBase = {
     {
       required: true,
       label: "Team",
-      // This key is snake-cased for backwards compatibility with the dynamic field selector for status, project and label
-      key: "team_id",
+      key: "teamId",
       helpText: "The team for the issue.",
       dynamic: "team.id.name",
       altersDynamicFields: true,
@@ -280,8 +285,7 @@ const operationBase = {
     {
       required: false,
       label: "Project",
-      // This key is snake-cased for backwards compatibility with the dynamic field selector for project milestone
-      key: "project_id",
+      key: "projectId",
       helpText: "Issue's project.",
       dynamic: "project.id.name",
       altersDynamicFields: true,
