@@ -60,7 +60,7 @@ interface TeamIssuesResponse {
 }
 
 const subscribeHook = (eventType: "create" | "update") => async (z: ZObject, bundle: Bundle) => {
-  if (!bundle.inputData.team_id) {
+  if (!bundle.inputData.teamId) {
     throw new z.errors.HaltedError("You must select a team");
   }
 
