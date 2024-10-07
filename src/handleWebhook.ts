@@ -5,13 +5,18 @@ import { Bundle, ZObject } from "zapier-platform-core";
  * @see https://platform.zapier.com/build/cli-hook-trigger#3-write-the-perform-function
  * @see https://platform.zapier.com/build/cli-hook-trigger#perform
  */
-export const getWebhookData = (z: ZObject, bundle: Bundle) => {
+export const getWebhookData = (eventType: "create" | "update") => (z: ZObject, bundle: Bundle) => {
   const entity = {
     ...bundle.cleanedRequest.data,
     querystring: undefined,
   };
 
-  return [entity];
+  // This check is to handle deduplication of an update webhook quickly following a create webhook, which can
+  // happen in Linear for child entities/join entities triggering "update" events after a "create" event
+  if (bundle.cleanedRequest.action === eventType) {
+    return [entity];
+  }
+  return [];
 };
 
 /**

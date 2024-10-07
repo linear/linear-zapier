@@ -173,7 +173,7 @@ export const newProjectUpdateCommentInstant = {
     type: "hook",
     performSubscribe: subscribeHook,
     performUnsubscribe: unsubscribeHook,
-    perform: getWebhookData,
+    perform: getWebhookData("create"),
     performList: getCommentList(),
     sample,
   },

@@ -212,7 +212,7 @@ const getIssueList = () => async (z: ZObject, bundle: Bundle) => {
   return data.team.issues.nodes;
 };
 
-const getWebhookDataForIssue = (z: ZObject, bundle: Bundle) => {
+const getWebhookDataForIssue = (eventType: "create" | "update") => (z: ZObject, bundle: Bundle) => {
   const entity = {
     ...bundle.cleanedRequest.data,
     querystring: undefined,
@@ -224,7 +224,12 @@ const getWebhookDataForIssue = (z: ZObject, bundle: Bundle) => {
     delete entity.milestone;
   }
 
-  return [entity];
+  // This check is to handle deduplication of an update webhook quickly following a create webhook, which can
+  // happen in Linear for child entities/join entities triggering "update" events after a "create" event
+  if (bundle.cleanedRequest.action === eventType) {
+    return [entity];
+  }
+  return [];
 };
 
 const operationBase = {
@@ -300,7 +305,6 @@ const operationBase = {
     },
   ],
   type: "hook",
-  perform: getWebhookDataForIssue,
   performUnsubscribe: unsubscribeHook,
   performList: getIssueList(),
   sample,
@@ -315,6 +319,7 @@ export const newIssueInstant = {
   },
   operation: {
     ...operationBase,
+    perform: getWebhookDataForIssue("create"),
     performSubscribe: subscribeHook("create"),
   },
 };
@@ -328,6 +333,7 @@ export const updatedIssueInstant = {
   },
   operation: {
     ...operationBase,
+    perform: getWebhookDataForIssue("update"),
     performSubscribe: subscribeHook("update"),
   },
 };

@@ -20,6 +20,9 @@ import { newProjectUpdateCommentInstant } from "./triggers/commentProjectUpdateV
 import { newProjectUpdateInstant, updatedProjectUpdateInstant } from "./triggers/projectUpdateV2";
 import { projectWithoutTeam } from "./triggers/projectWithoutTeam";
 import { newIssueInstant, updatedIssueInstant } from "./triggers/issueV2";
+import { initiative } from "./triggers/initiative";
+import { projectStatus } from "./triggers/projectStatus";
+import { newProjectInstant } from "./triggers/newProject";
 
 const handleErrors = (response: HttpResponse, z: ZObject) => {
   if (response.request.url !== "https://api.linear.app/graphql") {
@@ -69,6 +72,9 @@ const App = {
     [label.key]: label,
     [user.key]: user,
     [estimate.key]: estimate,
+    [initiative.key]: initiative,
+    [projectStatus.key]: projectStatus,
+    [newProjectInstant.key]: newProjectInstant,
   },
   authentication,
   beforeRequest: [addBearerHeader],

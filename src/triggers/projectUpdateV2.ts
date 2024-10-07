@@ -137,7 +137,7 @@ const operationBase = {
     },
   ],
   type: "hook",
-  perform: getWebhookData,
+  perform: getWebhookData("create"),
   performUnsubscribe: unsubscribeHook,
   performList: getProjectUpdateList(),
   sample,
