@@ -1,6 +1,6 @@
 import { ZObject, Bundle } from "zapier-platform-core";
 
-interface TeamStatesResponse {
+interface InitiativesResponse {
   data: {
     initiatives: {
       nodes: {
@@ -49,7 +49,7 @@ const getInitiativesList = async (z: ZObject, bundle: Bundle) => {
     method: "POST",
   });
 
-  const data = (response.json as TeamStatesResponse).data;
+  const data = (response.json as InitiativesResponse).data;
   const initiatives = data.initiatives.nodes;
 
   // Set cursor for pagination
