@@ -1,5 +1,5 @@
 {
-  "id": "7351c0e1-094b-4063-846b-3c30f451470f",
+  "id": "dc1a7af0-059e-4586-b779-d36a6a1b8478",
   "url": "https://linear.app/linear/project/test-bb9746674991",
   "name": "Test",
   "description": "A test project",
@@ -9,8 +9,8 @@
   "targetDate": null,
   "status":
   {
-      "id": "53f3e40f-dd09-4cbc-a5f0-c965158cb203",
-      "name": "Idea",
+      "id": "f5d6c8d3-fac2-482c-a1b0-565718d9b103",
+      "name": "Test status",
       "type": "backlog"
   },
   "teams":
@@ -18,8 +18,8 @@
       "nodes":
       [
           {
-              "id": "548a0f78-eeb3-4bc8-ad6f-a4e7c4ac185c",
-              "name": "Linear US"
+              "id": "cd718ff4-d8e3-4569-aa41-082d512a1809",
+              "name": "US Team"
           }
       ]
   },
@@ -28,8 +28,8 @@
       "nodes":
       [
           {
-              "id": "8cad3a3c-3bf0-4ad0-a48e-1a51056a6379",
-              "name": "Product / Work Scale"
+              "id": "6d6cbf03-dd67-47c6-ae21-d1b2519454e3",
+              "name": "Product"
           }
       ]
   },
@@ -38,8 +38,8 @@
       "nodes":
       [
           {
-              "id": "1a6de292-2cc2-4e4a-b7d2-7886c4070072",
-              "name": "Release"
+              "id": "acd884e4-c056-43b5-9a07-f4adb213a8ca",
+              "name": "V1"
           }
       ]
   }
