@@ -1,5 +1,5 @@
 {
-  "id": "dbb942a5-cb3e-4dd0-a4bb-34711761f6ab",
+  "id": "044a462c-1acd-4092-8e66-51e4d7c9c7ca",
   "identifier": "SAMPLE-15",
   "url": "https://linear.app/example/issue/SAMPLE-15",
   "title": "Zapier sample",
@@ -12,30 +12,30 @@
   "createdAt": "2022-10-27T21:20:59.199Z",
   "updatedAt": "2022-10-27T21:20:59.199Z",
   "project": {
-    "id": "66913eff-e405-4d04-bd31-91678259f9e7",
+    "id": "04a48f13-c39f-4522-85bb-a17225cbfdf3",
     "name": "My Project"
   },
   "projectMilestone": {
-    "id": "88cdcd40-4660-4e87-b15a-5d23589afba9",
-    "name": "Pre-release"
+    "id": "84cb5a2f-4b84-4e90-a06a-d0b38f9ac2dd",
+    "name": "V1"
   },
   "creator": {
-    "id": "df2b39ba-3dfd-4b75-9ce2-2be2d1c79a2b",
+    "id": "45920bc2-c4be-434f-b588-f422155667b5",
     "name": "Zapier User",
     "email": "creator@example.com"
   },
   "assignee": {
-    "id": "843e7b66-9d10-11ed-a8fc-0242ac120002",
-    "name": "Zapier User",
+    "id": "8a225115-706e-4389-87da-e687b9b5ae76",
+    "name": "Zapier User 2",
     "email": "assignee@example.com"
   },
   "status": {
-    "id": "e3e2a3c4-9d10-11ed-a8fc-0242ac120002",
+    "id": "e6d2eb84-b03b-4827-9230-94b0a1099419",
     "name": "In Progress",
     "type": "started"
   },
   "parent": {
-    "id": "a4d10085-11bc-408a-909d-c9a1a146f8b4",
+    "id": "e6d2eb84-b03b-4827-9230-94b0a1099419",
     "identifier": "SAMPLE-10",
     "url": "https://linear.app/example/issue/SAMPLE-10",
     "title": "Zapier parent sample"
