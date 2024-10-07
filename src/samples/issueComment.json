@@ -1,21 +1,21 @@
 {
-  "id": "dbb942a5-cb3e-4dd0-a4bb-34711761f6ab",
+  "id": "e6d2eb84-b03b-4827-9230-94b0a1099419",
   "body": "New comment",
   "url": "https://linear.app/example/issue/SAMPLE-15#comment-dbb942a5-cb3e-4dd0-a4bb-34711761f6ab",
   "createdAt": "2020-10-27T21:20:59.199Z",
   "updatedAt": "2020-10-27T21:20:59.199Z",
   "issue": {
-    "id": "dbb942a5-cb3e-4dd0-a4bb-34711761f6ac",
+    "id": "824797c0-fc97-493c-8237-08ff5ec3701f",
     "identifier": "SAMPLE-15",
     "title": "Zapier sample",
     "url": "https://linear.app/example/issue/SAMPLE-15",
     "team": {
-      "id": "df2b39ba-3dfd-4b75-9ce2-2be2d1c79a2d",
+      "id": "a582cb67-8f1b-4d8a-9d91-e9894dcf7fa6",
       "name": "Sample team"
     }
   },
   "user": {
-    "id": "df2b39ba-3dfd-4b75-9ce2-2be2d1c79a2b",
+    "id": "722c8d97-f01e-4d2a-85da-271592463f8d",
     "name": "Zapier User",
     "email": "user@example.com",
     "avatarUrl": null
