@@ -1,0 +1,46 @@
+{
+  "id": "dc1a7af0-059e-4586-b779-d36a6a1b8478",
+  "url": "https://linear.app/linear/project/test-bb9746674991",
+  "name": "Test",
+  "description": "A test project",
+  "priority": 0,
+  "createdAt": "2024-10-04T22:38:43.396Z",
+  "startDate": "2024-10-05T22:38:43.396Z",
+  "targetDate": null,
+  "status":
+  {
+      "id": "f5d6c8d3-fac2-482c-a1b0-565718d9b103",
+      "name": "Test status",
+      "type": "backlog"
+  },
+  "teams":
+  {
+      "nodes":
+      [
+          {
+              "id": "cd718ff4-d8e3-4569-aa41-082d512a1809",
+              "name": "US Team"
+          }
+      ]
+  },
+  "initiatives":
+  {
+      "nodes":
+      [
+          {
+              "id": "6d6cbf03-dd67-47c6-ae21-d1b2519454e3",
+              "name": "Product"
+          }
+      ]
+  },
+  "projectMilestones":
+  {
+      "nodes":
+      [
+          {
+              "id": "acd884e4-c056-43b5-9a07-f4adb213a8ca",
+              "name": "V1"
+          }
+      ]
+  }
+}
