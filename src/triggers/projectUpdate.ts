@@ -104,7 +104,7 @@ const buildProjectUpdateList = (orderBy: "createdAt" | "updatedAt") => async (z:
     await z.cursor.set(data.projectUpdates.pageInfo.endCursor);
   }
 
-  return projectUpdates.map((projectUpdate) => ({
+  return projectUpdates.map(projectUpdate => ({
     ...projectUpdate,
     id: `${projectUpdate.id}-${projectUpdate[orderBy]}`,
     projectUpdateId: projectUpdate.id,

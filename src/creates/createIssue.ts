@@ -24,9 +24,9 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
   const priority = bundle.inputData.priority ? parseInt(bundle.inputData.priority) : 0;
   const estimate = bundle.inputData.estimate ? parseInt(bundle.inputData.estimate) : null;
 
-  const subscriberIds: string[] = []
+  const subscriberIds: string[] = [];
   if (bundle.inputData.subscriber_emails) {
-    z.console.log(`Getting subscribers by emails: ${bundle.inputData.subscriber_emails.length}`)
+    z.console.log(`Getting subscribers by emails: ${bundle.inputData.subscriber_emails.length}`);
     const usersQuery = `
       query ZapierUsersByEmails($filter: UserFilter, $first: Int) {
         users(filter: $filter, first: $first) {
@@ -38,10 +38,10 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
     `;
     const usersVariables = {
       filter: {
-        email: {in: bundle.inputData.subscriber_emails}
+        email: { in: bundle.inputData.subscriber_emails },
       },
-      first: 100
-    }
+      first: 100,
+    };
     // Transform subscriber emails to user ids
     const usersResponse = await z.request({
       url: "https://api.linear.app/graphql",
@@ -72,7 +72,7 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
 
     if (users.errors && users.errors.length) {
       const error = users.errors[0];
-      z.console.error(`Failed to get subscribers: ${JSON.stringify(error)}`)
+      z.console.error(`Failed to get subscribers: ${JSON.stringify(error)}`);
       throw new z.errors.Error(
         (error.extensions && error.extensions.userPresentableMessage) || error.message,
         "invalid_input",
@@ -80,8 +80,8 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
       );
     }
 
-    z.console.log(`Got ${users.data?.users.nodes.length} subscribers`)
-    subscriberIds.push(...(users.data?.users.nodes.map(user => user.id) || []))
+    z.console.log(`Got ${users.data?.users.nodes.length} subscribers`);
+    subscriberIds.push(...(users.data?.users.nodes.map(user => user.id) || []));
   }
 
   const variables = {
@@ -97,7 +97,7 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
     projectMilestoneId: bundle.inputData.project_milestone_id,
     dueDate: bundle.inputData.due_date,
     labelIds: bundle.inputData.labels || [],
-    subscriberIds
+    subscriberIds,
   };
 
   const query = `

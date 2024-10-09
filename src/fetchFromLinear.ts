@@ -7,7 +7,7 @@ export const fetchFromLinear = async (
   z: ZObject,
   bundle: Bundle,
   query: string,
-  variables: Record<string, string | Number>
+  variables: Record<string, string | number>
 ) => {
   return await z.request({
     url: "https://api.linear.app/graphql",

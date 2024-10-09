@@ -74,7 +74,7 @@ const subscribeHook = (z: ZObject, bundle: Bundle) => {
       method: "POST",
       body: data,
     })
-    .then((response) => response.data);
+    .then(response => response.data);
 };
 
 /**

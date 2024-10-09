@@ -62,7 +62,7 @@ const getLabelList = async (z: ZObject, bundle: Bundle) => {
     await z.cursor.set(nextCursor);
   }
 
-  return labels.map((label) => ({
+  return labels.map(label => ({
     id: label.id,
     name: label.parent ? `${label.parent.name} → ${label.name}` : label.name,
   }));

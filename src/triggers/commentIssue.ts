@@ -63,7 +63,7 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
       issueId: bundle.inputData.issue,
       after: cursor,
     },
-    (v) => v === undefined
+    v => v === undefined
   );
 
   const filters = [];
@@ -164,7 +164,7 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
     await z.cursor.set(data.comments.pageInfo.endCursor);
   }
 
-  return comments.map((comment) => ({
+  return comments.map(comment => ({
     ...comment,
     id: `${comment.id}-${comment.createdAt}`,
     commentId: comment.id,

@@ -50,7 +50,7 @@ const subscribeHook = (eventType: EventType) => async (z: ZObject, bundle: Bundl
       method: "POST",
       body: data,
     })
-    .then((response) => response.data);
+    .then(response => response.data);
 };
 
 const getProjectUpdateList = () => async (z: ZObject, bundle: Bundle) => {

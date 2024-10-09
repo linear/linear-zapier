@@ -28,5 +28,5 @@ export const unsubscribeHook = (z: ZObject, bundle: Bundle) => {
       url: `https://client-api.linear.app/connect/zapier/unsubscribe/${hookId}`,
       method: "DELETE",
     })
-    .then((response) => response.data);
+    .then(response => response.data);
 };

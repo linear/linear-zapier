@@ -59,7 +59,7 @@ const subscribeHook = async (z: ZObject, bundle: Bundle) => {
           {
             ...pick(bundle.inputData, ["teamId", "statusId", "leadId", "initiativeId"]),
           },
-          (v) => v === undefined
+          v => v === undefined
         )
       : undefined;
 
@@ -74,7 +74,7 @@ const subscribeHook = async (z: ZObject, bundle: Bundle) => {
       method: "POST",
       body: data,
     })
-    .then((response) => response.data);
+    .then(response => response.data);
 };
 
 const getProjectList =
@@ -154,11 +154,11 @@ const getProjectList =
     const data = (response.json as ProjectsResponse).data;
     const projectsRaw = data.projects.nodes;
     // We need to map the API schema to the webhook schema
-    return projectsRaw.map((projectRaw) =>
+    return projectsRaw.map(projectRaw =>
       omit(
         {
           ...projectRaw,
-          teamIds: projectRaw.teams.nodes.map((team) => team.id),
+          teamIds: projectRaw.teams.nodes.map(team => team.id),
           milestones: projectRaw.projectMilestones.nodes,
           initiatives: projectRaw.initiatives.nodes,
         },

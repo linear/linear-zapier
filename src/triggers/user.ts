@@ -48,7 +48,7 @@ const getUserList = async (z: ZObject, bundle: Bundle) => {
         }
       `,
       variables: {
-        after: cursor
+        after: cursor,
       },
     },
     method: "POST",

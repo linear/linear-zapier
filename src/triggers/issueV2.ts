@@ -79,7 +79,7 @@ const subscribeHook = (eventType: "create" | "update") => async (z: ZObject, bun
             ]),
             priority: bundle.inputData.priority ? Number(bundle.inputData.priority) : undefined,
           },
-          (v) => v === undefined
+          v => v === undefined
         )
       : undefined;
 
@@ -95,7 +95,7 @@ const subscribeHook = (eventType: "create" | "update") => async (z: ZObject, bun
       method: "POST",
       body: data,
     })
-    .then((response) => response.data);
+    .then(response => response.data);
 };
 
 const getIssueList = () => async (z: ZObject, bundle: Bundle) => {
@@ -103,7 +103,7 @@ const getIssueList = () => async (z: ZObject, bundle: Bundle) => {
     throw new z.errors.HaltedError("You must select a team");
   }
 
-  const variables: Record<string, string | Number> = {};
+  const variables: Record<string, string | number> = {};
   const variableSchema: Record<string, string> = {};
 
   variableSchema.teamId = "String!";
