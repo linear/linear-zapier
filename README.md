@@ -21,8 +21,9 @@ For testing, save your envvars to `.env`. `.env.default` has the required variab
 ### Deployment
 
 Prerequisites:
+
 - Make sure you have updated the version number in `package.json`.
-- If updating Linear's app, you'll need to have access to Linear's Zapier account and generate a deploy key in `Settings > Deploy Keys`. You can then authenticate with the key using  `zapier login --sso`.
+- If updating Linear's app, you'll need to have access to Linear's Zapier account and generate a deploy key in `Settings > Deploy Keys`. You can then authenticate with the key using `zapier login --sso`.
 
 You can deploy the app to Zapier with `yarn zapier-push`. This will also run `yarn zapier-validate` before deploying.
 

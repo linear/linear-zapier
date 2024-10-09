@@ -48,7 +48,7 @@ const getUserList = async (z: ZObject, bundle: Bundle) => {
         }
       `,
       variables: {
-        after: cursor
+        after: cursor,
       },
     },
     method: "POST",
@@ -62,7 +62,7 @@ const getUserList = async (z: ZObject, bundle: Bundle) => {
     await z.cursor.set(data.users.pageInfo.endCursor);
   }
 
-  return users.map(user => ({
+  return users.map((user) => ({
     name: `${user.name} (${user.displayName})`,
     id: user.id,
   }));
