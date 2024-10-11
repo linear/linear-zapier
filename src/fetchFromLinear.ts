@@ -23,3 +23,30 @@ export const fetchFromLinear = async (
     method: "POST",
   });
 };
+
+/**
+ * Retrieves the team ID for an issue from Linear.
+ *
+ * @param z Zapier object
+ * @param bundle Zapier bundle
+ * @param issueId Linear issue ID
+ * @returns The Linear team ID for the issue
+ */
+export const getIssueTeamId = async (z: ZObject, bundle: Bundle, issueId: string) => {
+  const issueQuery = `
+    query ZapierIssue($id: String!) {
+      issue(id: $id) {
+        team {
+          id
+        }
+      }
+    }
+  `;
+  const response = await fetchFromLinear(z, bundle, issueQuery, { id: issueId });
+  const data = response.json as IssueResponse;
+  return data.data.issue.team.id;
+};
+
+interface IssueResponse {
+  data: { issue: { team: { id: string } } };
+}

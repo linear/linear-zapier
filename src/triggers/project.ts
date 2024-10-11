@@ -1,4 +1,5 @@
 import { ZObject, Bundle } from "zapier-platform-core";
+import { getIssueTeamId } from "../fetchFromLinear";
 
 interface TeamProjectsResponse {
   data: {
@@ -23,9 +24,13 @@ interface TeamProjectsResponse {
 }
 
 const getProjectList = async (z: ZObject, bundle: Bundle) => {
-  const teamId = bundle.inputData.teamId || bundle.inputData.team_id;
+  let teamId = bundle.inputData.teamId || bundle.inputData.team_id;
+  if (!teamId && bundle.inputData.issueIdToUpdate) {
+    // For the `updateIssue` action, we populate the project dropdown using the issue's current team if the zap isn't updating the issue's team
+    teamId = await getIssueTeamId(z, bundle, bundle.inputData.issueIdToUpdate);
+  }
   if (!teamId) {
-    throw new z.errors.HaltedError(`Please select the team first`);
+    throw new z.errors.HaltedError("Please select the team first before selecting the project");
   }
   const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
 

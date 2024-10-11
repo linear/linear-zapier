@@ -25,6 +25,7 @@ import { projectStatus } from "./triggers/projectStatus";
 import { newProjectInstant } from "./triggers/newProject";
 import { createIssueAttachment } from "./creates/createIssueAttachment";
 import { createProject } from "./creates/createProject";
+import { updateIssue } from "./creates/updateIssue";
 
 const handleErrors = (response: HttpResponse, z: ZObject) => {
   if (response.request.url !== "https://api.linear.app/graphql") {
@@ -52,6 +53,7 @@ const App = {
     [createComment.key]: createComment,
     [createIssueAttachment.key]: createIssueAttachment,
     [createProject.key]: createProject,
+    [updateIssue.key]: updateIssue,
   },
   triggers: {
     [newIssue.key]: newIssue,
