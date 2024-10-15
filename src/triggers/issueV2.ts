@@ -225,6 +225,16 @@ const getIssueList =
                 url: true,
                 title: true,
               },
+              labels: {
+                nodes: {
+                  id: true,
+                  color: true,
+                  name: true,
+                  parent: {
+                    id: true,
+                  },
+                },
+              },
             },
           },
         },
