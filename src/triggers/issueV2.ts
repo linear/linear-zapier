@@ -5,7 +5,7 @@ import { unsubscribeHook } from "../handleWebhook";
 import { jsonToGraphQLQuery, VariableType } from "json-to-graphql-query";
 import { fetchFromLinear } from "../fetchFromLinear";
 
-interface Issue {
+interface IssueCommon {
   id: string;
   identifier: string;
   url: string;
@@ -49,11 +49,33 @@ interface Issue {
   };
 }
 
+interface IssueApi extends IssueCommon {
+  labels?: {
+    nodes: {
+      id: string;
+      color: string;
+      name: string;
+      parent?: {
+        id: string;
+      };
+    }[];
+  };
+}
+
+interface IssueWebhook extends IssueCommon {
+  labels?: {
+    id: string;
+    color: string;
+    name: string;
+    parentId?: string;
+  }[];
+}
+
 interface TeamIssuesResponse {
   data: {
     team: {
       issues: {
-        nodes: Issue[];
+        nodes: IssueApi[];
       };
     };
   };
@@ -98,119 +120,131 @@ const subscribeHook = (eventType: "create" | "update") => async (z: ZObject, bun
     .then((response) => response.data);
 };
 
-const getIssueList = () => async (z: ZObject, bundle: Bundle) => {
-  if (!bundle.inputData.teamId) {
-    throw new z.errors.HaltedError("You must select a team");
-  }
+const getIssueList =
+  () =>
+  async (z: ZObject, bundle: Bundle): Promise<IssueWebhook[]> => {
+    if (!bundle.inputData.teamId) {
+      throw new z.errors.HaltedError("You must select a team");
+    }
 
-  const variables: Record<string, string | Number> = {};
-  const variableSchema: Record<string, string> = {};
+    const variables: Record<string, string | Number> = {};
+    const variableSchema: Record<string, string> = {};
 
-  variableSchema.teamId = "String!";
-  variables.teamId = bundle.inputData.teamId;
+    variableSchema.teamId = "String!";
+    variables.teamId = bundle.inputData.teamId;
 
-  const filters: unknown[] = [];
-  if (bundle.inputData.priority) {
-    variableSchema.priority = "Float";
-    variables.priority = Number(bundle.inputData.priority);
-    filters.push({ priority: { eq: new VariableType("priority") } });
-  }
-  if (bundle.inputData.statusId) {
-    variableSchema.statusId = "ID";
-    variables.statusId = bundle.inputData.statusId;
-    filters.push({ state: { id: { eq: new VariableType("statusId") } } });
-  }
-  if (bundle.inputData.creatorId) {
-    variableSchema.creatorId = "ID";
-    variables.creatorId = bundle.inputData.creatorId;
-    filters.push({ creator: { id: { eq: new VariableType("creatorId") } } });
-  }
-  if (bundle.inputData.assigneeId) {
-    variableSchema.assigneeId = "ID";
-    variables.assigneeId = bundle.inputData.assigneeId;
-    filters.push({ assignee: { id: { eq: new VariableType("assigneeId") } } });
-  }
-  if (bundle.inputData.projectId) {
-    variableSchema.projectId = "ID";
-    variables.projectId = bundle.inputData.projectId;
-    filters.push({ project: { id: { eq: new VariableType("projectId") } } });
-  }
-  if (bundle.inputData.projectMilestoneId) {
-    variableSchema.projectMilestoneId = "ID";
-    variables.projectMilestoneId = bundle.inputData.projectMilestoneId;
-    filters.push({ projectMilestone: { id: { eq: new VariableType("projectMilestoneId") } } });
-  }
-  if (bundle.inputData.labelId) {
-    variableSchema.labelId = "ID";
-    variables.labelId = bundle.inputData.labelId;
-    filters.push({ labels: { id: { eq: new VariableType("labelId") } } });
-  }
-  const filter = { and: filters };
+    const filters: unknown[] = [];
+    if (bundle.inputData.priority) {
+      variableSchema.priority = "Float";
+      variables.priority = Number(bundle.inputData.priority);
+      filters.push({ priority: { eq: new VariableType("priority") } });
+    }
+    if (bundle.inputData.statusId) {
+      variableSchema.statusId = "ID";
+      variables.statusId = bundle.inputData.statusId;
+      filters.push({ state: { id: { eq: new VariableType("statusId") } } });
+    }
+    if (bundle.inputData.creatorId) {
+      variableSchema.creatorId = "ID";
+      variables.creatorId = bundle.inputData.creatorId;
+      filters.push({ creator: { id: { eq: new VariableType("creatorId") } } });
+    }
+    if (bundle.inputData.assigneeId) {
+      variableSchema.assigneeId = "ID";
+      variables.assigneeId = bundle.inputData.assigneeId;
+      filters.push({ assignee: { id: { eq: new VariableType("assigneeId") } } });
+    }
+    if (bundle.inputData.projectId) {
+      variableSchema.projectId = "ID";
+      variables.projectId = bundle.inputData.projectId;
+      filters.push({ project: { id: { eq: new VariableType("projectId") } } });
+    }
+    if (bundle.inputData.projectMilestoneId) {
+      variableSchema.projectMilestoneId = "ID";
+      variables.projectMilestoneId = bundle.inputData.projectMilestoneId;
+      filters.push({ projectMilestone: { id: { eq: new VariableType("projectMilestoneId") } } });
+    }
+    if (bundle.inputData.labelId) {
+      variableSchema.labelId = "ID";
+      variables.labelId = bundle.inputData.labelId;
+      filters.push({ labels: { id: { eq: new VariableType("labelId") } } });
+    }
+    const filter = { and: filters };
 
-  const jsonQuery = {
-    query: {
-      __variables: variableSchema,
-      team: {
-        __args: {
-          id: new VariableType("teamId"),
-        },
-        issues: {
+    const jsonQuery = {
+      query: {
+        __variables: variableSchema,
+        team: {
           __args: {
-            first: 10,
-            filter,
+            id: new VariableType("teamId"),
           },
-          nodes: {
-            id: true,
-            identifier: true,
-            url: true,
-            title: true,
-            description: true,
-            priority: true,
-            estimate: true,
-            dueDate: true,
-            slaBreachesAt: true,
-            slaStartedAt: true,
-            createdAt: true,
-            updatedAt: true,
-            project: {
-              id: true,
-              name: true,
+          issues: {
+            __args: {
+              first: 10,
+              filter,
             },
-            projectMilestone: {
-              id: true,
-              name: true,
-            },
-            creator: {
-              id: true,
-              name: true,
-              email: true,
-            },
-            assignee: {
-              id: true,
-              name: true,
-              email: true,
-            },
-            state: {
-              id: true,
-              name: true,
-              type: true,
-            },
-            parent: {
+            nodes: {
               id: true,
               identifier: true,
               url: true,
               title: true,
+              description: true,
+              priority: true,
+              estimate: true,
+              dueDate: true,
+              slaBreachesAt: true,
+              slaStartedAt: true,
+              createdAt: true,
+              updatedAt: true,
+              project: {
+                id: true,
+                name: true,
+              },
+              projectMilestone: {
+                id: true,
+                name: true,
+              },
+              creator: {
+                id: true,
+                name: true,
+                email: true,
+              },
+              assignee: {
+                id: true,
+                name: true,
+                email: true,
+              },
+              state: {
+                id: true,
+                name: true,
+                type: true,
+              },
+              parent: {
+                id: true,
+                identifier: true,
+                url: true,
+                title: true,
+              },
             },
           },
         },
       },
-    },
+    };
+    const query = jsonToGraphQLQuery(jsonQuery);
+    const response = await fetchFromLinear(z, bundle, query, variables);
+    const data = (response.json as TeamIssuesResponse).data;
+    const issuesRaw = data.team.issues.nodes;
+    // We need to map the API schema to the webhook schema
+    return issuesRaw.map((issueRaw) => ({
+      ...issueRaw,
+      labels: issueRaw.labels?.nodes.map((label) => ({
+        id: label.id,
+        color: label.color,
+        name: label.name,
+        parentId: label.parent?.id,
+      })),
+    }));
   };
-  const query = jsonToGraphQLQuery(jsonQuery);
-  const response = await fetchFromLinear(z, bundle, query, variables);
-  const data = (response.json as TeamIssuesResponse).data;
-  return data.team.issues.nodes;
-};
 
 const getWebhookDataForIssue = (z: ZObject, bundle: Bundle) => {
   const entity = {
