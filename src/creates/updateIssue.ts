@@ -232,7 +232,7 @@ export const updateIssue = {
       data: {
         id: "7b647c45-c528-464d-8634-eecea0f73033",
         title: "Do the roar",
-        url: "https://local.linear.dev/team-best-team/issue/ENG-118/do-the-roar",
+        url: "https://linear.app/linear/issue/ENG-118/do-the-roar",
         identifier: "ENG-118",
       },
     },
