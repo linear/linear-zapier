@@ -22,8 +22,8 @@ interface CreateIssueRequestResponse {
 }
 
 const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
-  const priority = bundle.inputData.priority ? parseInt(bundle.inputData.priority) : 0;
-  const estimate = bundle.inputData.estimate ? parseInt(bundle.inputData.estimate) : null;
+  const priority = bundle.inputData.priority ? parseInt(bundle.inputData.priority) : undefined;
+  const estimate = bundle.inputData.estimate ? parseInt(bundle.inputData.estimate) : undefined;
 
   const subscriberIds: string[] = [];
   if (bundle.inputData.subscriber_emails) {
@@ -98,8 +98,8 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
     projectId: bundle.inputData.project_id,
     projectMilestoneId: bundle.inputData.project_milestone_id,
     dueDate: bundle.inputData.due_date,
-    labelIds: bundle.inputData.labels || [],
-    subscriberIds,
+    labelIds: bundle.inputData.labels || undefined,
+    subscriberIds: subscriberIds.length > 0 ? subscriberIds : undefined,
   };
 
   const query = `
