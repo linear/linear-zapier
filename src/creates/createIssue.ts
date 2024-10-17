@@ -1,4 +1,5 @@
 import { Bundle, ZObject } from "zapier-platform-core";
+import { fetchFromLinear } from "../fetchFromLinear";
 
 interface CreateIssueRequestResponse {
   data?: {
@@ -86,6 +87,7 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
 
   const variables = {
     teamId: bundle.inputData.team_id,
+    templateId: bundle.inputData.templateId,
     title: bundle.inputData.title,
     description: bundle.inputData.description,
     priority: priority,
@@ -103,6 +105,7 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
   const query = `
       mutation ZapierIssueCreate(
         $teamId: String!,
+        $templateId: String,
         $title: String!,
         $description: String,
         $priority: Int,
@@ -118,6 +121,7 @@ const createIssueRequest = async (z: ZObject, bundle: Bundle) => {
       ) {
         issueCreate(input: {
           teamId: $teamId,
+          templateId: $templateId,
           title: $title,
           description: $description,
           priority: $priority,
@@ -190,6 +194,15 @@ export const createIssue = {
 
     inputFields: [
       {
+        label: "Template",
+        helpText:
+          "The template to use for the issue. If no team has been selected yet, only workspace templates will be available. If other inputs are provided, they will override the template values.",
+        key: "templateId",
+        dynamic: "issueTemplates.id.name",
+        altersDynamicFields: true,
+      },
+      // Even if a template is chosen, we can't set a dynamic field programmatically based on another input: https://github.com/zapier/zapier-platform-cli#customdynamic-fields
+      {
         required: true,
         label: "Team",
         key: "team_id",
@@ -197,11 +210,30 @@ export const createIssue = {
         dynamic: "team.id.name",
         altersDynamicFields: true,
       },
-      {
-        required: true,
-        label: "Title",
-        helpText: "The title of the issue",
-        key: "title",
+      // Populate title with the template's title if applicable
+      async function (z: ZObject, bundle: Bundle) {
+        const baseTitle = {
+          label: "Title",
+          helpText: "The title of the issue",
+          key: "title",
+          required: true,
+        };
+        if (bundle.inputData.templateId) {
+          const query = `
+            query ZapierTemplate($templateId: String!) {
+              template(id: $templateId) {
+                templateData
+              }
+            }`;
+          const response = await fetchFromLinear(z, bundle, query, { templateId: bundle.inputData.templateId });
+
+          const template = response.json.data.template;
+          const templateData = JSON.parse(template.templateData);
+          if (templateData.title) {
+            return { ...baseTitle, default: templateData.title };
+          }
+        }
+        return baseTitle;
       },
       {
         label: "Description",
