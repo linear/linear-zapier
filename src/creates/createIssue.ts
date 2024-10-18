@@ -230,7 +230,7 @@ export const createIssue = {
           const template = response.json.data.template;
           const templateData = JSON.parse(template.templateData);
           if (templateData.title) {
-            return { ...baseTitle, default: templateData.title };
+            return { ...baseTitle, required: false };
           }
         }
         return baseTitle;
