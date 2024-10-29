@@ -30,7 +30,7 @@ const updateIssueRequest = async (z: ZObject, bundle: Bundle) => {
   if (!bundle.inputData.issueIdToUpdate) {
     throw new z.errors.HaltedError("You must specify the ID of the issue to update");
   }
-  const priority = bundle.inputData.priority ? parseInt(bundle.inputData.priority) : 0;
+  const priority = bundle.inputData.priority ? parseInt(bundle.inputData.priority) : undefined;
   const estimate = bundle.inputData.estimate ? parseInt(bundle.inputData.estimate) : undefined;
   let labelIds: string[] | undefined = undefined;
   if (bundle.inputData.labels && bundle.inputData.labels.length > 0) {
