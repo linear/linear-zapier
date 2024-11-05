@@ -17,6 +17,7 @@ interface ProjectCommon {
   description: string;
   priority: number;
   createdAt: Date;
+  updatedAt: Date;
   startDate?: Date;
   targetDate?: Date;
   status: {
@@ -52,7 +53,7 @@ interface ProjectWebhook extends ProjectCommon {
   initiatives: IdAndName[];
 }
 
-const subscribeHook = async (z: ZObject, bundle: Bundle) => {
+const subscribeHook = (eventType: "create" | "update") => async (z: ZObject, bundle: Bundle) => {
   const inputData =
     bundle.inputData && Object.keys(bundle.inputData).length > 0
       ? omitBy(
@@ -67,10 +68,11 @@ const subscribeHook = async (z: ZObject, bundle: Bundle) => {
     url: bundle.targetUrl,
     inputData,
   };
+  const webhookType = eventType === "create" ? "createProject" : "updateProject";
 
   return z
     .request({
-      url: "https://client-api.linear.app/connect/zapier/subscribe/createProject",
+      url: `https://client-api.linear.app/connect/zapier/subscribe/${webhookType}`,
       method: "POST",
       body: data,
     })
@@ -120,6 +122,7 @@ const getProjectList =
             description: true,
             priority: true,
             createdAt: true,
+            updatedAt: true,
             startDate: true,
             targetDate: true,
             status: {
@@ -167,6 +170,48 @@ const getProjectList =
     );
   };
 
+const operationBase = {
+  inputFields: [
+    {
+      required: false,
+      label: "Team",
+      key: "teamId",
+      helpText: "The team associated with the project.",
+      dynamic: "team.id.name",
+      altersDynamicFields: true,
+    },
+    {
+      required: false,
+      label: "Status",
+      key: "statusId",
+      helpText: "The project status.",
+      dynamic: "projectStatus.id.name",
+      altersDynamicFields: true,
+    },
+    {
+      required: false,
+      label: "Lead",
+      key: "leadId",
+      helpText: "The user who is the lead of the project.",
+      dynamic: "user.id.name",
+      altersDynamicFields: true,
+    },
+    {
+      required: false,
+      label: "Initiative",
+      key: "initiativeId",
+      helpText: "The initiative this project belongs to.",
+      dynamic: "initiative.id.name",
+      altersDynamicFields: true,
+    },
+  ],
+  type: "hook",
+  perform: getWebhookData,
+  performUnsubscribe: unsubscribeHook,
+  performList: getProjectList(),
+  sample,
+};
+
 export const newProjectInstant = {
   noun: "Project",
   key: "newProjectInstant",
@@ -175,45 +220,20 @@ export const newProjectInstant = {
     description: "Triggers when a new project is created.",
   },
   operation: {
-    inputFields: [
-      {
-        required: false,
-        label: "Team",
-        key: "teamId",
-        helpText: "The team associated with the project.",
-        dynamic: "team.id.name",
-        altersDynamicFields: true,
-      },
-      {
-        required: false,
-        label: "Status",
-        key: "statusId",
-        helpText: "The project status.",
-        dynamic: "projectStatus.id.name",
-        altersDynamicFields: true,
-      },
-      {
-        required: false,
-        label: "Lead",
-        key: "leadId",
-        helpText: "The user who is the lead of the project.",
-        dynamic: "user.id.name",
-        altersDynamicFields: true,
-      },
-      {
-        required: false,
-        label: "Initiative",
-        key: "initiativeId",
-        helpText: "The initiative this project belongs to.",
-        dynamic: "initiative.id.name",
-        altersDynamicFields: true,
-      },
-    ],
-    type: "hook",
-    perform: getWebhookData,
-    performUnsubscribe: unsubscribeHook,
-    performList: getProjectList(),
-    sample,
-    performSubscribe: subscribeHook,
+    ...operationBase,
+    performSubscribe: subscribeHook("create"),
+  },
+};
+
+export const updatedProjectInstant = {
+  noun: "Project",
+  key: "updatedProjectInstant",
+  display: {
+    label: "Updated Project",
+    description: "Triggers when a project is updated.",
+  },
+  operation: {
+    ...operationBase,
+    performSubscribe: subscribeHook("update"),
   },
 };
