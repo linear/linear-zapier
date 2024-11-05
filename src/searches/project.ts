@@ -91,7 +91,7 @@ export const findProjectByID = {
     label: "Find Project by ID",
     hidden: false,
     description:
-      "Find a Project ID.",
+      "Find a Project by ID.",
   },
 
   operation: {
