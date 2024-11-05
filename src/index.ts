@@ -22,7 +22,7 @@ import { projectWithoutTeam } from "./triggers/projectWithoutTeam";
 import { newIssueInstant, updatedIssueInstant } from "./triggers/issueV2";
 import { initiative } from "./triggers/initiative";
 import { projectStatus } from "./triggers/projectStatus";
-import { newProjectInstant } from "./triggers/newProject";
+import { newProjectInstant, updatedProjectInstant } from "./triggers/newProject";
 import { createIssueAttachment } from "./creates/createIssueAttachment";
 import { createProject } from "./creates/createProject";
 import { updateIssue } from "./creates/updateIssue";
@@ -83,6 +83,7 @@ const App = {
     [initiative.key]: initiative,
     [projectStatus.key]: projectStatus,
     [newProjectInstant.key]: newProjectInstant,
+    [updatedProjectInstant.key]: updatedProjectInstant,
   },
   authentication,
   beforeRequest: [addBearerHeader],
