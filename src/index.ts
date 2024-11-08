@@ -27,6 +27,8 @@ import { createIssueAttachment } from "./creates/createIssueAttachment";
 import { createProject } from "./creates/createProject";
 import { updateIssue } from "./creates/updateIssue";
 import { issueTemplates } from "./triggers/issueTemplates";
+import { findIssueByID } from "./searches/issue";
+import { findProjectByID } from "./searches/project";
 
 const handleErrors = (response: HttpResponse, z: ZObject) => {
   if (response.request.url !== "https://api.linear.app/graphql") {
@@ -84,6 +86,10 @@ const App = {
     [projectStatus.key]: projectStatus,
     [newProjectInstant.key]: newProjectInstant,
     [updatedProjectInstant.key]: updatedProjectInstant,
+  },
+  searches: {
+    [findIssueByID.key]: findIssueByID,
+    [findProjectByID.key]: findProjectByID,
   },
   authentication,
   beforeRequest: [addBearerHeader],
