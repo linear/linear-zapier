@@ -1,0 +1,18 @@
+{
+  "id": "722c8d97-f01e-4d2a-85da-271592463f8d",
+  "body": "This is an initiative update body in Markdown format!",
+  "health": "onTrack",
+  "url": "https://local.linear.dev/linear/updateA",
+  "editedAt": "2022-10-27T21:20:59.199Z",
+  "createdAt": "2022-10-27T21:20:59.199Z",
+  "updatedAt": "2022-10-27T21:20:59.199Z",
+  "initiative": {
+    "id": "e632a843-19da-4199-9489-3a962a96b549",
+    "name": "My Initiative"
+  },
+  "user": {
+    "id": "e632a843-19da-4199-9489-3a962a96b549",
+    "name": "Zapier User",
+    "email": "creator@example.com"
+  }
+}
