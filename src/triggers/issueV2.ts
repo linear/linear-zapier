@@ -5,7 +5,7 @@ import { unsubscribeHook } from "../handleWebhook";
 import { jsonToGraphQLQuery, VariableType } from "json-to-graphql-query";
 import { fetchFromLinear } from "../fetchFromLinear";
 
-interface IssueCommon {
+export interface IssueCommon {
   id: string;
   identifier: string;
   url: string;
