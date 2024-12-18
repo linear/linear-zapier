@@ -71,7 +71,7 @@ const getIssue = async (z: ZObject, bundle: Bundle) => {
             }
           }
         }
-    }`,
+      }`,
     },
     method: "POST",
   });
