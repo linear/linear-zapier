@@ -18,7 +18,7 @@ const getProject = async (z: ZObject, bundle: Bundle) => {
     body: {
       query: `
       query Project {
-        project(id: ${bundle.inputData.id}) {
+        project(id: "${bundle.inputData.id}") {
           id
           url
           name
@@ -52,7 +52,7 @@ const getProject = async (z: ZObject, bundle: Bundle) => {
             }
           }
         }
-    }`,
+      }`,
     },
     method: "POST",
   });
