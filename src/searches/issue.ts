@@ -1,18 +1,9 @@
 import { ZObject, Bundle } from "zapier-platform-core";
+import { IssueCommon } from "../triggers/issueV2";
 
 interface IssueResponse {
   data: {
-    issue: {
-        id: string;
-        title: string;
-        description: string;
-        url: string;
-        assignee: {
-            id: string;
-            email: string;
-            name: string;
-        };
-    };
+    issue: IssueCommon;
   };
 }
 
@@ -33,39 +24,39 @@ const getIssue = async (z: ZObject, bundle: Bundle) => {
             description
             url
             assignee {
-                id
-                email
-                name
-                url
-                isMe
-                displayName
-                active
+              id
+              email
+              name
+              url
+              isMe
+              displayName
+              active
             }
             archivedAt
             canceledAt
             cycle {
-                id
-                name
-                description
+              id
+              name
+              description
             }
             completedAt
             createdAt
             creator {
-                id
-                email
-                name
-                url
-                isMe
-                displayName
-                active
+              id
+              email
+              name
+              url
+              isMe
+              displayName
+              active
             }
             dueDate
             estimate
             number
             parent {
-                id
-                url
-                title
+              id
+              url
+              title
             }
             priority
             priorityLabel
@@ -75,12 +66,12 @@ const getIssue = async (z: ZObject, bundle: Bundle) => {
             triagedAt
             updatedAt
             team {
-                id
-                name
-                organization {
-                    id
-                    name
-                }
+              id
+              name
+              organization {
+                  id
+                  name
+              }
             }
         }
     }`,
@@ -98,20 +89,19 @@ export const findIssueByID = {
   noun: "Issue",
 
   display: {
-    label: "Find Issue by ID",
+    label: "Find issue by ID",
     hidden: false,
-    description:
-      "Find an Issue by ID.",
+    description: "Find an issue by ID.",
   },
 
   operation: {
     perform: getIssue,
     inputFields: [
-        {
-          key: "id",
-          required: true,
-          label: "ID of Issue",
-        }
-    ]
+      {
+        key: "id",
+        required: true,
+        label: "ID of issue",
+      },
+    ],
   },
 };

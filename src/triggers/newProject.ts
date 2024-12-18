@@ -27,7 +27,7 @@ interface ProjectCommon {
   };
 }
 
-interface ProjectApi extends ProjectCommon {
+export interface ProjectApi extends ProjectCommon {
   teams: {
     nodes: IdAndName[];
   };
