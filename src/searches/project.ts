@@ -67,9 +67,9 @@ export const findProjectByID = {
   noun: "Project",
 
   display: {
-    label: "Find Project by ID",
+    label: "Find project by ID",
     hidden: false,
-    description: "Find a Project by ID.",
+    description: "Find a project by ID or slug ID",
   },
 
   operation: {
@@ -78,7 +78,7 @@ export const findProjectByID = {
       {
         key: "id",
         required: true,
-        label: "Project ID or Slug ID",
+        label: "Project ID or project slug ID",
       },
     ],
   },

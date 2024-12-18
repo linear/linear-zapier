@@ -88,7 +88,7 @@ export const findIssueByID = {
   display: {
     label: "Find issue by ID",
     hidden: false,
-    description: "Find an issue by ID.",
+    description: "Find an issue by ID or identifier",
   },
 
   operation: {
@@ -97,7 +97,7 @@ export const findIssueByID = {
       {
         key: "id",
         required: true,
-        label: "ID of issue",
+        label: "Issue ID or identifier",
       },
     ],
   },
