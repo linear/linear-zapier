@@ -1,5 +1,6 @@
 import { ZObject, Bundle } from "zapier-platform-core";
 import { ProjectApi } from "../triggers/newProject";
+import sample from "../samples/project.json";
 
 interface ProjectResponse {
   data: {
@@ -67,7 +68,7 @@ export const findProjectByID = {
   noun: "Project",
 
   display: {
-    label: "Find project by ID",
+    label: "Find Project by ID",
     hidden: false,
     description: "Find a project by ID or slug ID",
   },
@@ -81,5 +82,6 @@ export const findProjectByID = {
         label: "Project ID or project slug ID",
       },
     ],
+    sample,
   },
 };

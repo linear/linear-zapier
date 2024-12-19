@@ -1,5 +1,6 @@
 import { ZObject, Bundle } from "zapier-platform-core";
 import { IssueCommon } from "../triggers/issueV2";
+import sample from "../samples/issue.json";
 
 interface IssueResponse {
   data: {
@@ -86,7 +87,7 @@ export const findIssueByID = {
   noun: "Issue",
 
   display: {
-    label: "Find issue by ID",
+    label: "Find Issue by ID",
     hidden: false,
     description: "Find an issue by ID or identifier",
   },
@@ -100,5 +101,6 @@ export const findIssueByID = {
         label: "Issue ID or identifier",
       },
     ],
+    sample,
   },
 };
