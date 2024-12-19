@@ -29,6 +29,7 @@ import { updateIssue } from "./creates/updateIssue";
 import { issueTemplates } from "./triggers/issueTemplates";
 import { findIssueByID } from "./searches/issue";
 import { findProjectByID } from "./searches/project";
+import { newInitiativeUpdateInstant, updatedInitiativeUpdateInstant } from "./triggers/initiativeUpdate";
 
 const handleErrors = (response: HttpResponse, z: ZObject) => {
   if (response.request.url !== "https://api.linear.app/graphql") {
@@ -73,6 +74,8 @@ const App = {
     [newDocumentCommentInstant.key]: newDocumentCommentInstant,
     [updatedProjectUpdate.key]: updatedProjectUpdate,
     [updatedProjectUpdateInstant.key]: updatedProjectUpdateInstant,
+    [newInitiativeUpdateInstant.key]: newInitiativeUpdateInstant,
+    [updatedInitiativeUpdateInstant.key]: updatedInitiativeUpdateInstant,
     [team.key]: team,
     [issueTemplates.key]: issueTemplates,
     [status.key]: status,
