@@ -45,7 +45,7 @@ const updateIssueRequest = async (z: ZObject, bundle: Bundle) => {
       projectId: bundle.inputData.projectId,
       projectMilestoneId: bundle.inputData.projectMilestoneId,
       dueDate: bundle.inputData.dueDate,
-      addedLabelIds,
+      addedLabelIds: addedLabelIds,
     },
     (v) => v === undefined
   );
