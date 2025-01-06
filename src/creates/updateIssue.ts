@@ -22,10 +22,6 @@ interface IssueUpdateResponse {
   }[];
 }
 
-interface IssueResponse {
-  data: { issue: { labelIds: string[] } };
-}
-
 const updateIssueRequest = async (z: ZObject, bundle: Bundle) => {
   if (!bundle.inputData.issueIdToUpdate) {
     throw new z.errors.HaltedError("You must specify the ID of the issue to update");
@@ -33,7 +29,7 @@ const updateIssueRequest = async (z: ZObject, bundle: Bundle) => {
   const priority = bundle.inputData.priority ? parseInt(bundle.inputData.priority) : undefined;
   const estimate = bundle.inputData.estimate ? parseInt(bundle.inputData.estimate) : undefined;
   const addedLabelIds: string[] | undefined =
-    bundle.inputData.labels && bundle.inputData.labels.length > 0 ? bundle.inputData.labels : undefined;
+    bundle.inputData.labels && bundle.inputData.labels.length > 0 ? uniq(bundle.inputData.labels) : undefined;
 
   const variables = omitBy(
     {
