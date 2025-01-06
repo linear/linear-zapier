@@ -32,22 +32,8 @@ const updateIssueRequest = async (z: ZObject, bundle: Bundle) => {
   }
   const priority = bundle.inputData.priority ? parseInt(bundle.inputData.priority) : undefined;
   const estimate = bundle.inputData.estimate ? parseInt(bundle.inputData.estimate) : undefined;
-  let labelIds: string[] | undefined = undefined;
-  if (bundle.inputData.labels && bundle.inputData.labels.length > 0) {
-    // We need to append new labels to the issue's existing label set
-    const issueQuery = `
-      query ZapierIssue($id: String!) {
-        issue(id: $id) {
-          id
-          labelIds
-        }
-      }
-    `;
-    const response = await fetchFromLinear(z, bundle, issueQuery, { id: bundle.inputData.issueIdToUpdate });
-    const data = response.json as IssueResponse;
-    const originalLabelIds = data.data.issue.labelIds;
-    labelIds = uniq([...originalLabelIds, ...bundle.inputData.labels]);
-  }
+  const addedLabelIds: string[] | undefined =
+    bundle.inputData.labels && bundle.inputData.labels.length > 0 ? bundle.inputData.labels : undefined;
 
   const variables = omitBy(
     {
@@ -63,7 +49,7 @@ const updateIssueRequest = async (z: ZObject, bundle: Bundle) => {
       projectId: bundle.inputData.projectId,
       projectMilestoneId: bundle.inputData.projectMilestoneId,
       dueDate: bundle.inputData.dueDate,
-      labelIds,
+      addedLabelIds,
     },
     (v) => v === undefined
   );
@@ -82,7 +68,7 @@ const updateIssueRequest = async (z: ZObject, bundle: Bundle) => {
         $projectId: String,
         $projectMilestoneId: String,
         $dueDate: TimelessDate,
-        $labelIds: [String!]
+        $addedLabelIds: [String!]
       ) {
         issueUpdate(id: $issueIdToUpdate, input: {
           teamId: $teamId,
@@ -96,7 +82,7 @@ const updateIssueRequest = async (z: ZObject, bundle: Bundle) => {
           projectId: $projectId,
           projectMilestoneId: $projectMilestoneId,
           dueDate: $dueDate,
-          labelIds: $labelIds
+          addedLabelIds: $addedLabelIds
         }) {
           issue {
             id
