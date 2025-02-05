@@ -1,0 +1,16 @@
+{
+  "id": "ccf432b1-6899-4f1e-9d6c-59e21fae2a17",
+  "name": "Example",
+  "createdAt": "2024-10-04T22:38:43.396Z",
+  "updatedAt": "2024-10-04T22:39:43.396Z",
+  "domains": [
+    "example.com"
+  ],
+  "externalIds": ["123456789"],
+  "revenue": 10000,
+  "size": 100,
+  "tier": {
+    "id": "565dbccb-aab4-4b63-bf55-fc8ea634084b",
+    "name": "Enterprise"
+  }
+}

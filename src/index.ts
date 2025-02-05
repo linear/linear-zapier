@@ -29,6 +29,9 @@ import { updateIssue } from "./creates/updateIssue";
 import { issueTemplates } from "./triggers/issueTemplates";
 import { findIssueByID } from "./searches/issue";
 import { findProjectByID } from "./searches/project";
+import {createCustomer} from "./creates/createCustomer";
+import {findCustomerByID} from "./searches/customer";
+import {newCustomerInstant, updatedCustomerInstant} from "./triggers/customer";
 
 const handleErrors = (response: HttpResponse, z: ZObject) => {
   if (response.request.url !== "https://api.linear.app/graphql") {
@@ -57,6 +60,7 @@ const App = {
     [createIssueAttachment.key]: createIssueAttachment,
     [createProject.key]: createProject,
     [updateIssue.key]: updateIssue,
+    [createCustomer.key]: createCustomer,
   },
   triggers: {
     [newIssue.key]: newIssue,
@@ -86,10 +90,13 @@ const App = {
     [projectStatus.key]: projectStatus,
     [newProjectInstant.key]: newProjectInstant,
     [updatedProjectInstant.key]: updatedProjectInstant,
+    [newCustomerInstant.key]: newCustomerInstant,
+    [updatedCustomerInstant.key]: updatedCustomerInstant,
   },
   searches: {
     [findIssueByID.key]: findIssueByID,
     [findProjectByID.key]: findProjectByID,
+    [findCustomerByID.key]: findCustomerByID,
   },
   authentication,
   beforeRequest: [addBearerHeader],
