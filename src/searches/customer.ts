@@ -50,7 +50,7 @@ export const findCustomerByID = {
   display: {
     label: "Find Customer by ID",
     hidden: false,
-    description: "Find a customer by ID=",
+    description: "Find a customer by ID",
   },
 
   operation: {
