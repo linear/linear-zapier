@@ -32,6 +32,8 @@ import { findProjectByID } from "./searches/project";
 import {createCustomer} from "./creates/createCustomer";
 import {findCustomerByID} from "./searches/customer";
 import {newCustomerInstant, updatedCustomerInstant} from "./triggers/customer";
+import {createCustomerNeed} from "./creates/createCustomerNeed";
+import {newCustomerNeedInstant, updatedCustomerNeedInstant} from "./triggers/customerNeed";
 
 const handleErrors = (response: HttpResponse, z: ZObject) => {
   if (response.request.url !== "https://api.linear.app/graphql") {
@@ -61,6 +63,7 @@ const App = {
     [createProject.key]: createProject,
     [updateIssue.key]: updateIssue,
     [createCustomer.key]: createCustomer,
+    [createCustomerNeed.key]: createCustomerNeed,
   },
   triggers: {
     [newIssue.key]: newIssue,
@@ -92,6 +95,9 @@ const App = {
     [updatedProjectInstant.key]: updatedProjectInstant,
     [newCustomerInstant.key]: newCustomerInstant,
     [updatedCustomerInstant.key]: updatedCustomerInstant,
+    [newCustomerNeedInstant.key]: newCustomerNeedInstant,
+    [updatedCustomerNeedInstant.key]: updatedCustomerNeedInstant,
+
   },
   searches: {
     [findIssueByID.key]: findIssueByID,
