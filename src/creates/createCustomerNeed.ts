@@ -25,6 +25,13 @@ const createCustomerNeedRequest = async (z: ZObject, bundle: Bundle) => {
         },
         (v) => v === undefined
     );
+
+    if(variables.attachmentId && variables.attachmentUrl) {
+        throw new Error ("Cannot specify both attachmentId and attachmentUrl");
+    } else if (variables.customerId && variables.customerExternalId) {
+        throw new Error ("Cannot specify both customerId and customerExternalId");
+    }
+
     const query = `
       mutation ZapierCustomerNeedCreate(
         $customerId: String,
