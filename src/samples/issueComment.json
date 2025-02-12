@@ -11,6 +11,7 @@
     "url": "https://linear.app/example/issue/SAMPLE-15",
     "team": {
       "id": "a582cb67-8f1b-4d8a-9d91-e9894dcf7fa6",
+      "key": "SAM",
       "name": "Sample team"
     }
   },

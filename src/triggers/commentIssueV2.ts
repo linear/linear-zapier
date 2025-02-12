@@ -18,6 +18,7 @@ interface Comment {
     url: string;
     team: {
       id: string;
+      key: string;
       name: string;
     };
   };
@@ -107,6 +108,7 @@ const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
             url: true,
             team: {
               id: true,
+              key: true,
               name: true,
             },
           },
