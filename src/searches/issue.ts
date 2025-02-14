@@ -1,18 +1,10 @@
 import { ZObject, Bundle } from "zapier-platform-core";
+import { IssueCommon } from "../triggers/issueV2";
+import sample from "../samples/issue.json";
 
 interface IssueResponse {
   data: {
-    issue: {
-        id: string;
-        title: string;
-        description: string;
-        url: string;
-        assignee: {
-            id: string;
-            email: string;
-            name: string;
-        };
-    };
+    issue: IssueCommon;
   };
 }
 
@@ -28,62 +20,59 @@ const getIssue = async (z: ZObject, bundle: Bundle) => {
       query: `
       query Issue {
         issue(id: "${bundle.inputData.id}") {
+          id
+          identifier
+          url
+          title
+          description
+          priority
+          estimate
+          dueDate
+          slaBreachesAt
+          slaStartedAt
+          createdAt
+          updatedAt
+          project {
             id
-            title
-            description
+            name
+          }
+          projectMilestone {
+            id
+            name
+          }
+          creator {
+            id
+            name
+            email
+          }
+          assignee {
+            id
+            name
+            email
+          }
+          state {
+            id
+            name
+            type
+          }
+          parent {
+            id
+            identifier
             url
-            assignee {
+            title
+          }
+          labels {
+            nodes {
+              id
+              color
+              name
+              parent {
                 id
-                email
-                name
-                url
-                isMe
-                displayName
-                active
+              }
             }
-            archivedAt
-            canceledAt
-            cycle {
-                id
-                name
-                description
-            }
-            completedAt
-            createdAt
-            creator {
-                id
-                email
-                name
-                url
-                isMe
-                displayName
-                active
-            }
-            dueDate
-            estimate
-            number
-            parent {
-                id
-                url
-                title
-            }
-            priority
-            priorityLabel
-            startedAt
-            startedTriageAt
-            trashed
-            triagedAt
-            updatedAt
-            team {
-                id
-                name
-                organization {
-                    id
-                    name
-                }
-            }
+          }
         }
-    }`,
+      }`,
     },
     method: "POST",
   });
@@ -100,18 +89,18 @@ export const findIssueByID = {
   display: {
     label: "Find Issue by ID",
     hidden: false,
-    description:
-      "Find an Issue by ID.",
+    description: "Find an issue by ID or identifier",
   },
 
   operation: {
     perform: getIssue,
     inputFields: [
-        {
-          key: "id",
-          required: true,
-          label: "ID of Issue",
-        }
-    ]
+      {
+        key: "id",
+        required: true,
+        label: "Issue ID or identifier",
+      },
+    ],
+    sample,
   },
 };

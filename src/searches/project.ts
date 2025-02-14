@@ -1,17 +1,10 @@
 import { ZObject, Bundle } from "zapier-platform-core";
+import { ProjectApi } from "../triggers/newProject";
+import sample from "../samples/project.json";
 
 interface ProjectResponse {
   data: {
-    project: {
-        id: string;
-        name: string;
-        url: string;
-        creator: {
-            id: string;
-            email: string;
-            name: string;
-        };
-    };
+    project: ProjectApi;
   };
 }
 
@@ -26,54 +19,41 @@ const getProject = async (z: ZObject, bundle: Bundle) => {
     body: {
       query: `
       query Project {
-        project(id: ${bundle.inputData.id}) {
+        project(id: "${bundle.inputData.id}") {
+          id
+          url
+          name
+          description
+          priority
+          createdAt
+          updatedAt
+          startDate
+          targetDate
+          status {
             id
             name
-            url
-            archivedAt
-            canceledAt
-            autoArchivedAt
-            completedAt
-            completedIssueCountHistory
-            content
-            createdAt
-            creator {
-                id
-                email
-                name
-                url
-                isMe
-                displayName
-                active
+            type
+          }
+          teams {
+            nodes {
+              id
+              name
             }
-            currentProgress
-            description
-            health
-            healthUpdatedAt
-            lead {
-                id
-                email
-                name
-                url
-                isMe
-                displayName
-                active
+          }
+          initiatives {
+            nodes {
+              id
+              name
             }
-            priority
-            prioritySortOrder
-            projectUpdateRemindersPausedUntilAt
-            slugId
-            startDate
-            startedAt
-            startDateResolution
-            status {
-                name
+          }
+          projectMilestones {
+            nodes {
+              id
+              name
             }
-            targetDate
-            trashed
-            updatedAt
+          }
         }
-    }`,
+      }`,
     },
     method: "POST",
   });
@@ -90,18 +70,18 @@ export const findProjectByID = {
   display: {
     label: "Find Project by ID",
     hidden: false,
-    description:
-      "Find a Project by ID.",
+    description: "Find a project by ID or slug ID",
   },
 
   operation: {
     perform: getProject,
     inputFields: [
-        {
-          key: "id",
-          required: true,
-          label: "Project ID or Slug ID",
-        }
-    ]
+      {
+        key: "id",
+        required: true,
+        label: "Project ID or project slug ID",
+      },
+    ],
+    sample,
   },
 };

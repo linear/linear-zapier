@@ -30,6 +30,11 @@ import { issueTemplates } from "./triggers/issueTemplates";
 import { findIssueByID } from "./searches/issue";
 import { findProjectByID } from "./searches/project";
 import { newInitiativeUpdateInstant, updatedInitiativeUpdateInstant } from "./triggers/initiativeUpdate";
+import { createCustomer } from "./creates/createCustomer";
+import { findCustomerByID } from "./searches/customer";
+import { newCustomerInstant, updatedCustomerInstant } from "./triggers/customer";
+import { createCustomerNeed } from "./creates/createCustomerNeed";
+import { newCustomerNeedInstant, updatedCustomerNeedInstant } from "./triggers/customerNeed";
 
 const handleErrors = (response: HttpResponse, z: ZObject) => {
   if (response.request.url !== "https://api.linear.app/graphql") {
@@ -58,6 +63,8 @@ const App = {
     [createIssueAttachment.key]: createIssueAttachment,
     [createProject.key]: createProject,
     [updateIssue.key]: updateIssue,
+    [createCustomer.key]: createCustomer,
+    [createCustomerNeed.key]: createCustomerNeed,
   },
   triggers: {
     [newIssue.key]: newIssue,
@@ -89,10 +96,15 @@ const App = {
     [projectStatus.key]: projectStatus,
     [newProjectInstant.key]: newProjectInstant,
     [updatedProjectInstant.key]: updatedProjectInstant,
+    [newCustomerInstant.key]: newCustomerInstant,
+    [updatedCustomerInstant.key]: updatedCustomerInstant,
+    [newCustomerNeedInstant.key]: newCustomerNeedInstant,
+    [updatedCustomerNeedInstant.key]: updatedCustomerNeedInstant,
   },
   searches: {
     [findIssueByID.key]: findIssueByID,
     [findProjectByID.key]: findProjectByID,
+    [findCustomerByID.key]: findCustomerByID,
   },
   authentication,
   beforeRequest: [addBearerHeader],
