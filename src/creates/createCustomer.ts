@@ -3,7 +3,12 @@ import { fetchFromLinear } from "../fetchFromLinear";
 import { omitBy } from "lodash";
 
 interface CustomerCreateResponse {
-  data?: { customerCreate: { customer: { id: string; name: string, domains: string[], externalIds: string[] }; success: boolean } };
+  data?: {
+    customerCreate: {
+      customer: { id: string; name: string; domains: string[]; externalIds: string[] };
+      success: boolean;
+    };
+  };
   errors?: {
     message: string;
     extensions?: {
@@ -129,7 +134,11 @@ export const createCustomer = {
     sample: {
       data: {
         customerCreate: {
-          customer: { id: "068fbd0a-c1d5-448b-af2d-432127520cbd", domains: ["https://www.example.com"], name: "Example customer" },
+          customer: {
+            id: "068fbd0a-c1d5-448b-af2d-432127520cbd",
+            domains: ["https://www.example.com"],
+            name: "Example customer",
+          },
           success: true,
         },
       },

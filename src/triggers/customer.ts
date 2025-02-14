@@ -1,8 +1,8 @@
-import {Bundle, ZObject} from "zapier-platform-core";
+import { Bundle, ZObject } from "zapier-platform-core";
 import sample from "../samples/customer.json";
-import {getWebhookData, unsubscribeHook} from "../handleWebhook";
-import {jsonToGraphQLQuery} from "json-to-graphql-query";
-import {fetchFromLinear} from "../fetchFromLinear";
+import { getWebhookData, unsubscribeHook } from "../handleWebhook";
+import { jsonToGraphQLQuery } from "json-to-graphql-query";
+import { fetchFromLinear } from "../fetchFromLinear";
 
 export interface CustomerCommon {
   id: string;

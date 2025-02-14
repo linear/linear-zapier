@@ -1,6 +1,6 @@
 import { ZObject, Bundle } from "zapier-platform-core";
 import sample from "../samples/customer.json";
-import {CustomerCommon} from "../triggers/customer";
+import { CustomerCommon } from "../triggers/customer";
 
 interface CustomerResponse {
   data: {
