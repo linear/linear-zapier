@@ -35,6 +35,8 @@ import { findCustomerByID } from "./searches/customer";
 import { newCustomerInstant, updatedCustomerInstant } from "./triggers/customer";
 import { createCustomerNeed } from "./creates/createCustomerNeed";
 import { newCustomerNeedInstant, updatedCustomerNeedInstant } from "./triggers/customerNeed";
+import { addIssueLabel } from "./creates/addIssueLabel";
+import { removeIssueLabel } from "./creates/removeIssueLabel";
 
 const handleErrors = (response: HttpResponse, z: ZObject) => {
   if (response.request.url !== "https://api.linear.app/graphql") {
@@ -59,6 +61,8 @@ const App = {
   platformVersion: require("zapier-platform-core").version,
   creates: {
     [createIssue.key]: createIssue,
+    [addIssueLabel.key]: addIssueLabel,
+    [removeIssueLabel.key]: removeIssueLabel,
     [createComment.key]: createComment,
     [createIssueAttachment.key]: createIssueAttachment,
     [createProject.key]: createProject,
