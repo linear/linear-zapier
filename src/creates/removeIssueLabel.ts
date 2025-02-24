@@ -83,7 +83,7 @@ export const removeIssueLabel = {
   display: {
     hidden: false,
     description: "Remove a label from an existing issue in Linear",
-    label: "Remove Label from Issue",
+    label: "Remove Label From Issue",
   },
 
   noun: "Label",
@@ -96,14 +96,12 @@ export const removeIssueLabel = {
         required: true,
         label: "Issue",
         key: "issue_id",
-        dynamic: "issue.id.identifier",
         helpText: "The issue to remove the label from",
       },
       {
         required: true,
         label: "Label",
         key: "label_id",
-        dynamic: "label.id.name",
         helpText: "The label to remove from the issue",
       },
     ],

@@ -83,7 +83,7 @@ export const addIssueLabel = {
   display: {
     hidden: false,
     description: "Add a label to an existing issue in Linear",
-    label: "Add Label to Issue",
+    label: "Add Label To Issue",
   },
 
   noun: "Label",
@@ -96,14 +96,12 @@ export const addIssueLabel = {
         required: true,
         label: "Issue",
         key: "issue_id",
-        dynamic: "issue.id.identifier",
         helpText: "The issue to add the label to",
       },
       {
         required: true,
         label: "Label",
         key: "label_id",
-        dynamic: "label.id.name",
         helpText: "The label to add to the issue",
       },
     ],
