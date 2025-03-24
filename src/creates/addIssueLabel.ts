@@ -83,7 +83,7 @@ export const addIssueLabel = {
   display: {
     hidden: false,
     description: "Add a label to an existing issue in Linear",
-    label: "Add Label To Issue",
+    label: "Add Label to Issue",
   },
 
   noun: "Label",
