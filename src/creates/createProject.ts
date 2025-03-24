@@ -21,6 +21,7 @@ const createProjectRequest = async (z: ZObject, bundle: Bundle) => {
     {
       name: bundle.inputData.name,
       description: bundle.inputData.description || "",
+      content: bundle.inputData.content || "",
       statusId: bundle.inputData.statusId,
       teamIds,
       memberIds: bundle.inputData.members || [],
@@ -33,6 +34,7 @@ const createProjectRequest = async (z: ZObject, bundle: Bundle) => {
       mutation ZapierProjectCreate(
         $name: String!,
         $description: String!,
+        $content: String,
         $statusId: String,
         $teamIds: [String!]!,
         $memberIds: [String!],
@@ -42,6 +44,7 @@ const createProjectRequest = async (z: ZObject, bundle: Bundle) => {
         projectCreate(input: {
           name: $name,
           description: $description,
+          content: $content,
           statusId: $statusId,
           teamIds: $teamIds,
           memberIds: $memberIds,
@@ -99,6 +102,13 @@ export const createProject = {
         label: "Summary",
         helpText: "A short summary of the project",
         key: "description",
+        type: "text",
+      },
+      {
+        required: false,
+        label: "Content",
+        helpText: "The content of the project overview",
+        key: "content",
         type: "text",
       },
       {
