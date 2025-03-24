@@ -24,6 +24,7 @@ const getProject = async (z: ZObject, bundle: Bundle) => {
           url
           name
           description
+          content
           priority
           createdAt
           updatedAt
