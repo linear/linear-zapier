@@ -1,5 +1,5 @@
 import { ZObject, Bundle } from "zapier-platform-core";
-import { IssueCommon } from "../triggers/issueV2";
+import { IssueCommon } from "../triggers/issue";
 import sample from "../samples/issue.json";
 
 interface IssueResponse {
