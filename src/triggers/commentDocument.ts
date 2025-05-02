@@ -1,207 +1,235 @@
-import { pick } from "lodash";
+import { omitBy } from "lodash";
 import { ZObject, Bundle } from "zapier-platform-core";
-import sample from "../samples/documentComment.json";
-import { getWebhookData, unsubscribeHook } from "../handleWebhook";
-import { jsonToGraphQLQuery, VariableType } from "json-to-graphql-query";
-import { fetchFromLinear } from "../fetchFromLinear";
-
-interface Comment {
-  id: string;
-  body: string;
-  url: string;
-  createdAt: string;
-  resolvedAt: string | null;
-  documentContent: {
-    project: {
-      id: string;
-      name: string;
-      url: string;
-    } | null;
-    document: {
-      id: string;
-      title: string;
-      project: {
-        id: string;
-        name: string;
-        url: string;
-      };
-    } | null;
-  };
-  user: {
-    id: string;
-    email: string;
-    name: string;
-    avatarUrl: string;
-  };
-  parent: {
-    id: string;
-    body: string;
-    createdAt: string;
-    user: {
-      id: string;
-      email: string;
-      name: string;
-      avatarUrl: string;
-    };
-  } | null;
-}
+import sample from "../samples/projectUpdateComment.json";
 
 interface CommentsResponse {
   data: {
     comments: {
-      nodes: Comment[];
+      nodes: {
+        id: string;
+        body: string;
+        url: string;
+        createdAt: string;
+        resolvedAt: string | null;
+        resolvingUser: {
+          id: string;
+          name: string;
+          email: string;
+          avatarUrl: string;
+        } | null;
+        project: {
+          id: string;
+          name: string;
+          url: string;
+        } | null;
+        documentContent: {
+          id: string;
+          createdAt: string;
+          document: {
+            id: string;
+            title: string;
+            project: {
+              id: string;
+              name: string;
+              url: string;
+            };
+          };
+        } | null;
+        user: {
+          id: string;
+          email: string;
+          name: string;
+          avatarUrl: string;
+        };
+        parent: {
+          id: string;
+          body: string;
+          createdAt: string;
+          user: {
+            id: string;
+            email: string;
+            name: string;
+            avatarUrl: string;
+          };
+        } | null;
+      }[];
+      pageInfo: {
+        hasNextPage: boolean;
+        endCursor: string;
+      };
     };
   };
 }
 
-/**
- * Sets up a new webhook subscription for document comments in Linear.
- * @see https://platform.zapier.com/build/cli-hook-trigger#1-write-the-subscribehook-function
- * @see https://platform.zapier.com/build/cli-hook-trigger#subscribehook
- */
-const subscribeHook = (z: ZObject, bundle: Bundle) => {
-  const data = {
-    url: bundle.targetUrl,
-    inputData:
-      bundle.inputData && Object.keys(bundle.inputData).length > 0
-        ? pick(bundle.inputData, ["creatorId", "projectId", "documentId"])
-        : undefined,
-  };
-
-  return z
-    .request({
-      url: "https://client-api.linear.app/connect/zapier/subscribe/commentDocument",
-      method: "POST",
-      body: data,
-    })
-    .then((response) => response.data);
-};
-
-/**
- * Fetches a list of comments from Linear to use as examples when building a Zap.
- * @see https://platform.zapier.com/build/cli-hook-trigger#4-write-the-performlist-function
- * @see https://platform.zapier.com/build/cli-hook-trigger#performlist
- */
 const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
-  const variables: Record<string, string> = {};
-  const variableSchema: Record<string, string> = {};
-  const filters: unknown[] = [{ documentContent: { null: false } }];
-  if (bundle.inputData.creatorId) {
-    variableSchema.creatorId = "ID";
-    variables.creatorId = bundle.inputData.creatorId;
-    filters.push({ user: { id: { eq: new VariableType("creatorId") } } });
-  }
-  if (bundle.inputData.projectId) {
-    variableSchema.projectId = "ID";
-    variables.projectId = bundle.inputData.projectId;
-    filters.push({
-      or: [
-        { documentContent: { project: { id: { eq: new VariableType("projectId") } } } },
-        { documentContent: { document: { project: { id: { eq: new VariableType("projectId") } } } } },
-      ],
-    });
-  }
-  if (bundle.inputData.documentId) {
-    variableSchema.documentId = "ID";
-    variables.documentId = bundle.inputData.documentId;
-    filters.push({ documentContent: { document: { id: { eq: new VariableType("documentId") } } } });
-  }
-  const filter = { and: filters };
+  const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
 
-  const jsonQuery = {
-    query: {
-      __variables: variableSchema,
-      comments: {
-        __args: {
-          first: 25,
-          filter,
-        },
-        nodes: {
-          id: true,
-          body: true,
-          createdAt: true,
-          resolvedAt: true,
-          documentContent: {
-            project: {
-              id: true,
-              name: true,
-              url: true,
-            },
-            document: {
-              id: true,
-              title: true,
-              project: {
-                id: true,
-                name: true,
-                url: true,
-              },
-            },
-          },
-          user: {
-            id: true,
-            email: true,
-            name: true,
-            avatarUrl: true,
-          },
-          parent: {
-            id: true,
-            body: true,
-            createdAt: true,
-            user: {
-              id: true,
-              email: true,
-              name: true,
-              avatarUrl: true,
-            },
-          },
-        },
-      },
+  const variables = omitBy(
+    {
+      creatorId: bundle.inputData.creator_id,
+      projectId: bundle.inputData.project_id,
+      documentId: bundle.inputData.document_id,
+      after: cursor,
     },
-  };
+    (v) => v === undefined
+  );
 
-  const query = jsonToGraphQLQuery(jsonQuery);
-  const response = await fetchFromLinear(z, bundle, query, variables);
+  const filters = [];
+  if ("creatorId" in variables) {
+    filters.push(`{ user: { id: { eq: $creatorId } } }`);
+  }
+  if ("projectId" in variables) {
+    filters.push(`{ documentContent: { project: { id: { eq: $projectId }} } }`);
+    filters.push(`{ documentContent: { document: { project: { id: { eq: $projectId }}}}}`);
+  }
+  if ("documentId" in variables) {
+    filters.push(`{ documentContent: { document: { id: { eq: $documentId }}}}`);
+  }
+
+  const response = await z.request({
+    url: "https://api.linear.app/graphql",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      authorization: bundle.authData.api_key,
+    },
+    body: {
+      query: `
+      query ZapierListComments(
+        $after: String
+        ${"creatorId" in variables ? "$creatorId: ID" : ""}
+        ${"projectId" in variables ? "$projectId: ID" : ""}
+        ${"documentId" in variables ? "$documentId: ID" : ""}
+      ) {
+        comments(
+          first: 25
+          after: $after
+          ${
+            filters.length > 0
+              ? `
+          filter: {
+            and : [
+              ${filters.join("\n              ")}
+            ]
+          }`
+              : ""
+          }
+        ) {
+          nodes {
+            id
+            body
+            createdAt
+            resolvedAt
+            resolvingUser {
+              id
+              name
+              email
+              avatarUrl
+            }
+            documentContent {
+              id
+              createdAt
+              updatedAt
+              project {
+                id
+                name
+                url
+              }
+              document {
+                id
+                title
+                project {
+                  id
+                  name
+                  url
+                }
+              }
+            }
+            user {
+              id
+              email
+              name
+              avatarUrl
+            }
+            parent {
+              id
+              body
+              createdAt
+              user {
+                id
+                email
+                name
+                avatarUrl
+              }
+            }
+          }
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+        }
+      }`,
+      variables: variables,
+    },
+    method: "POST",
+  });
+
   const data = (response.json as CommentsResponse).data;
-  return data.comments.nodes;
+  const comments = data.comments.nodes;
+
+  // Set cursor for pagination
+  if (data.comments.pageInfo.hasNextPage) {
+    await z.cursor.set(data.comments.pageInfo.endCursor);
+  }
+
+  return comments.map((comment) => ({
+    ...comment,
+    id: `${comment.id}-${comment.createdAt}`,
+    commentId: comment.id,
+  }));
 };
 
-export const newDocumentCommentInstant = {
-  key: "newDocumentCommentV2",
+const comment = {
   noun: "Comment",
-  display: {
-    label: "New Document Comment",
-    description: "Triggers when a new document comment is created.",
-  },
+
   operation: {
     inputFields: [
       {
         required: false,
         label: "Creator",
-        key: "creatorId",
+        key: "creator_id",
         helpText: "Only trigger on document comments added by this user.",
         dynamic: "user.id.name",
         altersDynamicFields: true,
       },
       {
         required: false,
-        label: "Project",
-        key: "projectId",
-        helpText: "Only trigger on document comments tied to this project.",
-        dynamic: "projectWithoutTeam.id.name",
-        altersDynamicFields: true,
+        label: "Project ID",
+        key: "project_id",
+        helpText: "Only trigger on comments added to the documents in the project with this ID.",
       },
       {
         required: false,
         label: "Document ID",
-        key: "documentId",
+        key: "document_id",
         helpText: "Only trigger on comments added to the document with this ID.",
       },
     ],
-    type: "hook",
-    performSubscribe: subscribeHook,
-    performUnsubscribe: unsubscribeHook,
-    perform: getWebhookData,
-    performList: getCommentList(),
     sample,
+  },
+};
+
+export const newDocumentComment = {
+  ...comment,
+  key: "newDocumentComment",
+  display: {
+    label: "New Document Comment",
+    description: "Triggers when a new document comment is created.",
+    hidden: true,
+  },
+  operation: {
+    ...comment.operation,
+    perform: getCommentList(),
+    canPaginate: true,
   },
 };
