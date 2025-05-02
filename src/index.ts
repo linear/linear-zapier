@@ -1,25 +1,20 @@
 import { addBearerHeader, authentication } from "./authentication";
 import { createIssue } from "./creates/createIssue";
-import { newIssueComment } from "./triggers/commentIssue";
-import { newProjectUpdateComment } from "./triggers/commentProjectUpdate";
-import { newDocumentComment } from "./triggers/commentDocument";
-import { newIssue, updatedIssue } from "./triggers/issue";
 import { team } from "./triggers/team";
 import { status } from "./triggers/status";
 import { label } from "./triggers/label";
 import { user } from "./triggers/user";
 import { project } from "./triggers/project";
-import { newProjectUpdate, updatedProjectUpdate } from "./triggers/projectUpdate";
 import { projectMilestone } from "./triggers/projectMilestone";
 import { HttpResponse, ZObject } from "zapier-platform-core";
 import { createComment } from "./creates/createComment";
 import { estimate } from "./triggers/estimate";
-import { newDocumentCommentInstant } from "./triggers/commentDocumentV2";
-import { newIssueCommentInstant } from "./triggers/commentIssueV2";
-import { newProjectUpdateCommentInstant } from "./triggers/commentProjectUpdateV2";
+import { newDocumentCommentInstant } from "./triggers/commentDocument";
+import { newIssueCommentInstant } from "./triggers/commentIssue";
+import { newProjectUpdateCommentInstant } from "./triggers/commentProjectUpdate";
 import { newProjectUpdateInstant, updatedProjectUpdateInstant } from "./triggers/projectUpdateV2";
 import { projectWithoutTeam } from "./triggers/projectWithoutTeam";
-import { newIssueInstant, updatedIssueInstant } from "./triggers/issueV2";
+import { newIssueInstant, updatedIssueInstant } from "./triggers/issue";
 import { initiative } from "./triggers/initiative";
 import { projectStatus } from "./triggers/projectStatus";
 import { newProjectInstant, updatedProjectInstant } from "./triggers/newProject";
@@ -71,19 +66,12 @@ const App = {
     [createCustomerNeed.key]: createCustomerNeed,
   },
   triggers: {
-    [newIssue.key]: newIssue,
     [newIssueInstant.key]: newIssueInstant,
-    [updatedIssue.key]: updatedIssue,
     [updatedIssueInstant.key]: updatedIssueInstant,
-    [newIssueComment.key]: newIssueComment,
     [newIssueCommentInstant.key]: newIssueCommentInstant,
-    [newProjectUpdate.key]: newProjectUpdate,
     [newProjectUpdateInstant.key]: newProjectUpdateInstant,
-    [newProjectUpdateComment.key]: newProjectUpdateComment,
     [newProjectUpdateCommentInstant.key]: newProjectUpdateCommentInstant,
-    [newDocumentComment.key]: newDocumentComment,
     [newDocumentCommentInstant.key]: newDocumentCommentInstant,
-    [updatedProjectUpdate.key]: updatedProjectUpdate,
     [updatedProjectUpdateInstant.key]: updatedProjectUpdateInstant,
     [newInitiativeUpdateInstant.key]: newInitiativeUpdateInstant,
     [updatedInitiativeUpdateInstant.key]: updatedInitiativeUpdateInstant,
