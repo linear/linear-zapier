@@ -1,25 +1,25 @@
 import { addBearerHeader, authentication } from "./authentication";
 import { createIssue } from "./creates/createIssue";
-import { newIssueComment } from "./triggers/commentIssue";
-import { newProjectUpdateComment } from "./triggers/commentProjectUpdate";
-import { newDocumentComment } from "./triggers/commentDocument";
-import { newIssue, updatedIssue } from "./triggers/issue";
+import { newIssueCommentLegacy } from "./triggers/legacy/commentIssue";
+import { newProjectUpdateCommentLegacy } from "./triggers/legacy/commentProjectUpdate";
+import { newDocumentCommentLegacy } from "./triggers/legacy/commentDocument";
+import { newIssueLegacy, updatedIssueLegacy } from "./triggers/legacy/issue";
 import { team } from "./triggers/team";
 import { status } from "./triggers/status";
 import { label } from "./triggers/label";
 import { user } from "./triggers/user";
 import { project } from "./triggers/project";
-import { newProjectUpdate, updatedProjectUpdate } from "./triggers/projectUpdate";
+import { newProjectUpdateLegacy, updatedProjectUpdateLegacy } from "./triggers/legacy/projectUpdate";
 import { projectMilestone } from "./triggers/projectMilestone";
 import { HttpResponse, ZObject } from "zapier-platform-core";
 import { createComment } from "./creates/createComment";
 import { estimate } from "./triggers/estimate";
-import { newDocumentCommentInstant } from "./triggers/commentDocumentV2";
-import { newIssueCommentInstant } from "./triggers/commentIssueV2";
-import { newProjectUpdateCommentInstant } from "./triggers/commentProjectUpdateV2";
-import { newProjectUpdateInstant, updatedProjectUpdateInstant } from "./triggers/projectUpdateV2";
+import { newDocumentCommentInstant } from "./triggers/commentDocument";
+import { newIssueCommentInstant } from "./triggers/commentIssue";
+import { newProjectUpdateCommentInstant } from "./triggers/commentProjectUpdate";
+import { newProjectUpdateInstant, updatedProjectUpdateInstant } from "./triggers/projectUpdate";
 import { projectWithoutTeam } from "./triggers/projectWithoutTeam";
-import { newIssueInstant, updatedIssueInstant } from "./triggers/issueV2";
+import { newIssueInstant, updatedIssueInstant } from "./triggers/issue";
 import { initiative } from "./triggers/initiative";
 import { projectStatus } from "./triggers/projectStatus";
 import { newProjectInstant, updatedProjectInstant } from "./triggers/newProject";
@@ -71,19 +71,22 @@ const App = {
     [createCustomerNeed.key]: createCustomerNeed,
   },
   triggers: {
-    [newIssue.key]: newIssue,
+    // Legacy triggers are all hidden and no longer used, but we can't remove them because Zapier considers that a breaking change.
+    [newIssueLegacy.key]: newIssueLegacy,
     [newIssueInstant.key]: newIssueInstant,
-    [updatedIssue.key]: updatedIssue,
+    [updatedIssueLegacy.key]: updatedIssueLegacy,
     [updatedIssueInstant.key]: updatedIssueInstant,
-    [newIssueComment.key]: newIssueComment,
+    [newIssueCommentLegacy.key]: newIssueCommentLegacy,
     [newIssueCommentInstant.key]: newIssueCommentInstant,
-    [newProjectUpdate.key]: newProjectUpdate,
+    [newProjectUpdateLegacy.key]: newProjectUpdateLegacy,
+    [updatedProjectUpdateLegacy.key]: updatedProjectUpdateLegacy,
+
+    // New triggers are all visible and used
     [newProjectUpdateInstant.key]: newProjectUpdateInstant,
-    [newProjectUpdateComment.key]: newProjectUpdateComment,
+    [newProjectUpdateCommentLegacy.key]: newProjectUpdateCommentLegacy,
     [newProjectUpdateCommentInstant.key]: newProjectUpdateCommentInstant,
-    [newDocumentComment.key]: newDocumentComment,
+    [newDocumentCommentLegacy.key]: newDocumentCommentLegacy,
     [newDocumentCommentInstant.key]: newDocumentCommentInstant,
-    [updatedProjectUpdate.key]: updatedProjectUpdate,
     [updatedProjectUpdateInstant.key]: updatedProjectUpdateInstant,
     [newInitiativeUpdateInstant.key]: newInitiativeUpdateInstant,
     [updatedInitiativeUpdateInstant.key]: updatedInitiativeUpdateInstant,
