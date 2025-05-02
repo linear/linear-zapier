@@ -1,377 +1,320 @@
-import { omitBy, pick } from "lodash";
+import { omitBy } from "lodash";
 import { ZObject, Bundle } from "zapier-platform-core";
 import sample from "../samples/issue.json";
-import { unsubscribeHook } from "../handleWebhook";
-import { jsonToGraphQLQuery, VariableType } from "json-to-graphql-query";
-import { fetchFromLinear } from "../fetchFromLinear";
-
-export interface IssueCommon {
-  id: string;
-  identifier: string;
-  url: string;
-  title: string;
-  description: string;
-  priority: string;
-  estimate?: number;
-  dueDate?: Date;
-  slaBreachesAt?: Date;
-  slaStartedAt?: Date;
-  createdAt: Date;
-  updatedAt: Date;
-  project?: {
-    id: string;
-    name: string;
-  };
-  projectMilestone?: {
-    id: string;
-    name: string;
-  };
-  creator: {
-    id: string;
-    name: string;
-    email: string;
-  };
-  assignee?: {
-    id: string;
-    name: string;
-    email: string;
-  };
-  state: {
-    id: string;
-    name: string;
-    type: string;
-  };
-  parent?: {
-    id: string;
-    identifier: string;
-    url: string;
-    title: string;
-  };
-}
-
-interface IssueApi extends IssueCommon {
-  labels?: {
-    nodes: {
-      id: string;
-      color: string;
-      name: string;
-      parent?: {
-        id: string;
-      };
-    }[];
-  };
-}
-
-interface IssueWebhook extends IssueCommon {
-  labels?: {
-    id: string;
-    color: string;
-    name: string;
-    parentId?: string;
-  }[];
-}
 
 interface TeamIssuesResponse {
   data: {
     team: {
       issues: {
-        nodes: IssueApi[];
+        nodes: {
+          id: string;
+          identifier: string;
+          url: string;
+          title: string;
+          description: string;
+          priority: string;
+          estimate: number;
+          dueDate?: Date;
+          slaBreachesAt?: Date;
+          slaStartedAt?: Date;
+          createdAt: Date;
+          updatedAt: Date;
+          project?: {
+            id: string;
+            name: string;
+          };
+          projectMilestone?: {
+            id: string;
+            name: string;
+          };
+          creator: {
+            id: string;
+            name: string;
+            email: string;
+          };
+          assignee?: {
+            id: string;
+            name: string;
+            email: string;
+          };
+          status: {
+            id: string;
+            name: string;
+            type: string;
+          };
+          parent?: {
+            id: string;
+            identifier: string;
+            url: string;
+            title: string;
+          };
+        }[];
+        pageInfo: {
+          hasNextPage: boolean;
+          endCursor: string;
+        };
       };
     };
   };
 }
 
-const subscribeHook = (eventType: "create" | "update") => async (z: ZObject, bundle: Bundle) => {
-  if (!bundle.inputData.teamId) {
-    throw new z.errors.HaltedError("You must select a team");
+const buildIssueList = (orderBy: "createdAt" | "updatedAt") => async (z: ZObject, bundle: Bundle) => {
+  if (!bundle.inputData.team_id) {
+    throw new z.errors.HaltedError(`Please select the team first`);
   }
 
-  const inputData =
-    bundle.inputData && Object.keys(bundle.inputData).length > 0
-      ? omitBy(
-          {
-            ...pick(bundle.inputData, [
-              "teamId",
-              "statusId",
-              "creatorId",
-              "assigneeId",
-              "labelId",
-              "projectId",
-              "projectMilestoneId",
-            ]),
-            priority: bundle.inputData.priority ? Number(bundle.inputData.priority) : undefined,
-          },
-          (v) => v === undefined
-        )
-      : undefined;
+  const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
 
-  const data = {
-    url: bundle.targetUrl,
-    inputData,
-  };
+  const variables = omitBy(
+    {
+      after: cursor,
+      teamId: bundle.inputData.team_id,
+      statusId: bundle.inputData.status_id,
+      creatorId: bundle.inputData.creator_id,
+      assigneeId: bundle.inputData.assignee_id,
+      priority: (bundle.inputData.priority && Number(bundle.inputData.priority)) || undefined,
+      labelId: bundle.inputData.label_id,
+      projectId: bundle.inputData.project_id,
+      projectMilestoneId: bundle.inputData.project_milestone_id,
+      orderBy,
+    },
+    (v) => v === undefined
+  );
 
-  const webhookType = eventType === "create" ? "createIssue" : "updateIssue";
-  return z
-    .request({
-      url: `https://client-api.linear.app/connect/zapier/subscribe/${webhookType}`,
-      method: "POST",
-      body: data,
-    })
-    .then((response) => response.data);
-};
-
-const getIssueList =
-  () =>
-  async (z: ZObject, bundle: Bundle): Promise<IssueWebhook[]> => {
-    if (!bundle.inputData.teamId) {
-      throw new z.errors.HaltedError("You must select a team");
-    }
-
-    const variables: Record<string, string | Number> = {};
-    const variableSchema: Record<string, string> = {};
-
-    variableSchema.teamId = "String!";
-    variables.teamId = bundle.inputData.teamId;
-
-    const filters: unknown[] = [];
-    if (bundle.inputData.priority) {
-      variableSchema.priority = "Float";
-      variables.priority = Number(bundle.inputData.priority);
-      filters.push({ priority: { eq: new VariableType("priority") } });
-    }
-    if (bundle.inputData.statusId) {
-      variableSchema.statusId = "ID";
-      variables.statusId = bundle.inputData.statusId;
-      filters.push({ state: { id: { eq: new VariableType("statusId") } } });
-    }
-    if (bundle.inputData.creatorId) {
-      variableSchema.creatorId = "ID";
-      variables.creatorId = bundle.inputData.creatorId;
-      filters.push({ creator: { id: { eq: new VariableType("creatorId") } } });
-    }
-    if (bundle.inputData.assigneeId) {
-      variableSchema.assigneeId = "ID";
-      variables.assigneeId = bundle.inputData.assigneeId;
-      filters.push({ assignee: { id: { eq: new VariableType("assigneeId") } } });
-    }
-    if (bundle.inputData.projectId) {
-      variableSchema.projectId = "ID";
-      variables.projectId = bundle.inputData.projectId;
-      filters.push({ project: { id: { eq: new VariableType("projectId") } } });
-    }
-    if (bundle.inputData.projectMilestoneId) {
-      variableSchema.projectMilestoneId = "ID";
-      variables.projectMilestoneId = bundle.inputData.projectMilestoneId;
-      filters.push({ projectMilestone: { id: { eq: new VariableType("projectMilestoneId") } } });
-    }
-    if (bundle.inputData.labelId) {
-      variableSchema.labelId = "ID";
-      variables.labelId = bundle.inputData.labelId;
-      filters.push({ labels: { id: { eq: new VariableType("labelId") } } });
-    }
-    const filter = { and: filters };
-
-    const jsonQuery = {
-      query: {
-        __variables: variableSchema,
-        team: {
-          __args: {
-            id: new VariableType("teamId"),
-          },
-          issues: {
-            __args: {
-              first: 10,
-              filter,
-            },
-            nodes: {
-              id: true,
-              identifier: true,
-              url: true,
-              title: true,
-              description: true,
-              priority: true,
-              estimate: true,
-              dueDate: true,
-              slaBreachesAt: true,
-              slaStartedAt: true,
-              createdAt: true,
-              updatedAt: true,
-              project: {
-                id: true,
-                name: true,
-              },
-              projectMilestone: {
-                id: true,
-                name: true,
-              },
-              creator: {
-                id: true,
-                name: true,
-                email: true,
-              },
-              assignee: {
-                id: true,
-                name: true,
-                email: true,
-              },
-              state: {
-                id: true,
-                name: true,
-                type: true,
-              },
-              parent: {
-                id: true,
-                identifier: true,
-                url: true,
-                title: true,
-              },
-              labels: {
-                nodes: {
-                  id: true,
-                  color: true,
-                  name: true,
-                  parent: {
-                    id: true,
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    };
-    const query = jsonToGraphQLQuery(jsonQuery);
-    const response = await fetchFromLinear(z, bundle, query, variables);
-    const data = (response.json as TeamIssuesResponse).data;
-    const issuesRaw = data.team.issues.nodes;
-    // We need to map the API schema to the webhook schema
-    return issuesRaw.map((issueRaw) => ({
-      ...issueRaw,
-      labels: issueRaw.labels?.nodes.map((label) => ({
-        id: label.id,
-        color: label.color,
-        name: label.name,
-        parentId: label.parent?.id,
-      })),
-    }));
-  };
-
-const getWebhookDataForIssue = (z: ZObject, bundle: Bundle) => {
-  const entity = {
-    ...bundle.cleanedRequest.data,
-    querystring: undefined,
-  };
-
-  // Webhooks send this over as `milestone`, but the API uses `projectMilestone` and users model their Zaps off the API response to start
-  if (entity.milestone) {
-    entity.projectMilestone = entity.milestone;
-    delete entity.milestone;
+  const filters = [];
+  if ("priority" in variables) {
+    filters.push(`priority: { eq: $priority }`);
+  }
+  if ("statusId" in variables) {
+    filters.push(`state: { id: { eq: $statusId } }`);
+  }
+  if ("creatorId" in variables) {
+    filters.push(`creator: { id: { eq: $creatorId } }`);
+  }
+  if ("assigneeId" in variables) {
+    filters.push(`assignee: { id: { eq: $assigneeId } }`);
+  }
+  if ("labelId" in variables) {
+    filters.push(`labels: { id: { eq: $labelId } }`);
+  }
+  if ("projectId" in variables) {
+    filters.push(`project: { id: { eq: $projectId } }`);
+  }
+  if ("projectMilestoneId" in variables) {
+    filters.push(`projectMilestone: { id: { eq: $projectMilestoneId } }`);
   }
 
-  return [entity];
+  const response = await z.request({
+    url: "https://api.linear.app/graphql",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      authorization: bundle.authData.api_key,
+    },
+    body: {
+      query: `
+      query ZapierListIssues(
+        $after: String
+        $teamId: String!
+        ${"priority" in variables ? "$priority: Float" : ""}
+        ${"statusId" in variables ? "$statusId: ID" : ""}
+        ${"creatorId" in variables ? "$creatorId: ID" : ""}
+        ${"assigneeId" in variables ? "$assigneeId: ID" : ""}
+        ${"labelId" in variables ? "$labelId: ID" : ""}
+        ${"projectId" in variables ? "$projectId: ID" : ""}
+        ${"projectMilestoneId" in variables ? "$projectMilestoneId: ID" : ""}
+        $orderBy: PaginationOrderBy!
+      ) {
+        team(id: $teamId) {
+          issues(
+            first: 10
+            after: $after
+            orderBy: $orderBy
+            ${
+              filters.length > 0
+                ? `
+            filter: {
+              ${filters.join("\n              ")}
+            }`
+                : ""
+            }
+          ) {
+            nodes {
+              id
+              identifier
+              url
+              title
+              description
+              priority
+              estimate
+              dueDate
+              slaBreachesAt
+              slaStartedAt
+              createdAt
+              updatedAt
+              project {
+                id
+                name
+              }
+              projectMilestone {
+                id
+                name
+              }
+              creator {
+                id
+                name
+                email
+              }
+              assignee {
+                id
+                name
+                email
+              }
+              status: state {
+                id
+                name
+                type
+              }
+              parent {
+                id
+                identifier
+                url
+                title
+              }
+            }
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+          }
+        }
+      }
+      `,
+      variables,
+    },
+    method: "POST",
+  });
+
+  const data = (response.json as TeamIssuesResponse).data;
+  const issues = data.team.issues.nodes;
+
+  // Set cursor for pagination
+  if (data.team.issues.pageInfo.hasNextPage) {
+    await z.cursor.set(data.team.issues.pageInfo.endCursor);
+  }
+
+  return issues.map((issue) => ({
+    ...issue,
+    id: `${issue.id}-${issue[orderBy]}`,
+    issueId: issue.id,
+  }));
 };
 
-const operationBase = {
-  inputFields: [
-    {
-      required: true,
-      label: "Team",
-      key: "teamId",
-      helpText: "The team for the issue.",
-      dynamic: "team.id.name",
-      altersDynamicFields: true,
-    },
-    {
-      required: false,
-      label: "Status",
-      key: "statusId",
-      helpText: "The issue status.",
-      dynamic: "status.id.name",
-      altersDynamicFields: true,
-    },
-    {
-      required: false,
-      label: "Creator",
-      key: "creatorId",
-      helpText: "The user who created this issue.",
-      dynamic: "user.id.name",
-      altersDynamicFields: true,
-    },
-    {
-      required: false,
-      label: "Assignee",
-      key: "assigneeId",
-      helpText: "The assignee of this issue.",
-      dynamic: "user.id.name",
-      altersDynamicFields: true,
-    },
-    {
-      required: false,
-      label: "Priority",
-      key: "priority",
-      helpText: "The priority of the issue.",
-      choices: [
-        { value: "0", sample: "0", label: "No priority" },
-        { value: "1", sample: "1", label: "Urgent" },
-        { value: "2", sample: "2", label: "High" },
-        { value: "3", sample: "3", label: "Medium" },
-        { value: "4", sample: "4", label: "Low" },
-      ],
-    },
-    {
-      required: false,
-      label: "Label",
-      key: "labelId",
-      helpText: "Label which was assigned to the issue.",
-      dynamic: "label.id.name",
-      altersDynamicFields: true,
-    },
-    {
-      required: false,
-      label: "Project",
-      key: "projectId",
-      helpText: "Issue's project.",
-      dynamic: "project.id.name",
-      altersDynamicFields: true,
-    },
-    {
-      required: false,
-      label: "Project Milestone",
-      key: "projectMilestoneId",
-      helpText: "Issue's project milestone.",
-      dynamic: "project_milestone.id.name",
-      altersDynamicFields: true,
-    },
-  ],
-  type: "hook",
-  perform: getWebhookDataForIssue,
-  performUnsubscribe: unsubscribeHook,
-  performList: getIssueList(),
-  sample,
-};
-
-export const newIssueInstant = {
+const issue = {
   noun: "Issue",
-  key: "newIssueInstant",
+
+  operation: {
+    inputFields: [
+      {
+        required: true,
+        label: "Team",
+        key: "team_id",
+        helpText: "The team for the issue.",
+        dynamic: "team.id.name",
+        altersDynamicFields: true,
+      },
+      {
+        required: false,
+        label: "Status",
+        key: "status_id",
+        helpText: "The issue status.",
+        dynamic: "status.id.name",
+        altersDynamicFields: true,
+      },
+      {
+        required: false,
+        label: "Creator",
+        key: "creator_id",
+        helpText: "The user who created this issue.",
+        dynamic: "user.id.name",
+        altersDynamicFields: true,
+      },
+      {
+        required: false,
+        label: "Assignee",
+        key: "assignee_id",
+        helpText: "The assignee of this issue.",
+        dynamic: "user.id.name",
+        altersDynamicFields: true,
+      },
+      {
+        required: false,
+        label: "Priority",
+        key: "priority",
+        helpText: "The priority of the issue.",
+        choices: [
+          { value: "0", sample: "0", label: "No priority" },
+          { value: "1", sample: "1", label: "Urgent" },
+          { value: "2", sample: "2", label: "High" },
+          { value: "3", sample: "3", label: "Medium" },
+          { value: "4", sample: "4", label: "Low" },
+        ],
+      },
+      {
+        required: false,
+        label: "Label",
+        key: "label_id",
+        helpText: "Label which was assigned to the issue.",
+        dynamic: "label.id.name",
+        altersDynamicFields: true,
+      },
+      {
+        required: false,
+        label: "Project",
+        key: "project_id",
+        helpText: "Issue's project.",
+        dynamic: "project.id.name",
+        altersDynamicFields: true,
+      },
+      {
+        required: false,
+        label: "Project Milestone",
+        key: "project_milestone_id",
+        helpText: "Issue's project milestone.",
+        dynamic: "project_milestone.id.name",
+        altersDynamicFields: true,
+      },
+    ],
+    sample,
+  },
+};
+
+export const newIssue = {
+  ...issue,
+  key: "newIssue",
   display: {
     label: "New Issue",
     description: "Triggers when a new issue is created.",
+    hidden: true,
   },
   operation: {
-    ...operationBase,
-    performSubscribe: subscribeHook("create"),
+    ...issue.operation,
+    perform: buildIssueList("createdAt"),
+    canPaginate: true,
   },
 };
 
-export const updatedIssueInstant = {
-  noun: "Issue",
-  key: "updatedIssueInstant",
+export const updatedIssue = {
+  ...issue,
+  key: "updatedIssue",
   display: {
     label: "Updated Issue",
     description: "Triggers when an issue is updated.",
+    hidden: true,
   },
   operation: {
-    ...operationBase,
-    performSubscribe: subscribeHook("update"),
+    ...issue.operation,
+    perform: buildIssueList("updatedAt"),
+    canPaginate: true,
   },
 };

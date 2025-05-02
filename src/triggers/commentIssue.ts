@@ -1,181 +1,219 @@
-import { pick } from "lodash";
+import { omitBy } from "lodash";
 import { ZObject, Bundle } from "zapier-platform-core";
 import sample from "../samples/issueComment.json";
-import { getWebhookData, unsubscribeHook } from "../handleWebhook";
-import { jsonToGraphQLQuery, VariableType } from "json-to-graphql-query";
-import { fetchFromLinear } from "../fetchFromLinear";
-
-interface Comment {
-  id: string;
-  body: string;
-  url: string;
-  createdAt: string;
-  resolvedAt: string | null;
-  issue: {
-    id: string;
-    identifier: string;
-    title: string;
-    url: string;
-    team: {
-      id: string;
-      key: string;
-      name: string;
-    };
-  };
-  user: {
-    id: string;
-    email: string;
-    name: string;
-    avatarUrl: string;
-  };
-  parent: {
-    id: string;
-    body: string;
-    createdAt: string;
-    user: {
-      id: string;
-      email: string;
-      name: string;
-      avatarUrl: string;
-    };
-  } | null;
-}
 
 interface CommentsResponse {
   data: {
     comments: {
-      nodes: Comment[];
+      nodes: {
+        id: string;
+        body: string;
+        url: string;
+        createdAt: string;
+        resolvedAt: string | null;
+        resolvingUser: {
+          id: string;
+          name: string;
+          email: string;
+          avatarUrl: string;
+        } | null;
+        issue: {
+          id: string;
+          identifier: string;
+          title: string;
+          url: string;
+          team: {
+            id: string;
+            name: string;
+          };
+        };
+        user: {
+          id: string;
+          email: string;
+          name: string;
+          avatarUrl: string;
+        };
+        parent: {
+          id: string;
+          body: string;
+          createdAt: string;
+          user: {
+            id: string;
+            email: string;
+            name: string;
+            avatarUrl: string;
+          };
+        } | null;
+      }[];
+      pageInfo: {
+        hasNextPage: boolean;
+        endCursor: string;
+      };
     };
   };
 }
 
-const subscribeHook = (z: ZObject, bundle: Bundle) => {
-  const data = {
-    url: bundle.targetUrl,
-    inputData:
-      bundle.inputData && Object.keys(bundle.inputData).length > 0
-        ? pick(bundle.inputData, ["creatorId", "teamId", "issueId"])
-        : undefined,
-  };
-
-  return z
-    .request({
-      url: "https://client-api.linear.app/connect/zapier/subscribe/commentIssue",
-      method: "POST",
-      body: data,
-    })
-    .then((response) => response.data);
-};
-
 const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
-  const variables: Record<string, string> = {};
-  const variableSchema: Record<string, string> = {};
-  const filters: unknown[] = [{ issue: { null: false } }];
-  if (bundle.inputData.creatorId) {
-    variableSchema.creatorId = "ID";
-    variables.creatorId = bundle.inputData.creatorId;
-    filters.push({ user: { id: { eq: new VariableType("creatorId") } } });
-  }
-  if (bundle.inputData.teamId) {
-    variableSchema.teamId = "ID";
-    variables.teamId = bundle.inputData.teamId;
-    filters.push({ issue: { team: { id: { eq: new VariableType("teamId") } } } });
-  }
-  if (bundle.inputData.issueId) {
-    variableSchema.issueId = "ID";
-    variables.issueId = bundle.inputData.issueId;
-    filters.push({ issue: { id: { eq: new VariableType("issueId") } } });
-  }
-  const filter = { and: filters };
+  const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
 
-  const jsonQuery = {
-    query: {
-      __variables: variableSchema,
-      comments: {
-        __args: {
-          first: 25,
-          filter,
-        },
-        nodes: {
-          id: true,
-          body: true,
-          createdAt: true,
-          resolvedAt: true,
-          issue: {
-            id: true,
-            identifier: true,
-            title: true,
-            url: true,
-            team: {
-              id: true,
-              key: true,
-              name: true,
-            },
-          },
-          user: {
-            id: true,
-            email: true,
-            name: true,
-            avatarUrl: true,
-          },
-          parent: {
-            id: true,
-            body: true,
-            createdAt: true,
-            user: {
-              id: true,
-              email: true,
-              name: true,
-              avatarUrl: true,
-            },
-          },
-        },
-      },
+  const variables = omitBy(
+    {
+      creatorId: bundle.inputData.creator_id,
+      teamId: bundle.inputData.team_id,
+      issueId: bundle.inputData.issue,
+      after: cursor,
     },
-  };
-  const query = jsonToGraphQLQuery(jsonQuery);
-  const response = await fetchFromLinear(z, bundle, query, variables);
+    (v) => v === undefined
+  );
+
+  const filters = [];
+  if ("creatorId" in variables) {
+    filters.push(`{ user: { id: { eq: $creatorId } } }`);
+  }
+  if ("teamId" in variables) {
+    filters.push(`{ issue: { team: { id: { eq: $teamId } } } }`);
+  }
+  if ("issueId" in variables) {
+    filters.push(`{ issue: { id: { eq: $issueId } } }`);
+  }
+
+  const response = await z.request({
+    url: "https://api.linear.app/graphql",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      authorization: bundle.authData.api_key,
+    },
+    body: {
+      query: `
+      query ZapierListComments(
+        $after: String
+        ${"creatorId" in variables ? "$creatorId: ID" : ""}
+        ${"teamId" in variables ? "$teamId: ID" : ""}
+        ${"issueId" in variables ? "$issueId: ID" : ""}
+      ) {
+        comments(
+          first: 25
+          after: $after
+          ${
+            filters.length > 0
+              ? `
+          filter: {
+            and : [
+              ${filters.join("\n              ")}
+            ]
+          }`
+              : ""
+          }
+        ) {
+          nodes {
+            id
+            body
+            createdAt
+            resolvedAt
+            resolvingUser {
+              id
+              name
+              email
+              avatarUrl
+            }
+            issue {
+              id
+              identifier
+              title
+              url
+              team {
+                id
+                name
+              }
+            }
+            user {
+              id
+              email
+              name
+              avatarUrl
+            }
+            parent {
+              id
+              body
+              createdAt
+              user {
+                id
+                email
+                name
+                avatarUrl
+              }
+            }
+          }
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+        }
+      }`,
+      variables: variables,
+    },
+    method: "POST",
+  });
+
   const data = (response.json as CommentsResponse).data;
-  return data.comments.nodes;
+  const comments = data.comments.nodes;
+
+  // Set cursor for pagination
+  if (data.comments.pageInfo.hasNextPage) {
+    await z.cursor.set(data.comments.pageInfo.endCursor);
+  }
+
+  return comments.map((comment) => ({
+    ...comment,
+    id: `${comment.id}-${comment.createdAt}`,
+    commentId: comment.id,
+  }));
 };
 
-export const newIssueCommentInstant = {
-  key: "newIssueCommentInstant",
+const comment = {
   noun: "Comment",
-  display: {
-    label: "New Issue Comment",
-    description: "Triggers when a new issue comment is created.",
-  },
+
   operation: {
     inputFields: [
       {
         required: false,
+        label: "Team",
+        key: "team_id",
+        helpText: "Only trigger on issue comments created to this team.",
+        dynamic: "team.id.name",
+        altersDynamicFields: true,
+      },
+      {
+        required: false,
         label: "Creator",
-        key: "creatorId",
+        key: "creator_id",
         helpText: "Only trigger on issue comments added by this user.",
         dynamic: "user.id.name",
         altersDynamicFields: true,
       },
       {
         required: false,
-        label: "Team",
-        key: "teamId",
-        helpText: "Only trigger on issue comments created in this team.",
-        dynamic: "team.id.name",
-        altersDynamicFields: true,
-      },
-      {
-        required: false,
         label: "Issue ID",
-        key: "issueId",
+        key: "issue",
         helpText: "Only trigger on comments added to this issue identified by its ID.",
       },
     ],
-    type: "hook",
-    performSubscribe: subscribeHook,
-    performUnsubscribe: unsubscribeHook,
-    perform: getWebhookData,
-    performList: getCommentList(),
     sample,
+  },
+};
+
+export const newIssueComment = {
+  ...comment,
+  key: "newComment",
+  display: {
+    label: "New Issue Comment",
+    description: "Triggers when a new issue comment is created.",
+    hidden: true,
+  },
+  operation: {
+    ...comment.operation,
+    perform: getCommentList(),
+    canPaginate: true,
   },
 };

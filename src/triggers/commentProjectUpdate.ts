@@ -1,180 +1,218 @@
-import { pick } from "lodash";
+import { omitBy } from "lodash";
 import { ZObject, Bundle } from "zapier-platform-core";
-import sample from "../samples/issueComment.json";
-import { getWebhookData, unsubscribeHook } from "../handleWebhook";
-import { jsonToGraphQLQuery, VariableType } from "json-to-graphql-query";
-import { fetchFromLinear } from "../fetchFromLinear";
-
-interface Comment {
-  id: string;
-  body: string;
-  url: string;
-  createdAt: string;
-  resolvedAt: string | null;
-  projectUpdate: {
-    id: string;
-    body: string;
-    user: {
-      id: string;
-      name: string;
-      email: string;
-      avatarUrl: string;
-    };
-    url: string;
-    project: {
-      id: string;
-      name: string;
-      url: string;
-    };
-  };
-  user: {
-    id: string;
-    email: string;
-    name: string;
-    avatarUrl: string;
-  };
-  parent: {
-    id: string;
-    body: string;
-    createdAt: string;
-    user: {
-      id: string;
-      email: string;
-      name: string;
-      avatarUrl: string;
-    };
-  } | null;
-}
+import sample from "../samples/projectUpdateComment.json";
 
 interface CommentsResponse {
   data: {
     comments: {
-      nodes: Comment[];
+      nodes: {
+        id: string;
+        body: string;
+        url: string;
+        createdAt: string;
+        resolvedAt: string | null;
+        resolvingUser: {
+          id: string;
+          name: string;
+          email: string;
+          avatarUrl: string;
+        } | null;
+        projectUpdate: {
+          id: string;
+          body: string;
+          user: {
+            id: string;
+            name: string;
+            email: string;
+            avatarUrl: string;
+          };
+          url: string;
+          project: {
+            id: string;
+            name: string;
+            url: string;
+          };
+        };
+        user: {
+          id: string;
+          email: string;
+          name: string;
+          avatarUrl: string;
+        };
+        parent: {
+          id: string;
+          body: string;
+          createdAt: string;
+          user: {
+            id: string;
+            email: string;
+            name: string;
+            avatarUrl: string;
+          };
+        } | null;
+      }[];
+      pageInfo: {
+        hasNextPage: boolean;
+        endCursor: string;
+      };
     };
   };
 }
 
-const subscribeHook = (z: ZObject, bundle: Bundle) => {
-  const data = {
-    url: bundle.targetUrl,
-    inputData:
-      bundle.inputData && Object.keys(bundle.inputData).length > 0
-        ? pick(bundle.inputData, ["creatorId", "projectId"])
-        : undefined,
-  };
-
-  return z
-    .request({
-      url: "https://client-api.linear.app/connect/zapier/subscribe/commentProjectUpdate",
-      method: "POST",
-      body: data,
-    })
-    .then((response) => response.data);
-};
-
 const getCommentList = () => async (z: ZObject, bundle: Bundle) => {
-  const variables: Record<string, string> = {};
-  const variableSchema: Record<string, string> = {};
-  const filters: unknown[] = [{ projectUpdate: { null: false } }];
-  if (bundle.inputData.creatorId) {
-    variableSchema.creatorId = "ID";
-    variables.creatorId = bundle.inputData.creatorId;
-    filters.push({ user: { id: { eq: new VariableType("creatorId") } } });
-  }
-  if (bundle.inputData.projectId) {
-    variableSchema.projectId = "ID";
-    variables.projectId = bundle.inputData.projectId;
-    filters.push({ projectUpdate: { project: { id: { eq: new VariableType("projectId") } } } });
-  }
-  const filter = { and: filters };
+  const cursor = bundle.meta.page ? await z.cursor.get() : undefined;
 
-  const jsonQuery = {
-    query: {
-      __variables: variableSchema,
-      comments: {
-        __args: {
-          first: 25,
-          filter,
-        },
-        nodes: {
-          id: true,
-          body: true,
-          createdAt: true,
-          resolvedAt: true,
-          projectUpdate: {
-            id: true,
-            body: true,
-            user: {
-              id: true,
-              email: true,
-              name: true,
-              avatarUrl: true,
-            },
-            url: true,
-            project: {
-              id: true,
-              name: true,
-              url: true,
-            },
-          },
-          user: {
-            id: true,
-            email: true,
-            name: true,
-            avatarUrl: true,
-          },
-          parent: {
-            id: true,
-            body: true,
-            createdAt: true,
-            user: {
-              id: true,
-              email: true,
-              name: true,
-              avatarUrl: true,
-            },
-          },
-        },
-      },
+  const variables = omitBy(
+    {
+      creatorId: bundle.inputData.creator_id,
+      projectId: bundle.inputData.project_id,
+      after: cursor,
     },
-  };
-  const query = jsonToGraphQLQuery(jsonQuery);
-  const response = await fetchFromLinear(z, bundle, query, variables);
+    (v) => v === undefined
+  );
+
+  const filters = [];
+  if ("creatorId" in variables) {
+    filters.push(`{ user: { id: { eq: $creatorId } } }`);
+  }
+  if ("projectId" in variables) {
+    filters.push(`{ projectUpdate: { project: { id: { eq: $projectId } } } }`);
+  }
+
+  const response = await z.request({
+    url: "https://api.linear.app/graphql",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      authorization: bundle.authData.api_key,
+    },
+    body: {
+      query: `
+      query ZapierListComments(
+        $after: String
+        ${"creatorId" in variables ? "$creatorId: ID" : ""}
+        ${"projectId" in variables ? "$projectId: ID" : ""}
+      ) {
+        comments(
+          first: 25
+          after: $after
+          ${
+            filters.length > 0
+              ? `
+          filter: {
+            and : [
+              ${filters.join("\n              ")}
+            ]
+          }`
+              : ""
+          }
+        ) {
+          nodes {
+            id
+            body
+            createdAt
+            resolvedAt
+            resolvingUser {
+              id
+              name
+              email
+              avatarUrl
+            }
+            projectUpdate {
+              id
+              body
+              user {
+                id
+                name
+                email
+                avatarUrl
+              }
+              url
+              project {
+                id
+                name
+                url
+              }
+            }
+            user {
+              id
+              email
+              name
+              avatarUrl
+            }
+            parent {
+              id
+              body
+              createdAt
+              user {
+                id
+                email
+                name
+                avatarUrl
+              }
+            }
+          }
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+        }
+      }`,
+      variables: variables,
+    },
+    method: "POST",
+  });
+
   const data = (response.json as CommentsResponse).data;
-  return data.comments.nodes;
+  const comments = data.comments.nodes;
+
+  // Set cursor for pagination
+  if (data.comments.pageInfo.hasNextPage) {
+    await z.cursor.set(data.comments.pageInfo.endCursor);
+  }
+
+  return comments.map((comment) => ({
+    ...comment,
+    id: `${comment.id}-${comment.createdAt}`,
+    commentId: comment.id,
+  }));
 };
 
-export const newProjectUpdateCommentInstant = {
-  key: "newProjectUpdateCommentInstant",
+const comment = {
   noun: "Comment",
-  display: {
-    label: "New Project Update Comment",
-    description: "Triggers when a new project update comment is created.",
-  },
+
   operation: {
     inputFields: [
       {
         required: false,
         label: "Creator",
-        key: "creatorId",
+        key: "creator_id",
         helpText: "Only trigger on project update comments added by this user.",
         dynamic: "user.id.name",
         altersDynamicFields: true,
       },
       {
         required: false,
-        label: "Project",
-        key: "projectId",
-        helpText: "Only trigger on project update comments tied to this project.",
-        dynamic: "projectWithoutTeam.id.name",
-        altersDynamicFields: true,
+        label: "Project ID",
+        key: "project_id",
+        helpText: "Only trigger on project update comments added to this project identified by its ID",
       },
     ],
-    type: "hook",
-    performSubscribe: subscribeHook,
-    performUnsubscribe: unsubscribeHook,
-    perform: getWebhookData,
-    performList: getCommentList(),
     sample,
+  },
+};
+
+export const newProjectUpdateComment = {
+  ...comment,
+  key: "newProjectUpdateComment",
+  display: {
+    label: "New Project Update Comment",
+    description: "Triggers when a new project update comment is created.",
+    hidden: true,
+  },
+  operation: {
+    ...comment.operation,
+    perform: getCommentList(),
+    canPaginate: true,
   },
 };
