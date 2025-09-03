@@ -81,6 +81,22 @@ export const authentication = {
         "Content-Type": "application/x-www-form-urlencoded",
       },
     },
+    // Zapier will automatically refresh the access token when it expires
+    refreshAccessToken: {
+      method: "POST",
+      url: "https://api.linear.app/oauth/token",
+      body: {
+        refresh_token: "{{bundle.authData.refresh_token}}",
+        client_id: "{{process.env.CLIENT_ID}}",
+        client_secret: "{{process.env.CLIENT_SECRET}}",
+        grant_type: "refresh_token",
+      },
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    },
+    // Enable automatic token refresh on 401 errors
+    autoRefresh: true,
     scope: "read,write",
   },
 
