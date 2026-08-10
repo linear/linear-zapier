@@ -39,5 +39,27 @@
     "identifier": "SAMPLE-10",
     "url": "https://linear.app/example/issue/SAMPLE-10",
     "title": "Zapier parent sample"
+  },
+  "addedLabels": [],
+  "attachments": {
+    "nodes": [
+      {
+        "id": "2d08eab7-8f8c-44e4-b3cd-4a5e6297fcc4",
+        "title": "Question #1174",
+        "subtitle": "Testing screenshots",
+        "url": "https://example.zendesk.com/tickets/1174",
+        "source": { "type": "zendesk" },
+        "sourceType": "zendesk",
+        "metadata": {
+          "id": 1174,
+          "title": "Testing screenshots",
+          "priority": "normal",
+          "attributes": [
+            { "name": "Type", "value": "Question" },
+            { "name": "Priority", "value": "normal" }
+          ]
+        }
+      }
+    ]
   }
 }

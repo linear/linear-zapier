@@ -1,14 +1,19 @@
 import { Bundle, ZObject } from "zapier-platform-core";
 
+export type LinearGraphQLVariable =
+  | string
+  | number
+  | boolean
+  | null
+  | LinearGraphQLVariable[]
+  | { [key: string]: LinearGraphQLVariable | undefined };
+
+export type LinearGraphQLVariables = Record<string, LinearGraphQLVariable | undefined>;
+
 /**
  * Performs a query against the Linear GraphQL API and returns the response.
  */
-export const fetchFromLinear = async (
-  z: ZObject,
-  bundle: Bundle,
-  query: string,
-  variables: Record<string, string | Number>
-) => {
+export const fetchFromLinear = async (z: ZObject, bundle: Bundle, query: string, variables: LinearGraphQLVariables) => {
   return await z.request({
     url: "https://api.linear.app/graphql",
     headers: {

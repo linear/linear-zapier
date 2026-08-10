@@ -1,0 +1,23 @@
+{
+  "data": {
+    "issues": {
+      "nodes": [
+        {
+          "id": "issue-partial",
+          "title": "Setup SSO for enterprise users",
+          "updatedAt": "2026-02-01T00:00:00.000Z"
+        },
+        {
+          "id": "issue-exact-old",
+          "title": "Setup SSO",
+          "updatedAt": "2026-01-01T00:00:00.000Z"
+        },
+        {
+          "id": "issue-exact-new",
+          "title": "Setup SSO",
+          "updatedAt": "2026-01-20T00:00:00.000Z"
+        }
+      ]
+    }
+  }
+}

@@ -28,6 +28,8 @@ import { createProject } from "./creates/createProject";
 import { updateIssue } from "./creates/updateIssue";
 import { issueTemplates } from "./triggers/issueTemplates";
 import { findIssueByID } from "./searches/issue";
+import { findIssueByName } from "./searches/issueByName";
+import { findIssueComments } from "./searches/issueComments";
 import { findProjectByID } from "./searches/project";
 import { newInitiativeUpdateInstant, updatedInitiativeUpdateInstant } from "./triggers/initiativeUpdate";
 import { createCustomer } from "./creates/createCustomer";
@@ -110,6 +112,8 @@ const App = {
   },
   searches: {
     [findIssueByID.key]: findIssueByID,
+    [findIssueByName.key]: findIssueByName,
+    [findIssueComments.key]: findIssueComments,
     [findProjectByID.key]: findProjectByID,
     [findCustomerByID.key]: findCustomerByID,
   },

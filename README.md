@@ -4,12 +4,14 @@ Linear's Zapier application.
 
 ## Installation
 
+This app uses Yarn 1 as its package manager. Use `yarn install` to install dependencies, or `yarn` as the shorthand. Do not run `npm install` or commit a `package-lock.json`; `yarn.lock` is the dependency lockfile for this repo.
+
 ```
 yarn global add zapier-platform-cli
-yarn
+yarn install
 ```
 
-Zapier runs on AWS Lambda and requires Node 8. If you're running never version and don't have `nvm` set up, you can always run `yarn` with `--ignore-engines` which disables Node version check.
+Use Node 18 or newer, matching `package.json`. If you're running a newer version and don't have `nvm` set up, you can run `yarn install --ignore-engines` to disable the Node version check.
 
 ## Developing
 

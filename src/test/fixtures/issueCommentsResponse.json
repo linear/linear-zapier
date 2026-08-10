@@ -1,0 +1,78 @@
+{
+  "data": {
+    "issue": {
+      "id": "issue-uuid",
+      "identifier": "SAM-15",
+      "title": "Sample issue",
+      "url": "https://linear.app/example/issue/SAM-15",
+      "team": {
+        "id": "team-uuid",
+        "key": "SAM",
+        "name": "Sample"
+      },
+      "comments": {
+        "nodes": [
+          {
+            "id": "comment-newer",
+            "body": "Newer top-level comment",
+            "url": "https://linear.app/example/issue/SAM-15#comment-newer",
+            "createdAt": "2026-04-20T10:00:00.000Z",
+            "updatedAt": "2026-04-20T10:00:00.000Z",
+            "user": {
+              "id": "user-1",
+              "name": "Alice",
+              "email": "alice@example.com",
+              "avatarUrl": null
+            },
+            "children": {
+              "nodes": [
+                {
+                  "id": "reply-1",
+                  "body": "First reply",
+                  "url": "https://linear.app/example/issue/SAM-15#comment-reply-1",
+                  "createdAt": "2026-04-20T10:05:00.000Z",
+                  "updatedAt": "2026-04-20T10:05:00.000Z",
+                  "user": {
+                    "id": "user-2",
+                    "name": "Bob",
+                    "email": "bob@example.com",
+                    "avatarUrl": null
+                  }
+                },
+                {
+                  "id": "reply-2",
+                  "body": "Second reply",
+                  "url": "https://linear.app/example/issue/SAM-15#comment-reply-2",
+                  "createdAt": "2026-04-20T10:10:00.000Z",
+                  "updatedAt": "2026-04-20T10:10:00.000Z",
+                  "user": {
+                    "id": "user-1",
+                    "name": "Alice",
+                    "email": "alice@example.com",
+                    "avatarUrl": null
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "id": "comment-older",
+            "body": "Older top-level comment",
+            "url": "https://linear.app/example/issue/SAM-15#comment-older",
+            "createdAt": "2026-04-19T08:00:00.000Z",
+            "updatedAt": "2026-04-19T08:00:00.000Z",
+            "user": {
+              "id": "user-1",
+              "name": "Alice",
+              "email": "alice@example.com",
+              "avatarUrl": null
+            },
+            "children": {
+              "nodes": []
+            }
+          }
+        ]
+      }
+    }
+  }
+}
