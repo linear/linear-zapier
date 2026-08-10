@@ -71,6 +71,17 @@ const getIssue = async (z: ZObject, bundle: Bundle) => {
               }
             }
           }
+          attachments {
+            nodes {
+              id
+              title
+              subtitle
+              url
+              source
+              sourceType
+              metadata
+            }
+          }
         }
       }`,
     },

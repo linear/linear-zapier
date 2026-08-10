@@ -1,6 +1,8 @@
 import { Bundle, ZObject } from "zapier-platform-core";
 import { fetchFromLinear } from "../fetchFromLinear";
 import { omitBy, uniq } from "lodash";
+import { UPDATE_ISSUE_CLEARABLE_FIELDS } from "../constants";
+import { isClearFieldValue } from "../utils";
 
 interface IssueUpdateResponse {
   data?: {
@@ -49,6 +51,16 @@ const updateIssueRequest = async (z: ZObject, bundle: Bundle) => {
     },
     (v) => v === undefined
   );
+
+  UPDATE_ISSUE_CLEARABLE_FIELDS.forEach((fieldKey) => {
+    // Linear clears nullable GraphQL fields only when the variable is sent as
+    // explicit null. Zapier removes {{zap_clear_value}} from inputData before
+    // perform runs, so this action reads inputDataRaw only for the allowlisted
+    // fields that need that explicit null behavior.
+    if (isClearFieldValue(bundle.inputDataRaw?.[fieldKey])) {
+      variables[fieldKey] = null;
+    }
+  });
 
   const query = `
       mutation ZapierIssueUpdate(
@@ -202,6 +214,12 @@ export const updateIssue = {
         helpText: "The project milestone to move the issue to",
         key: "projectMilestoneId",
         dynamic: "project_milestone.id.name",
+      },
+      {
+        key: "clearFieldHelpText",
+        type: "copy",
+        helpText:
+          "To clear a nullable field, send `{{zap_clear_value}}` for that field. This is currently supported for Due Date and Assignee.",
       },
       {
         label: "Due Date",

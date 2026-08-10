@@ -1,17 +1,17 @@
 {
   "name": "linear-zapier",
-  "version": "4.9.0",
+  "version": "4.14.0",
   "description": "Linear's Zapier integration",
   "main": "index.js",
   "license": "MIT",
   "scripts": {
     "zapier-build": "tsc",
     "zapier-dev": "tsc --watch",
-    "zapier-validate": "npm run zapier-build && zapier validate",
-    "zapier-push": "npm run zapier-validate && zapier push",
-    "prepare": "npm run zapier-build && husky install",
+    "zapier-validate": "npm run zapier-build && zapier-platform validate",
+    "zapier-push": "npm run zapier-validate && zapier-platform push",
+    "prepare": "npm run zapier-build && (husky install || true)",
     "pretest": "npm run zapier-build",
-    "test": "jest --passWithNoTests lib",
+    "test": "jest --passWithNoTests src/test",
     "prettier": "npx prettier --write ."
   },
   "engines": {
@@ -22,7 +22,7 @@
     "@types/lodash": "4.14.202",
     "json-to-graphql-query": "2.3.0",
     "lodash": "4.17.21",
-    "zapier-platform-core": "15.5.3"
+    "zapier-platform-core": "16.5.1"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",

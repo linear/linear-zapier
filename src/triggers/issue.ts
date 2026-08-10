@@ -3,7 +3,7 @@ import { ZObject, Bundle } from "zapier-platform-core";
 import sample from "../samples/issue.json";
 import { unsubscribeHook } from "../handleWebhook";
 import { jsonToGraphQLQuery, VariableType } from "json-to-graphql-query";
-import { fetchFromLinear } from "../fetchFromLinear";
+import { fetchFromLinear, LinearGraphQLVariables } from "../fetchFromLinear";
 
 export interface IssueCommon {
   id: string;
@@ -46,6 +46,17 @@ export interface IssueCommon {
     identifier: string;
     url: string;
     title: string;
+  };
+  attachments?: {
+    nodes: {
+      id: string;
+      title?: string;
+      subtitle?: string;
+      url: string;
+      source?: Record<string, unknown>;
+      sourceType?: string;
+      metadata?: Record<string, unknown>;
+    }[];
   };
 }
 
@@ -127,7 +138,7 @@ const getIssueList =
       throw new z.errors.HaltedError("You must select a team");
     }
 
-    const variables: Record<string, string | Number> = {};
+    const variables: LinearGraphQLVariables = {};
     const variableSchema: Record<string, string> = {};
 
     variableSchema.teamId = "String!";
@@ -235,6 +246,17 @@ const getIssueList =
                   },
                 },
               },
+              attachments: {
+                nodes: {
+                  id: true,
+                  title: true,
+                  subtitle: true,
+                  url: true,
+                  source: true,
+                  sourceType: true,
+                  metadata: true,
+                },
+              },
             },
           },
         },
@@ -253,13 +275,42 @@ const getIssueList =
         name: label.name,
         parentId: label.parent?.id,
       })),
+      addedLabels: [],
     }));
   };
 
+interface WebhookLabel {
+  id: string;
+  color: string;
+  name: string;
+  parentId?: string;
+}
+
 const getWebhookDataForIssue = (z: ZObject, bundle: Bundle) => {
-  const entity = {
-    ...bundle.cleanedRequest.data,
+  const data = bundle.cleanedRequest.data as {
+    labelIds?: string[];
+    labels?: WebhookLabel[];
+    milestone?: unknown;
+    [k: string]: unknown;
+  };
+  const updatedFrom = bundle.cleanedRequest.updatedFrom as { labelIds?: string[] } | undefined;
+
+  // Only compute `addedLabels` when labels were updated (Linear omits unchanged fields from updatedFrom).
+  let addedLabels: WebhookLabel[] = [];
+  if (updatedFrom && "labelIds" in updatedFrom) {
+    const previousLabelIds = updatedFrom.labelIds ?? [];
+    const currentLabelIds = data?.labelIds ?? [];
+    // addedLabelIds = current label IDs that aren't in previous (i.e. newly added in this update)
+    const addedLabelIds = currentLabelIds.filter((id: string) => !previousLabelIds.includes(id));
+    if (addedLabelIds.length > 0 && Array.isArray(data?.labels)) {
+      addedLabels = (data.labels as WebhookLabel[]).filter((label) => addedLabelIds.includes(label.id));
+    }
+  }
+
+  const entity: Record<string, unknown> = {
+    ...data,
     querystring: undefined,
+    addedLabels,
   };
 
   // Webhooks send this over as `milestone`, but the API uses `projectMilestone` and users model their Zaps off the API response to start

@@ -1,0 +1,41 @@
+{
+  "id": "e6d2eb84-b03b-4827-9230-94b0a1099419",
+  "body": "New comment",
+  "url": "https://linear.app/example/issue/SAMPLE-15#comment-dbb942a5-cb3e-4dd0-a4bb-34711761f6ab",
+  "createdAt": "2020-10-27T21:20:59.199Z",
+  "updatedAt": "2020-10-27T21:20:59.199Z",
+  "user": {
+    "id": "722c8d97-f01e-4d2a-85da-271592463f8d",
+    "name": "Zapier User",
+    "email": "user@example.com",
+    "avatarUrl": null
+  },
+  "children": {
+    "nodes": [
+      {
+        "id": "9c14fd2e-1aa2-4d8f-9d54-9b0e9f5d7d2e",
+        "body": "A reply to the comment above",
+        "url": "https://linear.app/example/issue/SAMPLE-15#comment-9c14fd2e-1aa2-4d8f-9d54-9b0e9f5d7d2e",
+        "createdAt": "2020-10-27T21:25:00.000Z",
+        "updatedAt": "2020-10-27T21:25:00.000Z",
+        "user": {
+          "id": "f0c0a4a4-2b1d-4f62-9c2c-1a0e9b6d8a4a",
+          "name": "Another Zapier User",
+          "email": "another@example.com",
+          "avatarUrl": null
+        }
+      }
+    ]
+  },
+  "issue": {
+    "id": "824797c0-fc97-493c-8237-08ff5ec3701f",
+    "identifier": "SAMPLE-15",
+    "title": "Zapier sample",
+    "url": "https://linear.app/example/issue/SAMPLE-15",
+    "team": {
+      "id": "a582cb67-8f1b-4d8a-9d91-e9894dcf7fa6",
+      "key": "SAM",
+      "name": "Sample team"
+    }
+  }
+}
