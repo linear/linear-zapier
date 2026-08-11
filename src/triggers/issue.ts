@@ -1,6 +1,6 @@
 import { omitBy, pick } from "lodash";
 import { ZObject, Bundle } from "zapier-platform-core";
-import sample from "../samples/issue.json";
+import sample from "../samples/issueInstant.json";
 import { unsubscribeHook } from "../handleWebhook";
 import { jsonToGraphQLQuery, VariableType } from "json-to-graphql-query";
 import { fetchFromLinear, LinearGraphQLVariables } from "../fetchFromLinear";
@@ -60,6 +60,12 @@ export interface IssueCommon {
   };
 }
 
+interface IssueTeam {
+  id: string;
+  key: string;
+  name: string;
+}
+
 interface IssueApi extends IssueCommon {
   labels?: {
     nodes: {
@@ -74,6 +80,8 @@ interface IssueApi extends IssueCommon {
 }
 
 interface IssueWebhook extends IssueCommon {
+  teamId: string;
+  team: IssueTeam;
   labels?: {
     id: string;
     color: string;
@@ -84,7 +92,7 @@ interface IssueWebhook extends IssueCommon {
 
 interface TeamIssuesResponse {
   data: {
-    team: {
+    team: IssueTeam & {
       issues: {
         nodes: IssueApi[];
       };
@@ -189,6 +197,9 @@ const getIssueList =
           __args: {
             id: new VariableType("teamId"),
           },
+          id: true,
+          key: true,
+          name: true,
           issues: {
             __args: {
               first: 10,
@@ -269,6 +280,12 @@ const getIssueList =
     // We need to map the API schema to the webhook schema
     return issuesRaw.map((issueRaw) => ({
       ...issueRaw,
+      teamId: data.team.id,
+      team: {
+        id: data.team.id,
+        key: data.team.key,
+        name: data.team.name,
+      },
       labels: issueRaw.labels?.nodes.map((label) => ({
         id: label.id,
         color: label.color,

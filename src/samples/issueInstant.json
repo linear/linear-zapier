@@ -1,0 +1,71 @@
+{
+  "id": "044a462c-1acd-4092-8e66-51e4d7c9c7ca",
+  "identifier": "SAMPLE-15",
+  "url": "https://linear.app/example/issue/SAMPLE-15",
+  "title": "Zapier sample",
+  "description": "More information about the issue",
+  "priority": 0,
+  "estimate": null,
+  "dueDate": null,
+  "slaBreachesAt": null,
+  "slaStartedAt": null,
+  "createdAt": "2022-10-27T21:20:59.199Z",
+  "updatedAt": "2022-10-27T21:20:59.199Z",
+  "teamId": "2b03b41f-4b55-4779-bd22-4786eb76e11f",
+  "team": {
+    "id": "2b03b41f-4b55-4779-bd22-4786eb76e11f",
+    "key": "SAMPLE",
+    "name": "Sample Team"
+  },
+  "project": {
+    "id": "04a48f13-c39f-4522-85bb-a17225cbfdf3",
+    "name": "My Project"
+  },
+  "projectMilestone": {
+    "id": "84cb5a2f-4b84-4e90-a06a-d0b38f9ac2dd",
+    "name": "V1"
+  },
+  "creator": {
+    "id": "45920bc2-c4be-434f-b588-f422155667b5",
+    "name": "Zapier User",
+    "email": "creator@example.com"
+  },
+  "assignee": {
+    "id": "8a225115-706e-4389-87da-e687b9b5ae76",
+    "name": "Zapier User 2",
+    "email": "assignee@example.com"
+  },
+  "status": {
+    "id": "e6d2eb84-b03b-4827-9230-94b0a1099419",
+    "name": "In Progress",
+    "type": "started"
+  },
+  "parent": {
+    "id": "e6d2eb84-b03b-4827-9230-94b0a1099419",
+    "identifier": "SAMPLE-10",
+    "url": "https://linear.app/example/issue/SAMPLE-10",
+    "title": "Zapier parent sample"
+  },
+  "addedLabels": [],
+  "attachments": {
+    "nodes": [
+      {
+        "id": "2d08eab7-8f8c-44e4-b3cd-4a5e6297fcc4",
+        "title": "Question #1174",
+        "subtitle": "Testing screenshots",
+        "url": "https://example.zendesk.com/tickets/1174",
+        "source": { "type": "zendesk" },
+        "sourceType": "zendesk",
+        "metadata": {
+          "id": 1174,
+          "title": "Testing screenshots",
+          "priority": "normal",
+          "attributes": [
+            { "name": "Type", "value": "Question" },
+            { "name": "Priority", "value": "normal" }
+          ]
+        }
+      }
+    ]
+  }
+}

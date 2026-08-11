@@ -1,3 +1,8 @@
+## 4.15.0
+
+- Added team details to issue trigger test data.
+- Added GraphQL error handling to the "Find Issues by Name" search action.
+
 ## 4.14.0
 
 - Added attachments (with metadata) to the issue searches and the issue trigger.
