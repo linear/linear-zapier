@@ -86,6 +86,62 @@ describe("searches.issue_by_name", () => {
     });
   });
 
+  it("returns an empty array when Linear returns no issue data", async () => {
+    const requestMock = jest.fn().mockResolvedValue({
+      json: { data: null },
+    });
+
+    const results = await appTester(
+      (z, bundle) => {
+        z.request = requestMock;
+        return perform(z, bundle);
+      },
+      {
+        authData: {
+          api_key: "test-linear-api-key",
+        },
+        inputData: {
+          name: "Setup SSO",
+        },
+      }
+    );
+
+    expect(results).toEqual([]);
+  });
+
+  it("throws the user-presentable message for GraphQL errors", async () => {
+    const requestMock = jest.fn().mockResolvedValue({
+      json: {
+        data: null,
+        errors: [
+          {
+            message: "Internal server error",
+            extensions: {
+              userPresentableMessage: "Something went wrong on our end.",
+            },
+          },
+        ],
+      },
+    });
+
+    await expect(
+      appTester(
+        (z, bundle) => {
+          z.request = requestMock;
+          return perform(z, bundle);
+        },
+        {
+          authData: {
+            api_key: "test-linear-api-key",
+          },
+          inputData: {
+            name: "Setup SSO",
+          },
+        }
+      )
+    ).rejects.toThrow("Something went wrong on our end.");
+  });
+
   it("adds teamId to query variables when teamId is provided", async () => {
     const requestMock = jest.fn().mockResolvedValue({
       json: issuesByNameResponse,

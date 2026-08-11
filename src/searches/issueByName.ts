@@ -14,7 +14,13 @@ interface IssueByNameResponse {
     issues: {
       nodes: IssueByNameApi[];
     };
-  };
+  } | null;
+  errors?: {
+    message: string;
+    extensions?: {
+      userPresentableMessage?: string;
+    };
+  }[];
 }
 
 interface IssueByNameApi extends IssueCommon {
@@ -130,8 +136,18 @@ const getIssuesByName = async (z: ZObject, bundle: Bundle<IssueByNameInput>) => 
   });
 
   const response = await fetchFromLinear(z, bundle, query, variables);
-  const data = (response.json as IssueByNameResponse).data;
-  return data.issues.nodes;
+  const body = response.json as IssueByNameResponse;
+  const firstError = body.errors?.[0];
+
+  if (firstError) {
+    throw new z.errors.Error(
+      firstError.extensions?.userPresentableMessage ?? firstError.message,
+      "request_execution_failed",
+      400
+    );
+  }
+
+  return body.data?.issues.nodes ?? [];
 };
 
 export const findIssueByName = {
