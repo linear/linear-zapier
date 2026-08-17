@@ -1,0 +1,99 @@
+name: Release
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: >-
+      github.repository == 'linear/linear-zapier' &&
+      ((github.event_name == 'workflow_dispatch' && github.ref_name == 'master') ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'master'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.ref }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: yarn
+
+      - name: Install
+        run: yarn install --frozen-lockfile
+
+      - uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ${{ runner.temp }}/cli
+          key: zapier-cli-19.1.0-${{ runner.os }}
+
+      - name: Install the Zapier CLI
+        run: |
+          if [ ! -x "$RUNNER_TEMP/cli/node_modules/.bin/zapier-platform" ]; then
+            npm install --no-save --prefix "$RUNNER_TEMP/cli" zapier-platform-cli@19.1.0
+          fi
+          echo "$RUNNER_TEMP/cli/node_modules/.bin" >> "$GITHUB_PATH"
+
+      - name: Ask Zapier what it holds
+        id: state
+        env:
+          ZAPIER_DEPLOY_KEY: ${{ secrets.ZAPIER_DEPLOY_KEY }}
+        run: |
+          zapier-platform versions --all --format=raw > "$RUNNER_TEMP/versions.json"
+          zapier-platform jobs --format=raw > "$RUNNER_TEMP/jobs.json"
+          node scripts/releaseState.js "$RUNNER_TEMP/versions.json" "$RUNNER_TEMP/jobs.json" >> "$GITHUB_OUTPUT"
+
+      - name: Upload the version
+        if: steps.state.outputs.action == 'publish'
+        env:
+          ZAPIER_DEPLOY_KEY: ${{ secrets.ZAPIER_DEPLOY_KEY }}
+        run: yarn zapier-push
+
+      - name: Promote
+        if: steps.state.outputs.action == 'publish' || steps.state.outputs.action == 'promote'
+        env:
+          ZAPIER_DEPLOY_KEY: ${{ secrets.ZAPIER_DEPLOY_KEY }}
+          VERSION: ${{ steps.state.outputs.version }}
+        run: |
+          zapier-platform jobs --format=raw > "$RUNNER_TEMP/jobs-before.json"
+          zapier-platform promote --yes "$VERSION"
+
+          for attempt in $(seq 1 60); do
+            if ! zapier-platform jobs --format=raw > "$RUNNER_TEMP/poll-jobs.json"; then
+              echo "attempt $attempt: could not read jobs, retrying"
+              sleep 20
+              continue
+            fi
+
+            stage=$(node scripts/releaseState.js promotion-stage "$VERSION" "$RUNNER_TEMP/poll-jobs.json" "$RUNNER_TEMP/jobs-before.json") || {
+              echo "attempt $attempt: could not read promotion state, retrying"
+              sleep 20
+              continue
+            }
+
+            echo "attempt $attempt: $stage"
+            case "$stage" in
+              complete) exit 0 ;;
+              failed|paused) echo "promotion ended as $stage" >&2; exit 1 ;;
+            esac
+            sleep 20
+          done
+
+          echo "promotion did not finish within 20 minutes" >&2
+          exit 1

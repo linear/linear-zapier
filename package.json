@@ -11,7 +11,7 @@
     "zapier-push": "npm run zapier-validate && zapier-platform push",
     "prepare": "npm run zapier-build && (husky install || true)",
     "pretest": "npm run zapier-build",
-    "test": "jest --passWithNoTests src/test",
+    "test": "jest src/test scripts",
     "prettier": "npx prettier --write ."
   },
   "engines": {
