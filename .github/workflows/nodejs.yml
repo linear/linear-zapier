@@ -2,26 +2,65 @@ name: CI
 
 on: [push]
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [18.19.1]
-
     steps:
-      - uses: actions/checkout@v1
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          node-version: ${{ matrix.node-version }}
+          persist-credentials: false
+      - name: Use Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: yarn
       - name: yarn, build, and test
         run: |
-          yarn
+          yarn install --frozen-lockfile
           yarn test
         env:
           CI: true
           NODE_ENV: test
           LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
           LINEAR_TEAM_ID: ${{ secrets.LINEAR_TEAM_ID }}
+      - uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ${{ runner.temp }}/cli
+          key: zapier-cli-19.1.0-${{ runner.os }}
+      - name: Install the Zapier CLI
+        run: |
+          if [ ! -x "$RUNNER_TEMP/cli/node_modules/.bin/zapier-platform" ]; then
+            npm install --no-save --prefix "$RUNNER_TEMP/cli" zapier-platform-cli@19.1.0
+          fi
+          echo "$RUNNER_TEMP/cli/node_modules/.bin" >> "$GITHUB_PATH"
+      - name: Validate the Zapier schema
+        run: |
+          yarn zapier-build
+          zapier-platform validate --without-style
+
+  version:
+    name: Version bump
+    if: github.ref_name != 'master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+
+      - name: Require a version bump for shipped changes
+        run: |
+          git fetch --no-tags origin master:refs/remotes/origin/master
+          base=$(git merge-base origin/master HEAD)
+          git diff --name-only "$base..HEAD" > "$RUNNER_TEMP/changed.txt"
+          git show origin/master:package.json > "$RUNNER_TEMP/master-package.json"
+          node scripts/versionGate.js "$RUNNER_TEMP/changed.txt" "$RUNNER_TEMP/master-package.json"

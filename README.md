@@ -11,7 +11,7 @@ yarn global add zapier-platform-cli
 yarn install
 ```
 
-Use Node 18 or newer, matching `package.json`. If you're running a newer version and don't have `nvm` set up, you can run `yarn install --ignore-engines` to disable the Node version check.
+Use the version in `.nvmrc`, which is what the Zapier CLI needs. Zapier runs the integration itself on the Node version tied to the `zapier-platform-core` major, which is Node 18 today and is what `engines.node` describes; moving the integration to Node 22 means upgrading `zapier-platform-core`. If you're running a newer version and don't have `nvm` set up, you can run `yarn install --ignore-engines` to disable the Node version check.
 
 ## Developing
 
@@ -22,14 +22,21 @@ For testing, save your envvars to `.env`. `.env.default` has the required variab
 
 ### Deployment
 
-Prerequisites:
+A release starts in your own pull request. Bump the minor version in `package.json` and add a
+matching `## <version>` entry to `CHANGELOG.md` alongside the code. CI fails the pull request if
+code that reaches Zapier changes without both.
 
-- Make sure you have updated the version number in `package.json`.
-- If updating Linear's app, you'll need to have access to Linear's Zapier account and generate a deploy key in `Settings > Deploy Keys`. You can then authenticate with the key using `zapier login --sso`.
+Merging to master uploads that version to Zapier and promotes it, so new Zaps get it.
 
-You can deploy the app to Zapier with `yarn zapier-push`. This will also run `yarn zapier-validate` before deploying.
+The workflow asks Zapier which versions it holds instead of assuming, so a release that never
+arrived is retried on the next push to master. Run it from the Actions tab when you want it sooner.
 
-After deploying, you'll need to manually promote the version to 'public' in Zapier's dashboard under `App > Manage > Versions`.
+Two things the release does not do. It does not move existing Zaps to the new version, so they
+keep running the version they were built on. It does not deprecate old versions.
+
+One case the check cannot see: a `yarn upgrade` that only re-resolves a transitive production
+dependency changes what Zapier runs without touching `src/` or the `dependencies` block. Bump the
+version by hand when you do that.
 
 ## Forking
 
